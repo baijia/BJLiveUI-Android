@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.baijiahulian.live.ui">
+    package="com.baijiayun.live.ui">
 
     <application>
         <activity
-            android:name=".activity.LiveRoomActivity"
+            android:name="com.baijiayun.live.ui.activity.LiveRoomActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
             android:launchMode="singleTop"
             android:hardwareAccelerated="false"

@@ -2,18 +2,18 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '28.0.3'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 27
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -24,26 +24,26 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
 
     implementation 'com.baijia.common:common-networkv2:1.8.2'
     implementation 'com.baijia.common:common-networkv2-ws:1.8.4'
 
-    //    testCompile 'junit:junit:4.12'
     api 'com.squareup.picasso:picasso:2.5.2'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'com.baijia.common:common-image-crop:1.2.9'
 
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.1'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.6'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
     // image crop
     implementation ('com.afollestad.material-dialogs:commons:0.9.4.5'){
         exclude group: 'com.android.support'
     }
     implementation 'com.google.code.gson:gson:2.8.2'
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.0-rc04'
+
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.0'
 }
 android {
     lintOptions {

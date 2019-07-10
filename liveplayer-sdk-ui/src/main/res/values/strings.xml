@@ -113,6 +113,13 @@
     <string name="live_mic_off">麦克风已关闭</string>
     <string name="live_override_error">哎呀出错了</string>
     <string name="live_teacher_not_in">老师未在教室</string>
+    <string name="live_teacher_in">已有老师</string>
+    <string name="live_chat_filtered">已开启只看老师/助教</string>
+    <string name="live_chat_filter">只看老师/助教</string>
+    <string name="live_login_conflict_tip">继续进入将导致该老师强制下线</string>
+    <string name="live_enter_room">进入教室</string>
+    <string name="live_i_know">我知道了</string>
+    <string name="live_confirm">确定</string>
     <string name="live_message_le">%1$s了</string>
     <string name="live_roll_call_count_down">老师要求您在%1$s秒内响应点名</string>
     <string name="live_roll_call_answer">答到</string>
@@ -141,6 +148,7 @@
     <string name="live_student_auth_drawing">老师开启了你的画笔权限</string>
     <string name="live_no_camera_permission">摄像头权限获取失败，请前往系统设置中允许访问摄像头</string>
     <string name="live_no_mic_permission">麦克风权限获取失败，请前往系统设置中允许访问麦克风</string>
+    <string name="live_no_camera_mic_permission">摄像头和麦克风权限获取失败，请前往系统设置中允许访问摄像头和麦克风</string>
     <string name="live_no_write_permission">写权限获取失败，请前往系统设置中允许访问外存</string>
     <string name="live_i_got_it">知道了</string>
     <string name="live_force_speak_tip_all">老师开启了你的摄像头和麦克风，现在可以发言了</string>
@@ -172,5 +180,12 @@
     <string name="live_network_tips_level_1">网络较差</string>
     <string name="live_network_tips_level_2">网络差</string>
     <string name="live_network_tips_level_3">网络极差</string>
+    
+    <string name="string_complete">完成</string>
+    <string name="string_board_title">白板</string>
+    <string name="string_board_del_info">确认删除?</string>
+    <string name="string_board_del_tips">删除失败, 最少有一张白板存在!</string>
+    <string name="string_board_add_tips">添加失败, 最多添加10张白板.</string>
+    <string name="string_board_error">当前教室不支持多白板</string>
 </resources>
 

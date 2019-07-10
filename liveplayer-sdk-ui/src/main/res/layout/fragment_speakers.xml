@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
 
-    <com.baijiahulian.live.ui.viewsupport.BJTouchHorizontalScrollView
+    <com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView
         android:id="@+id/fragment_speakers_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -16,7 +16,7 @@
             android:orientation="horizontal" />
 
 
-    </com.baijiahulian.live.ui.viewsupport.BJTouchHorizontalScrollView>
+    </com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView>
 
 
     <TextView

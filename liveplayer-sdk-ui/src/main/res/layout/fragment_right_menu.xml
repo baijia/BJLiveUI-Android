@@ -24,7 +24,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp">
 
-        <com.baijiahulian.live.ui.viewsupport.CountdownCircleView
+        <com.baijiayun.live.ui.viewsupport.CountdownCircleView
             android:id="@+id/fragment_right_hand_countdown"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

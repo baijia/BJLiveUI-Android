@@ -4,33 +4,56 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/fragment_chat_private_status_container"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="36dp"
-        android:background="@color/live_blue"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_live_blue_rightround"
         android:visibility="gone">
-
         <TextView
             android:id="@+id/fragment_chat_private_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_weight="1"
             android:layout_marginLeft="15dp"
+            android:layout_marginRight="8dp"
             android:textColor="@color/lp_ppt_white" />
-
         <ImageView
             android:id="@+id/fragment_chat_private_end_btn"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:padding="11dp"
-            android:layout_alignParentRight="true"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/end_private_chat" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/fragment_chat_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_live_blue_rightround"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/live_chat_filtered"
+            android:textColor="@color/lp_ppt_white" />
+
+        <ImageView
+            android:id="@+id/fragment_chat_filter_close"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="11dp"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:src="@drawable/end_private_chat" />
-
-    </RelativeLayout>
-
+    </LinearLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_chat_recycler"
         android:layout_width="match_parent"

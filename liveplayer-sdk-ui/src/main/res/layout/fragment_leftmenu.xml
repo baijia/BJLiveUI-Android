@@ -27,6 +27,15 @@
         android:src="@drawable/live_ic_question_answer_normal"
         />
 
+    <ImageView
+        android:id="@+id/fragment_left_menu_remarks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:src="@drawable/iv_ui_remarks_show"
+        />
+
+
     <TextView
         android:id="@+id/fragment_left_menu_stream"
         android:layout_width="wrap_content"

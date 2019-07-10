@@ -1,21 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_ppt_switch"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="76dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="76dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp">
+        android:orientation="horizontal">
+        
+        <LinearLayout
+            android:id="@+id/ll_add_page"
+            android:gravity="center"
+            android:layout_width="46dp"
+            android:layout_height="match_parent">
+            
+            <ImageView
+                android:id="@+id/iv_board_add"
+                android:background="@drawable/iv_add_board"
+                android:layout_width="22dp"
+                android:layout_height="30dp" />
+            
+        </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/dialog_switch_ppt_rv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_ppt"
+        android:background="@color/live_white"
+        android:orientation="horizontal"
+        android:layout_marginLeft="80dp"
+        android:layout_alignParentRight="true"
+        android:layout_width="58dp"
+        android:layout_height="76dp">
+        <ImageView
+            android:background="@drawable/shape_ppt_ok_line"
+            android:layout_width="6dp"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:gravity="center"
+            android:layout_width="32dp"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/iv_ppt_switch"
+                android:background="@drawable/iv_back_left"
+                android:layout_width="22dp"
+                android:layout_height="30dp" />
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/dialog_switch_ppt"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
-</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_ppt_ok"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:layout_width="66dp"
+        android:layout_height="76dp">
+
+        <ImageView
+            android:background="@drawable/shape_ppt_ok_line"
+            android:layout_width="6dp"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:background="@color/live_white"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/tv_ppt_ok"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:background="@drawable/shape_board_ok"
+                android:text="@string/string_complete"
+                android:textColor="@color/live_white"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="40dp"
+                android:layout_height="36dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>
