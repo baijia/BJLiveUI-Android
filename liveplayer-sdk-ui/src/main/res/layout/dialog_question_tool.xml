@@ -79,10 +79,20 @@
         android:orientation="vertical"
         >
         </LinearLayout>
-
+    <TextView
+        android:id="@+id/dialog_question_tool_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:textSize="12sp"
+        android:textColor="@color/live_grey_question_tool"
+        />
     <LinearLayout
         android:id="@+id/dialog_question_tool_answer"
-        android:layout_marginTop="7dp"
         android:layout_marginLeft="14dp"
         android:layout_marginRight="14dp"
         android:layout_width="match_parent"

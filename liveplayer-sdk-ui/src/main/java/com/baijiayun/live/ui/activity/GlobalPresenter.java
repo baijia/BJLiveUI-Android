@@ -9,6 +9,7 @@ import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPJsonModel;
+import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.utils.LPLogger;
 import com.baijiayun.livecore.utils.LPRxUtils;
@@ -36,6 +37,9 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfTeacherMedia, subscriptionOfUserIn, subscriptionOfUserOut, subscriptionOfQuizStart,
             subscriptionOfQuizRes, subscriptionOfQuizEnd, subscriptionOfQuizSolution, subscriptionOfDebug,
             subscriptionOfAnnouncement, subscriptionOfClassSwitch, subscriptionOfAnswerStart, subscriptionOfAnswerEnd;
+
+    //红包
+    private Disposable mSubscriptionRedPacket;
 
     private boolean isVideoManipulated = false;
 
@@ -228,19 +232,18 @@ public class GlobalPresenter implements BasePresenter {
                         }
                     });
 
-            subscriptionOfAnswerStart = routerListener.getLiveRoom().getObservableOfAnswerSheetStart()
+            subscriptionOfAnswerStart = routerListener.getLiveRoom().getToolBoxVM().getObservableOfAnswerStart()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(lpAnswerSheetModel -> {
+                    .subscribe(lpAnswerModel -> {
                         if (!routerListener.isTeacherOrAssistant())
-                            routerListener.answerStart(lpAnswerSheetModel);
-
+                            routerListener.answerStart(lpAnswerModel);
                     });
 
-            subscriptionOfAnswerEnd = routerListener.getLiveRoom().getObservableOfAnswerSheetEnd()
+            subscriptionOfAnswerEnd = routerListener.getLiveRoom().getToolBoxVM().getObservableOfAnswerEnd()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(aBoolean -> {
+                    .subscribe(lpAnswerEndModel -> {
                         if (!routerListener.isTeacherOrAssistant())
-                            routerListener.answerEnd(aBoolean);
+                            routerListener.answerEnd(!lpAnswerEndModel.isRevoke);
                     });
         }
         if (!routerListener.isTeacherOrAssistant()) {
@@ -248,6 +251,16 @@ public class GlobalPresenter implements BasePresenter {
             observeAnnouncementChange();
             routerListener.getLiveRoom().requestAnnouncement();
         }
+
+        //红包
+        mSubscriptionRedPacket = routerListener.getLiveRoom().getObservableOfRedPacket()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<LPRedPacketModel>() {
+                    @Override
+                    public void accept(LPRedPacketModel lpRedPacketModel) throws Exception {
+                        routerListener.switchRedPacketUI(true, lpRedPacketModel);
+                    }
+                });
     }
 
     public void observeAnnouncementChange() {
@@ -296,6 +309,8 @@ public class GlobalPresenter implements BasePresenter {
         RxUtils.dispose(subscriptionOfClassSwitch);
         RxUtils.dispose(subscriptionOfAnswerStart);
         RxUtils.dispose(subscriptionOfAnswerEnd);
+        RxUtils.dispose(mSubscriptionRedPacket);
+
     }
 
     @Override

@@ -1,75 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/dialog_announcement_et"
+    <!--公告-->
+    <FrameLayout
+        android:id="@+id/fl_announcement"
+        android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_margin="@dimen/activity_live_room_dialog_margin"
-        android:background="@drawable/shape_edittext_send_msg"
-        android:gravity="top"
-        android:hint="@string/live_announcement_hint"
-        android:inputType="textMultiLine"
-        android:padding="4dp"
-        android:textSize="14sp"
-        android:visibility="gone" />
+        android:layout_height="0dp">
 
-    <RelativeLayout
-        android:id="@+id/dialog_announcement_url_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/dialog_announcement_et"
-        android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
-        android:layout_marginRight="@dimen/activity_live_room_dialog_margin"
-        android:background="@drawable/shape_edittext_send_msg"
-        android:visibility="gone">
-
-        <EditText
-            android:id="@+id/dialog_announcement_url_et"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/dialog_announcement_url_label"
-            android:background="@null"
-            android:hint="@string/live_announcement_url_hint"
-            android:padding="4dp"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/dialog_announcement_url_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="5dp"
-            android:text="@string/live_optional_input" />
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/dialog_announcement_view_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_live_room_dialog_margin"
-        android:background="@drawable/live_announcement_view_bg">
-
-        <TextView
-            android:id="@+id/dialog_announcement_view_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="6dp" />
-    </LinearLayout>
+    </FrameLayout>
 
     <TextView
-        android:id="@+id/dialog_announcement_view_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/dialog_announcement_view_container"
-        android:layout_below="@+id/dialog_announcement_view_container"
-        android:text="@string/live_announcement_view_url_hint"
-        android:textColor="@color/live_text_color_light"
-        android:textSize="12sp" />
+        android:id="@+id/tv_announcement_edit_button"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:text="@string/live_edit"
+        android:textColor="@color/live_white"
+        android:background="@drawable/layer_1795ff_5"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
 
-</RelativeLayout>
+</LinearLayout>

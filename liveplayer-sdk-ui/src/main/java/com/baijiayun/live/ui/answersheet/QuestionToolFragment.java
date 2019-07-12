@@ -1,6 +1,7 @@
 package com.baijiayun.live.ui.answersheet;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -45,6 +46,9 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
             }
         });
 
+        $.id(R.id.dialog_question_tool_desc).visibility(TextUtils.isEmpty(presenter.getDesc()) ? View.GONE : View.VISIBLE);
+        $.id(R.id.dialog_question_tool_desc).text(presenter.getDesc());
+
         ($.id(R.id.dialog_btn_submit)).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +74,7 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
             for (final LPAnswerSheetOptionModel model : presenter.getOptions()) {
                 index++;
                 final TextView buttonOption = new TextView(getContext());
-                if (model.isCorrect) {
+                if (model.isRight || model.isCorrect) {
                     rightAnswer.append(model.text);
                     rightAnswer.append(" ");
                 }

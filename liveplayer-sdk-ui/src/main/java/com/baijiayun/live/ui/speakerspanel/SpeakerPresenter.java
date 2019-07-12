@@ -467,6 +467,8 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                             if (lastPresenterModel != null && (lastPresenterModel.isVideoOn() || lastPresenterModel.isAudioOn())) {
                                 if (lastPresenterModel.isVideoOn()) {
                                     displayMap.get(SpeakersType.VideoPlay).add(lastPresenter);
+                                    if(getPlayer().isVideoPlaying(lastPresenter))
+                                        getPlayer().playAVClose(lastPresenter);
                                     view.notifyItemInserted(indexOfUserId(lastPresenter));
                                 } else if (lastPresenterModel.isAudioOn()) {
                                     displayMap.get(SpeakersType.Speaking).add(lastPresenter);

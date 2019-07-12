@@ -53,10 +53,9 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
                         if (isLoading)
                             isLoading = false;
                         view.notifyDataChanged();
-//                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getUserCount());
                     }
                 });
-        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getUserCount());
+        view.notifyUserCountChange(routerListener.getLiveRoom().getCurrentUserCount());
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.baijiayun.live.ui.answersheet;
 
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
+import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPAnswerSheetOptionModel;
-import com.baijiayun.livecore.models.LPAnswerSheetModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,11 +24,17 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
         roomRouterListener.answerEnd(isEnded);
     }
 
+    @Override
+    public String getDesc() {
+        return lpAnswerModel.getDescription();
+    }
+
     private LiveRoomRouterListener roomRouterListener;
     private List<LPAnswerSheetOptionModel> options = new ArrayList<>();
     private long countDownTime, currentTime;
     private QuestionToolContract.View view;
     private Disposable countDownSubscription;
+    private LPAnswerModel lpAnswerModel;
     private List<String> checkedOptions = new ArrayList<>();
 
     @Override
@@ -69,10 +75,11 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
         }
     }
 
-    public void setLpQuestionToolModel(LPAnswerSheetModel lpAnswerSheetModel){
+    public void setLpQuestionToolModel(LPAnswerModel lpAnswerModel){
+        this.lpAnswerModel = lpAnswerModel;
         options.clear();
-        options.addAll(lpAnswerSheetModel.options);
-        countDownTime = lpAnswerSheetModel.countDownTime;
+        options.addAll(lpAnswerModel.options);
+        countDownTime = lpAnswerModel.duration;
     }
 
     @Override
@@ -102,10 +109,23 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
             checkedOptions.remove(String.valueOf(index));
     }
 
-    @Override
-    public boolean submitAnswers() {
-        return roomRouterListener.getLiveRoom().submitAnswerSheet(checkedOptions);
+    private void checkOptions() {
+        if (lpAnswerModel == null || lpAnswerModel.options == null || lpAnswerModel.options.isEmpty()) {
+            return;
+        }
+        List<LPAnswerSheetOptionModel> options = lpAnswerModel.options;
+        for (int i = 0; i < options.size(); i++) {
+            LPAnswerSheetOptionModel lpAnswerSheetOptionModel = options.get(i);
+            if (checkedOptions.contains(String.valueOf(i + 1))) {
+                lpAnswerSheetOptionModel.isActive = true;
+            }
+        }
     }
 
-
+    @Override
+    public boolean submitAnswers() {
+//        return roomRouterListener.getLiveRoom().submitAnswerSheet(checkedOptions);
+        checkOptions();
+        return roomRouterListener.getLiveRoom().getToolBoxVM().submitAnswers(lpAnswerModel);
+    }
 }

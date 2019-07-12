@@ -27,5 +27,7 @@ public interface QuestionToolContract {
         boolean submitAnswers();
 
         void removeQuestionTool(boolean isEnded);
+
+        String getDesc();
     }
 }

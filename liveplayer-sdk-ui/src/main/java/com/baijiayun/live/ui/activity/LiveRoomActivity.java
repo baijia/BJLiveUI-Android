@@ -21,6 +21,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -67,6 +68,8 @@ import com.baijiayun.live.ui.chat.preview.ChatSavePicDialogPresenter;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordFragment;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordPresenter;
 import com.baijiayun.live.ui.error.ErrorFragment;
+import com.baijiayun.live.ui.function.redpacket.RedPacketFragment;
+import com.baijiayun.live.ui.function.redpacket.RedPacketPresenter;
 import com.baijiayun.live.ui.leftmenu.LeftMenuFragment;
 import com.baijiayun.live.ui.leftmenu.LeftMenuPresenter;
 import com.baijiayun.live.ui.loading.LoadingFragment;
@@ -113,8 +116,10 @@ import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.listener.LPLaunchListener;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
+import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPAnswerSheetModel;
 import com.baijiayun.livecore.models.LPJsonModel;
+import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
@@ -180,6 +185,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private QuestionAnswerFragment questionAnswerFragment;
     private OrientationEventListener orientationEventListener; //处理屏幕旋转时本地视频的方向
     private int oldRotation;
+
+    //红包
+    private RedPacketFragment mRedPacketFragment;
+    private RedPacketPresenter mRedPacketPresenter;
 
     //白板/PPT页展示
     private SwitchPPTFragmentPresenter switchPPTFragmentPresenter;
@@ -594,6 +603,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
+    public void showMessage(@StringRes int strRes) {
+        showMessage(getResources().getString(strRes));
+    }
+
+    @Override
     public void saveTeacherMediaStatus(IMediaModel model) {
         globalPresenter.setTeacherMedia(model);
     }
@@ -612,9 +626,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 removeFragment(loadingFragment);
             }
             if (error.getCode() == LPError.CODE_ERROR_LOGIN_UNIQUE_CONFLICT) {
-                errorFragment = ErrorFragment.newInstance(false, ErrorFragment.ERROR_HANDLE_CONFILICT,shouldShowTechSupport);
+                errorFragment = ErrorFragment.newInstance(false, ErrorFragment.ERROR_HANDLE_CONFILICT, shouldShowTechSupport);
             } else {
-                errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER,shouldShowTechSupport);
+                errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport);
             }
             errorFragment.setRouterListener(this);
             flError.setVisibility(View.VISIBLE);
@@ -724,6 +738,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     @Override
     public boolean getVisibilityOfShareBtn() {
+        if (liveRoom != null)
+            return shareListener != null && liveRoom.getFeatureConfig().isShareEnable();
         return shareListener != null;
     }
 
@@ -1267,7 +1283,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(LiveRoomActivity.this, Manifest.permission.RECORD_AUDIO)) {
             return true;
         } else {
-            ActivityCompat.requestPermissions(LiveRoomActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO}, REQUEST_CODE_PERMISSION_CAMERA_MIC);
+            ActivityCompat.requestPermissions(LiveRoomActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, REQUEST_CODE_PERMISSION_CAMERA_MIC);
         }
         return false;
     }
@@ -1411,7 +1427,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (loadingFragment != null && loadingFragment.isAdded()) {
             removeFragment(loadingFragment);
         }
-        errorFragment = ErrorFragment.newInstance("好像断网了", error.getMessage(), ErrorFragment.ERROR_HANDLE_RECONNECT,shouldShowTechSupport);
+        errorFragment = ErrorFragment.newInstance("好像断网了", error.getMessage(), ErrorFragment.ERROR_HANDLE_RECONNECT, shouldShowTechSupport);
         errorFragment.setRouterListener(this);
         flError.setVisibility(View.VISIBLE);
         addFragment(R.id.activity_live_room_error, errorFragment);
@@ -2246,7 +2262,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         return false;
     }
 
-    public void answerStart(LPAnswerSheetModel model) {
+    @Override
+    public void answerStart(LPAnswerModel model) {
         QuestionToolPresenter questionToolPresenter = new QuestionToolPresenter();
         questionToolPresenter.setRouter(this);
         questionToolPresenter.setLpQuestionToolModel(model);
@@ -2422,5 +2439,44 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         }
 
         lppptView.setRemarksEnable(isEnable);
+    }
+
+    ;
+
+    @Override
+    public void switchRedPacketUI(boolean isShow, LPRedPacketModel lpRedPacketModel) {
+
+        if (isShow) {
+            //显示
+            if (mRedPacketFragment != null) {
+                if (mRedPacketPresenter.getRedPacketing()) {
+                    return;
+                }
+                removeFragment(mRedPacketFragment);
+                mRedPacketPresenter.unSubscribe();
+                mRedPacketPresenter = null;
+            }
+
+            mRedPacketFragment = new RedPacketFragment();
+            mRedPacketPresenter = new RedPacketPresenter(mRedPacketFragment, lpRedPacketModel);
+            bindVP(mRedPacketFragment, mRedPacketPresenter);
+            addFragment(R.id.activity_live_room_red_packet, mRedPacketFragment);
+        } else {
+            //隐藏
+            removeFragment(mRedPacketFragment);
+            mRedPacketFragment = null;
+            mRedPacketPresenter.unSubscribe();
+            mRedPacketPresenter = null;
+        }
+    }
+
+    @Override
+    public void updateRedPacket() {
+        if (mRedPacketFragment != null) {
+            removeFragment(mRedPacketFragment);
+            mRedPacketFragment = null;
+            mRedPacketPresenter.destroy();
+        }
+        mRedPacketPresenter = null;
     }
 }

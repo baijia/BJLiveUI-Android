@@ -186,6 +186,28 @@
     <string name="string_board_del_info">确认删除?</string>
     <string name="string_board_del_tips">删除失败, 最少有一张白板存在!</string>
     <string name="string_board_add_tips">添加失败, 最多添加10张白板.</string>
+
+    <string name="string_red_ms">抢红包啦</string>
+    <string name="string_red_ranking">排名</string>
+    <string name="string_red_name">用户</string>
+    <string name="string_red_jb">金币</string>
+    <string name="string_red_not">一个都没抢到～</string>
+    <string name="string_red_have">抢到学分红包啦</string>
+    <string name="string_red_not_bottom">再接再厉</string>
+    <string name="string_red_credit">学分</string>
+
+    <string name="string_notice_edit_info">可以在这里发布班级公告哦～</string>
+    <string name="string_notice_group_title">通知</string>
+    <string name="string_notice_group">编辑组内通知</string>
+    <string name="string_notice_save_send">保存并发布</string>
+    <string name="string_button_tips">可以点击这里发布组内通知哦～</string>
+    <string name="string_notice_group_none">暂无通知</string>
+    <string name="string_notice_cancel_edit">放弃编辑</string>
+    <string name="string_notice_context_none">内容不能为空，请从新填写</string>
+    <string name="string_notice_context_error">内容发布失败，请点击从新发布</string>
+    <string name="string_notice_context_suss">发布成功</string>
+    <string name="string_notice_url_hint">请输入跳转链接</string>
+
     <string name="string_board_error">当前教室不支持多白板</string>
 </resources>
 

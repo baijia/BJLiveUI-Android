@@ -49,4 +49,11 @@
     <color name="live_low_network_tips_middle">#FFF5A623</color>
     <color name="live_low_network_tips_terrible">#FFFF0000</color>
 
+    <color name="color_BA4E2B">#BA4E2B</color>
+    <color name="color_00000000">#000000</color>
+    <color name="color_FF455A">#FF455A</color>
+    <color name="color_1EB0FF">#1EB0FF</color>
+    <color name="color_7F7F88">#7F7F88</color>
+    <color name="color_FF6059">#FF6059</color>
+    <color name="color_C6C6CF">#C6C6CF</color>
 </resources>

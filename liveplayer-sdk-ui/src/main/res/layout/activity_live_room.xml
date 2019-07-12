@@ -182,6 +182,11 @@
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+    </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/activity_live_room_red_packet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     </FrameLayout>
 </RelativeLayout>

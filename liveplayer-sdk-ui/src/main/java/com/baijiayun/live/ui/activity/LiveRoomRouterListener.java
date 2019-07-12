@@ -1,5 +1,6 @@
 package com.baijiayun.live.ui.activity;
 
+import android.support.annotation.StringRes;
 import android.widget.RelativeLayout;
 
 import com.baijiayun.live.ui.ppt.MyPPTView;
@@ -7,8 +8,10 @@ import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
+import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPAnswerSheetModel;
+import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
@@ -92,6 +95,8 @@ public interface LiveRoomRouterListener {
     void sendImageMessage(String path);
 
     void showMessage(String message);
+
+    void showMessage(@StringRes int strRes);
 
     void saveTeacherMediaStatus(IMediaModel model);
 
@@ -215,7 +220,7 @@ public interface LiveRoomRouterListener {
 
     boolean enableAnimPPTView(boolean b);
 
-    void answerStart(LPAnswerSheetModel model);
+    void answerStart(LPAnswerModel model);
 
     void answerEnd(boolean ended);
 
@@ -226,4 +231,8 @@ public interface LiveRoomRouterListener {
     boolean isQuestionAnswerShow();
 
     void setRemarksEnable(boolean isEnable);
+
+    void switchRedPacketUI(boolean isShow, LPRedPacketModel lpRedPacketModel);
+
+    void updateRedPacket();
 }

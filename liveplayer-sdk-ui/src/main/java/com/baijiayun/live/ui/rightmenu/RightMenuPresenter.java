@@ -39,6 +39,7 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
         this.view = view;
     }
 
+
     @Override
     public void visitOnlineUser() {
         liveRoomRouterListener.navigateToUserList();
