@@ -192,6 +192,7 @@
     <string name="string_red_name">用户</string>
     <string name="string_red_jb">金币</string>
     <string name="string_red_not">一个都没抢到～</string>
+    <string name="string_red_none">没人抢到～</string>
     <string name="string_red_have">抢到学分红包啦</string>
     <string name="string_red_not_bottom">再接再厉</string>
     <string name="string_red_credit">学分</string>
@@ -207,7 +208,10 @@
     <string name="string_notice_context_error">内容发布失败，请点击从新发布</string>
     <string name="string_notice_context_suss">发布成功</string>
     <string name="string_notice_url_hint">请输入跳转链接</string>
+    <string name="string_notice_link_tips">点击公告可以跳转</string>
 
     <string name="string_board_error">当前教室不支持多白板</string>
+
+    <string name="string_group">分组</string>
 </resources>
 

@@ -71,13 +71,23 @@ public class EditAnnFragment extends BaseFragment implements EditAnnContract.Vie
         if (iAnnModel == null)
             return;
 
+        String info = "";
+        String link = "";
         if (iAnnModel.getSGroup() != null) {
-            $.id(R.id.et_announcement_edit_info).text("" + iAnnModel.getSGroup().content);
-            $.id(R.id.et_announcement_edit_url).text("" + iAnnModel.getSGroup().link);
+            info = iAnnModel.getSGroup().content;
+            link = iAnnModel.getSGroup().link;
         } else {
-            $.id(R.id.et_announcement_edit_info).text("" + iAnnModel.getContent());
-            $.id(R.id.et_announcement_edit_url).text("" + iAnnModel.getLink());
+            info = iAnnModel.getContent();
+            link = iAnnModel.getLink();
         }
+
+        if (info == null)
+            info = "";
+        if (link == null)
+            link = null;
+
+        $.id(R.id.et_announcement_edit_info).text(info);
+        $.id(R.id.et_announcement_edit_url).text(link);
     }
 
     public void setOnAnnEditListener(EditAnnContract.OnAnnEditListener listener) {
@@ -88,6 +98,7 @@ public class EditAnnFragment extends BaseFragment implements EditAnnContract.Vie
     public NoticeInfo getNoticeInfo() {
 
         NoticeInfo info = new NoticeInfo();
+
 
         info.content = ((EditText)$.id(R.id.et_announcement_edit_info).view()).getText().toString();
         info.link = ((EditText)$.id(R.id.et_announcement_edit_url).view()).getText().toString();

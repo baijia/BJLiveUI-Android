@@ -2,14 +2,17 @@ package com.baijiayun.live.ui.users;
 
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.models.LPGroupItem;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.models.roomresponse.LPResRoomGroupInfoModel;
+import com.baijiayun.livecore.utils.LPLogger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-
 
 /**
  * Created by Shubo on 2017/4/6.
@@ -20,6 +23,7 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
     private OnlineUserContract.View view;
     private LiveRoomRouterListener routerListener;
     private Disposable subscriptionOfUserCountChange, subscriptionOfUserDataChange;
+    private Disposable mSubscriptionGroupInfo;
     private volatile boolean isLoading = false;
 
     public OnlineUserPresenter(OnlineUserContract.View view) {
@@ -33,13 +37,15 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
 
     @Override
     public void subscribe() {
+
         subscriptionOfUserCountChange = routerListener.getLiveRoom()
-                .getObservableOfUserNumberChange()
+                .getOnlineUserVM()
+                .getObservableOfOnLineUserCount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(Integer integer) {
-                        view.notifyUserCountChange(integer);
+                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
                     }
                 });
         subscriptionOfUserDataChange = routerListener.getLiveRoom()
@@ -53,21 +59,43 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
                         if (isLoading)
                             isLoading = false;
                         view.notifyDataChanged();
+                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
                     }
                 });
-        view.notifyUserCountChange(routerListener.getLiveRoom().getCurrentUserCount());
+
+        mSubscriptionGroupInfo = routerListener.getLiveRoom().getOnlineUserVM().getObservableOfOnGroupItem()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<LPGroupItem>>() {
+                    @Override
+                    public void accept(List<LPGroupItem> lpGroupItems) throws Exception {
+                        view.notifyGroupData(lpGroupItems);
+                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
+                    }
+                });
+
+        routerListener.getLiveRoom().getOnlineUserVM().requestGroupInfoReq();
+        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
+
+        //首次进入获取刷新
+        loadMore(-1);
     }
 
     @Override
     public void unSubscribe() {
         RxUtils.dispose(subscriptionOfUserCountChange);
         RxUtils.dispose(subscriptionOfUserDataChange);
+        RxUtils.dispose(mSubscriptionGroupInfo);
     }
 
     @Override
     public void destroy() {
         view = null;
         routerListener = null;
+    }
+
+    @Override
+    public void updateGroupInfo(LPGroupItem item) {
+        routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser(item.id);
     }
 
     @Override
@@ -95,14 +123,21 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
     }
 
     @Override
-    public void loadMore() {
+    public void loadMore(int groupId) {
         isLoading = true;
-        routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser();
+        routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser(groupId);
     }
 
     @Override
     public boolean isLoading() {
         return isLoading;
+    }
+
+    @Override
+    public boolean isGroup() {
+        if (routerListener.getLiveRoom().getOnlineUserVM().enableGroupUserPublic())
+            return true;
+        return false;
     }
 
     @Override

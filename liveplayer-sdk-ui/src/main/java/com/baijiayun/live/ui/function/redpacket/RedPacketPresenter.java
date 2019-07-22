@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.function.redpacket.widget.MoveModel;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPShortResult;
 import com.baijiayun.livecore.utils.LPJsonUtils;
@@ -49,6 +50,8 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
     private RedPacketTopList mTopList;
     long mSleepTime;
 
+    boolean isStudent = true;
+
     private LPRedPacketModel model;
     public RedPacketPresenter(RedPacketContract.View view, LPRedPacketModel model) {
         this.mView = view;
@@ -65,18 +68,10 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
     @Override
     public void subscribe() {
 
-//        mRedPacketDisposable = mRouter.getLiveRoom().getObservableOfRedPacket()
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Consumer<LPRedPacketModel>() {
-//                    @Override
-//                    public void accept(LPRedPacketModel lpRedPacketModel) throws Exception {
-//                        LPLogger.d(TAG, "getObservableOfRedPacket");
-//
-//                        //TODO
-////                        mRouter.closeSendUI();
-//                        startRedPacket(lpRedPacketModel);
-//                    }
-//                });
+        isStudent = mRouter.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Student
+                || mRouter.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Visitor;
+
+        mView.setRobEnable(isStudent);
         startRedPacket(model);
     }
 
@@ -236,6 +231,12 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
 
                         isRedPacketing = false;
                         if ((aLong - mSleepTime) <= 1) {
+                            //老师/助教直接跳转排行榜
+                            if (!isStudent) {
+                                switchState(RedPacketContract.TYPE_REDPACKET_RANKING_LIST);
+                                return;
+                            }
+
                             if (mScoreAmount <= 0) {
                                 //显示未抢到提示
                                 mView.switchRedPacketStart(RedPacketContract.TYE_REDPACKET_NOT_ROB);

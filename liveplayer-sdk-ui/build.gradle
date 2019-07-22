@@ -30,6 +30,7 @@ dependencies {
     implementation 'com.baijia.common:common-networkv2:1.8.2'
     implementation 'com.baijia.common:common-networkv2-ws:1.8.4'
 
+    //    testCompile 'junit:junit:4.12'
     api 'com.squareup.picasso:picasso:2.5.2'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'com.baijia.common:common-image-crop:1.2.9'
@@ -43,7 +44,10 @@ dependencies {
     }
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.1'
+//    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.1'
+    api (project(path: ':liveplayer-sdk-core')){
+        exclude group:"com.android.support"
+    }
 }
 android {
     lintOptions {
@@ -54,3 +58,11 @@ android {
         targetCompatibility = '1.8'
     }
 }
+
+//repositories {
+//    flatDir {
+//        dirs '/Users/Shubo/Desktop/workspace/liveplayer/liveplayer-android-sdk-core/BJHL-LivePlayer/liveplayer-sdk-core/libs'
+//    }
+//}
+
+apply from: 'http://git.baijiashilian.com/open-android/maven/raw/master/gradle-mvn-push.gradle'

@@ -170,20 +170,20 @@ public class AnnouncementFragment extends BaseDialogFragment implements Announce
     }
 
     @Override
-    public void showCurrUI(int type) {
+    public void showCurrUI(int type, int groupId) {
 
         removeCurrFragment();
 
         mCurrFragment = new DoubleAnnFramgent();
         if (type == AnnouncementContract.TYPE_UI_TEACHERORASSISTANT) {
             //老师
-            mCurrPresenter = new DoubleAnnPresenter((DoubleAnnFramgent)mCurrFragment, AnnouncementContract.TYPE_UI_TEACHERORASSISTANT);
+            mCurrPresenter = new DoubleAnnPresenter((DoubleAnnFramgent)mCurrFragment, AnnouncementContract.TYPE_UI_TEACHERORASSISTANT, groupId);
         } else if (type == AnnouncementContract.TYPE_UI_GROUPTEACHERORASSISTANT) {
             //分组老师
-            mCurrPresenter = new DoubleAnnPresenter((DoubleAnnFramgent)mCurrFragment, AnnouncementContract.TYPE_UI_GROUPTEACHERORASSISTANT);
+            mCurrPresenter = new DoubleAnnPresenter((DoubleAnnFramgent)mCurrFragment, AnnouncementContract.TYPE_UI_GROUPTEACHERORASSISTANT, groupId);
         } else {
             //学生
-            mCurrPresenter = new DoubleAnnPresenter((DoubleAnnFramgent)mCurrFragment, AnnouncementContract.TYPE_UI_STUDENT);
+            mCurrPresenter = new DoubleAnnPresenter((DoubleAnnFramgent)mCurrFragment, AnnouncementContract.TYPE_UI_STUDENT, groupId);
 
         }
         bindVP((DoubleAnnFramgent) mCurrFragment, mCurrPresenter);

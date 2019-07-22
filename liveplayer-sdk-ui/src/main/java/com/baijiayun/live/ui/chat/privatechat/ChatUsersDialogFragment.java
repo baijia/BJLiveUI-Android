@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BaseFragment;
@@ -202,7 +203,10 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
                     userViewHolder.assistantTag.setVisibility(View.GONE);
                 }
                 String avatar = userModel.getAvatar().startsWith("//") ? "https:" + userModel.getAvatar() : userModel.getAvatar();
-                Picasso.with(getContext()).load(AliCloudImageUtil.getRoundedAvatarUrl(avatar, 64)).into(userViewHolder.avatar);
+                Glide.with(getContext())
+                        .load(avatar)
+                        .into(userViewHolder.avatar);
+//                Picasso.with(getContext()).load(AliCloudImageUtil.getRoundedAvatarUrl(avatar, 64)).into(userViewHolder.avatar);
                 userViewHolder.privateChatUser.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

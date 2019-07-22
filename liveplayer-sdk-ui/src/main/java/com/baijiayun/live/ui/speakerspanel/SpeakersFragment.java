@@ -912,9 +912,12 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
         if (userModel.getType() == LPConstants.LPUserType.Teacher) {
             String teacherLable = presenter.getLiveRoom().getCustomizeTeacherLabel();
             name += TextUtils.isEmpty(teacherLable) ? getString(R.string.live_teacher_hint) : "(" + teacherLable + ")";
-        }
-        if (isPresenter && userModel.getType() == LPConstants.LPUserType.Assistant) {
-            name += getString(R.string.live_presenter_hint);
+        } else if (userModel.getType() == LPConstants.LPUserType.Assistant) {
+            if (!isPresenter) {
+                String assisLabel = presenter.getLiveRoom().getCustomizeAssistantLabel();
+                name += TextUtils.isEmpty(assisLabel) ? "" : "(" + assisLabel + ")";
+            } else
+                name += getString(R.string.live_presenter_hint);
         }
         return name;
     }

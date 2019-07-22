@@ -49,7 +49,7 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
         super.init(savedInstanceState);
 
         mTsf = (TranslateSurfaceView) $.id(R.id.tsf_red_packet).view();
-        mLvJignxiTop = (ListView) $.id(R.id.lv_jignxi_top).view();
+        mLvJignxiTop = (ListView) $.id(R.id.lv_fragment_top).view();
         mTopAdapter = new RedPacketTopAdapter(getContext());
         mLvJignxiTop.setAdapter(mTopAdapter);
 
@@ -130,6 +130,15 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
 //        test[4] = model;
 //        index++;
 
+        if(list == null || list.length == 0) {
+            //显示表情
+            $.id(R.id.rl_lp_ui_redpack_none).visibility(View.VISIBLE);
+            $.id(R.id.lv_fragment_top).visibility(View.INVISIBLE);
+        } else {
+            $.id(R.id.rl_lp_ui_redpack_none).visibility(View.GONE);
+            $.id(R.id.lv_fragment_top).visibility(View.VISIBLE);
+        }
+
         mTopAdapter.setDate(list);
     }
 
@@ -168,6 +177,7 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
         } else if (type == RedPacketContract.TYPE_REDPACKET_RANKING_LIST) {
 
             mTsf.pause();
+//            mTsf.quit();
             mTsf.setVisibility(View.INVISIBLE);
 
             $.id(R.id.rl_not_red).visibility(View.INVISIBLE);
@@ -234,5 +244,12 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
 
     @Override
     public void showRedPacketScoreAmount(int mScoreAmount) {
+    }
+
+    @Override
+    public void setRobEnable(boolean robEnable) {
+        if (mTsf == null)
+            return;
+        mTsf.setRobEnable(robEnable);
     }
 }

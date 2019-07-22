@@ -347,7 +347,16 @@ public class FrameAnimation {
         options.inPreferredConfig = Bitmap.Config.ALPHA_8;
         options.inJustDecodeBounds = false;
         options.inMutable = true;//解码时返回可变Bitmap
-        return BitmapFactory.decodeResource(context.getResources(), resId, options);
+        Bitmap result;
+        try{
+            result =  BitmapFactory.decodeResource(context.getResources(), resId, options);
+        } catch (IllegalStateException e){
+            if(options.inBitmap != null){
+                options.inBitmap = null;
+            }
+            result = BitmapFactory.decodeResource(context.getResources(), resId, options);
+        }
+        return result;
     }
 
     public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -355,7 +364,7 @@ public class FrameAnimation {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
-        Log.d("yjm", "reqWidth=" + reqWidth + ",reqHeight=" + reqHeight);
+        //Log.d("yjm", "reqWidth=" + reqWidth + ",reqHeight=" + reqHeight);
         if(reqHeight == 0 || reqWidth == 0){
             return inSampleSize;
         }

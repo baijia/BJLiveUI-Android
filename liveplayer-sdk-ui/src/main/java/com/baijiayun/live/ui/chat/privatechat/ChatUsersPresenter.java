@@ -3,7 +3,9 @@ package com.baijiayun.live.ui.chat.privatechat;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.context.LPConstants;
+import com.baijiayun.livecore.models.LPUserModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.utils.LPLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,29 +71,55 @@ public class ChatUsersPresenter implements ChatUsersContract.Presenter {
         routerListener = null;
     }
 
-
     private void onChatUsersChanged() {
-        if (routerListener.isTeacherOrAssistant() || routerListener.isGroupTeacherOrAssistant()) {
+        List<IUserModel> userModels = routerListener.getLiveRoom().getOnlineUserVM().getPrivateUser();
+
+        if (iChatUserModels == null)
             iChatUserModels = new ArrayList<>();
-            int size = routerListener.getLiveRoom().getOnlineUserVM().getUserCount();
-            for (int i = 0; i < size; i++) {
-                IUserModel iUserModel = routerListener.getLiveRoom().getOnlineUserVM().getUser(i);
-                if (!iUserModel.getUserId().equals(routerListener.getLiveRoom().getCurrentUser().getUserId()))
-                    iChatUserModels.add(iUserModel);
-            }
-        }else {
-            iChatUserModels = new ArrayList<>();
-            int size = routerListener.getLiveRoom().getOnlineUserVM().getUserCount();
-            if (routerListener.getLiveRoom().getTeacherUser() != null)
-                iChatUserModels.add(routerListener.getLiveRoom().getTeacherUser());
-            for (int i = 0; i < size; i++) {
-                IUserModel userModel = routerListener.getLiveRoom().getOnlineUserVM().getUser(i);
-                if (userModel.getUserId().equals(routerListener.getLiveRoom().getCurrentUser().getUserId())) continue;
-                if (userModel.getType().equals(LPConstants.LPUserType.Assistant) ) {
-                    iChatUserModels.add(userModel);
+        iChatUserModels.clear();
+
+        for (int index = 0; index < userModels.size(); index++) {
+            IUserModel model = userModels.get(index);
+
+            if (routerListener.isTeacherOrAssistant()) {
+                //大班教室显示左右用户
+                iChatUserModels.addAll(userModels);
+                break;
+            } else if (routerListener.isGroupTeacherOrAssistant()) {
+                //分组教师区分显示
+                if (routerListener.getLiveRoom().getOnlineUserVM().enableGroupUserPublic()) {
+                    //组间可见
+                    iChatUserModels.addAll(userModels);
+                    break;
+                } else {
+                    //组内可见
+                    if (model.getGroup() == 0 && (model.getType() == LPConstants.LPUserType.Teacher
+                            || model.getType() == LPConstants.LPUserType.Assistant)) {
+                        //分组0老师/助教
+                        iChatUserModels.add(model);
+                    } else if (model.getGroup() == routerListener.getLiveRoom().getCurrentUser().getGroup()) {
+                        iChatUserModels.add(model);
+                    }
+                }
+            } else {
+                //学生区分显示
+                if (model.getType() != LPConstants.LPUserType.Teacher && model.getType() != LPConstants.LPUserType.Assistant)
+                    continue;
+
+                if (routerListener.getLiveRoom().getOnlineUserVM().enableGroupUserPublic()) {
+                    //组间可见
+                    iChatUserModels.add(model);
+                } else {
+                    //本组可见
+                    if (model.getGroup() == 0
+                            || model.getGroup() == routerListener.getLiveRoom().getCurrentUser().getGroup()) {
+                        //分组0老师/助教与当前组
+                        iChatUserModels.add(model);
+                    }
                 }
             }
         }
+
         if (iChatUserModels.isEmpty()) {
             view.privateChatUserChanged(true);
         } else {
@@ -145,6 +173,11 @@ public class ChatUsersPresenter implements ChatUsersContract.Presenter {
     public void loadMore() {
         isLoading = true;
         routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser();
+        if (routerListener.getLiveRoom().getOnlineUserVM().enableGroupUserPublic()) {
+            routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser(0);
+        } else {
+            routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser(-1);
+        }
         onChatUsersChanged();
     }
 

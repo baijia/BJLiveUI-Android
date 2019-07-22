@@ -81,15 +81,17 @@ public class AnnouncementPresenter implements AnnouncementContract.Presenter {
 
     @Override
     public void switchUI() {
+
+        int groupId = routerListener.getLiveRoom().getCurrentUser().getGroup();
         if (routerListener.isTeacherOrAssistant()) {
             view.editButtonEnable(true, R.string.live_edit);
-            view.showCurrUI(AnnouncementContract.TYPE_UI_TEACHERORASSISTANT);
+            view.showCurrUI(AnnouncementContract.TYPE_UI_TEACHERORASSISTANT, groupId);
         } else if (routerListener.isGroupTeacherOrAssistant()) {
             view.editButtonEnable(true, R.string.string_notice_group);
-            view.showCurrUI(AnnouncementContract.TYPE_UI_GROUPTEACHERORASSISTANT);
+            view.showCurrUI(AnnouncementContract.TYPE_UI_GROUPTEACHERORASSISTANT, groupId);
         } else {
             view.editButtonEnable(false, 0);
-            view.showCurrUI(AnnouncementContract.TYPE_UI_STUDENT);
+            view.showCurrUI(AnnouncementContract.TYPE_UI_STUDENT, groupId);
         }
 
         if (routerListener.isTeacherOrAssistant()) {

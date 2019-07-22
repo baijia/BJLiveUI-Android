@@ -13,6 +13,7 @@ import com.baijiayun.livecore.models.LPUserModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
 import com.baijiayun.livecore.models.launch.LPEnterRoomNative;
+import com.baijiayun.livecore.models.roomresponse.LPResRoomActiveUserModel;
 import com.baijiayun.livecore.utils.LPKVOSubjectWithLastValue;
 import com.baijiayun.livecore.utils.LPLogger;
 import com.baijiayun.livecore.utils.LimitedQueue;
@@ -139,10 +140,10 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                         subFull = fullId.substring(0, fullId.lastIndexOf("1")) + "0";
                     }
                     if (getLiveRoom().getPresenterUser() != null && subFull.equals(getLiveRoom().getPresenterUser().getUserId())) {
-                        if (fullId.endsWith("1"))
-                            displayMap.get(SpeakersType.Presenter).add(fullId);
-                        else
-                            displayMap.get(SpeakersType.Presenter).add(0, fullId);
+//                        if (fullId.endsWith("1"))
+                        displayMap.get(SpeakersType.Presenter).add(fullId);
+//                        else
+//                            displayMap.get(SpeakersType.Presenter).add(0, fullId);
                     } else
                         displayMap.get(SpeakersType.VideoPlay).add(fullId);
                 }
@@ -326,7 +327,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                 }
                             } else if (displayMap.get(SpeakersType.Presenter).contains(iMediaModel.getUser().getUserId())) {
                                 // 合流为presenter 去presenteruser为null
-                                if(getLiveRoom().isSupportMixedStreaming() && getLiveRoom().getPresenterUser() == null){
+                                if (getLiveRoom().isSupportMixedStreaming() && getLiveRoom().getPresenterUser() == null) {
                                     view.notifyItemChanged(0, iMediaModel);
                                     return;
                                 }
@@ -467,7 +468,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                             if (lastPresenterModel != null && (lastPresenterModel.isVideoOn() || lastPresenterModel.isAudioOn())) {
                                 if (lastPresenterModel.isVideoOn()) {
                                     displayMap.get(SpeakersType.VideoPlay).add(lastPresenter);
-                                    if(getPlayer().isVideoPlaying(lastPresenter))
+                                    if (getPlayer().isVideoPlaying(lastPresenter))
                                         getPlayer().playAVClose(lastPresenter);
                                     view.notifyItemInserted(indexOfUserId(lastPresenter));
                                 } else if (lastPresenterModel.isAudioOn()) {
@@ -520,8 +521,9 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                             // new presenter was at list
                             int switchIndex = indexOfUserId(newPresenter); //  find out new presenter's last position
                             // switch presenter in displayMap
-                            displayMap.get(SpeakersType.Presenter).clear();
-                            displayMap.get(SpeakersType.Presenter).add(newPresenter);
+                            displayMap.get(SpeakersType.Presenter).remove(lastPresenter);
+                            if (!displayMap.get(SpeakersType.Presenter).contains(newPresenter))
+                                displayMap.get(SpeakersType.Presenter).add(newPresenter);
 
                             IMediaModel lastSpeakModel = getSpeakModel(lastPresenter);
 
@@ -544,6 +546,13 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
 
                                         view.notifyItemDeleted(0);
                                         view.notifyItemInserted(0);
+                                    } else if (displayMap.get(SpeakersType.Presenter).contains(newPresenter)) {
+                                        // 如果新主讲在全屏 切换PPT到全屏后会被切到PresenterSection末尾
+                                        displayMap.get(SpeakersType.VideoPlay).add(lastPresenter);
+                                        view.notifyItemDeleted(switchIndex);
+                                        view.notifyItemDeleted(0);
+                                        view.notifyItemInserted(0);
+                                        view.notifyItemInserted(indexOfUserId(lastPresenter));
                                     }
                                 } else {
                                     if (displayMap.get(SpeakersType.Speaking).contains(newPresenter)) {
@@ -568,7 +577,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
 
                             } else {
                                 // last presenter's camera and mic is off, simply delete new presenter's last position
-                                android.view.View removeView = null;
+                                View removeView = null;
                                 if (switchIndex != 0 && getSpeakersType(newPresenter) != SpeakersType.Record)
                                     removeView = view.notifyItemDeleted(switchIndex);
                                 if (displayMap.get(SpeakersType.VideoPlay).contains(newPresenter)) {
@@ -942,8 +951,44 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
     @Override
     public IMediaModel getSpeakModel(String userId) {
         if (TextUtils.isEmpty(userId)) return null;
-        if (speakerModels.containsKey(userId))
-            return speakerModels.get(userId);
+        if (speakerModels.containsKey(userId)) {
+            List<String> steamList = new ArrayList<>();
+            for (String stream : speakerModels.keySet()) {
+                if (stream.startsWith(userId))
+                    steamList.add(stream);
+            }
+            if (steamList.size() == 1)
+                return speakerModels.get(userId);
+            else {
+                IMediaModel mediaModel = speakerModels.get(userId);
+                if (mediaModel instanceof LPResRoomActiveUserModel) {
+                    // 直接return speakerModels.get(userId); 刚进教室时webrtc摄像头关闭和屏幕分享打开 会导致拨不出来流
+                    LPResRoomActiveUserModel mergedMediaModel = (LPResRoomActiveUserModel) mediaModel;
+                    if (mediaModel.getMediaSourceType() == LPConstants.MediaSourceType.MainCamera) {
+                        for (String uid : steamList) {
+                            IMediaModel extMediaModel = speakerModels.get(uid);
+                            if (extMediaModel.getMediaSourceType() == LPConstants.MediaSourceType.MainScreenShare ||
+                                    extMediaModel.getMediaSourceType() == LPConstants.MediaSourceType.Media) {
+                                mergedMediaModel.videoOn = mergedMediaModel.videoOn || speakerModels.get(uid).isVideoOn();
+                                mergedMediaModel.audioOn = mergedMediaModel.audioOn || speakerModels.get(uid).isAudioOn();
+                            }
+                        }
+                    } else if (mediaModel.getMediaSourceType() == LPConstants.MediaSourceType.ExtCamera) {
+                        for (String uid : steamList) {
+                            IMediaModel extMediaModel = speakerModels.get(uid);
+                            if (extMediaModel.getMediaSourceType() == LPConstants.MediaSourceType.ExtCamera) {
+                                mergedMediaModel.videoOn = mergedMediaModel.videoOn || speakerModels.get(uid).isVideoOn();
+                                mergedMediaModel.audioOn = mergedMediaModel.audioOn || speakerModels.get(uid).isAudioOn();
+                            }
+                        }
+                    }
+                    return mergedMediaModel;
+                } else {
+                    return speakerModels.get(userId);
+                }
+
+            }
+        }
         // presenter mismatching
         if (routerListener.getLiveRoom().getPresenterUser() != null &&
                 userId.equals(routerListener.getLiveRoom().getPresenterUser().getUserId())) {

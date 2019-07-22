@@ -117,7 +117,6 @@ import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.listener.LPLaunchListener;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
-import com.baijiayun.livecore.models.LPAnswerSheetModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
@@ -524,7 +523,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             flCloudRecord.setVisibility(View.GONE);
             return;
         }
-        if (isClear) {
+        if (isClear && liveRoom != null && liveRoom.isTeacherOrAssistant()) {
             flCloudRecord.setVisibility(View.VISIBLE);
         } else {
             flCloudRecord.setVisibility(View.GONE);
@@ -625,10 +624,19 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             if (loadingFragment != null && loadingFragment.isAdded()) {
                 removeFragment(loadingFragment);
             }
-            if (error.getCode() == LPError.CODE_ERROR_LOGIN_UNIQUE_CONFLICT) {
-                errorFragment = ErrorFragment.newInstance(false, ErrorFragment.ERROR_HANDLE_CONFILICT, shouldShowTechSupport);
-            } else {
-                errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport);
+            int errorCode = (int) error.getCode();
+            switch (errorCode) {
+                case LPError.CODE_ERROR_LOGIN_UNIQUE_CONFLICT:
+                    errorFragment = ErrorFragment.newInstance(false, ErrorFragment.ERROR_HANDLE_CONFILICT, shouldShowTechSupport, false);
+                    break;
+                case LPError.CODE_ERROR_NEW_SMALL_COURSE:
+                case LPError.CODE_ERROR_MAX_STUDENT:
+                case LPError.CODE_ERROR_ENTER_ROOM_FORBIDDEN:
+                    errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport, false);
+                    break;
+                default:
+                    errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport);
+                    break;
             }
             errorFragment.setRouterListener(this);
             flError.setVisibility(View.VISIBLE);
@@ -1761,7 +1769,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     @Override
     public void notifyPageCurrent(int position) {
-        lppptView.updatePage(position, true);
+        lppptView.updatePage(position, true, false);
     }
 
     @Override

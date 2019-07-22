@@ -66,7 +66,7 @@ public class VideoView extends FrameLayout {
         awardTv = bottomLayout.findViewById(R.id.live_award_count_tv);
         networkTv = bottomLayout.findViewById(R.id.item_video_network);
         tvName.setText(name);
-        FrameLayout.LayoutParams tvLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LayoutParams tvLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tvLp.gravity = Gravity.BOTTOM | Gravity.START;
         bottomLayout.setLayoutParams(tvLp);
         bottomLayout.setVisibility(View.GONE);
@@ -78,12 +78,12 @@ public class VideoView extends FrameLayout {
         loadingText.setTextSize(13);
         loadingText.setGravity(Gravity.CENTER);
         loadingText.setTextColor(color);
-        FrameLayout.LayoutParams loadingTextLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        LayoutParams loadingTextLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         loadingTextLp.setMargins(0, DisplayUtils.dip2px(getContext(), 50), 0, 0);
         loadingTextLp.gravity = Gravity.BOTTOM;
         this.addView(loadingText, loadingTextLp);
 
-        FrameLayout.LayoutParams loadingLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        LayoutParams loadingLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         loadingView = new ImageView(getContext());
         loadingLp.gravity = Gravity.CENTER;
         loadingView.setAdjustViewBounds(true);
@@ -126,7 +126,7 @@ public class VideoView extends FrameLayout {
         super.onSizeChanged(w, h, oldw, oldh);
         if (isLoading && oldh > 0 && h > oldh) {
             loadingView.setPadding(w / 4, h / 4, w / 4, h / 4);
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             loadingText.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
             loadingText.setLayoutParams(layoutParams);
             startRotate();

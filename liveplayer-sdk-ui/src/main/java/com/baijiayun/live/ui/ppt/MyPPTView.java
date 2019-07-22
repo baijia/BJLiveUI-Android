@@ -53,7 +53,7 @@ public class MyPPTView extends PPTView implements PPTContract.View {
             }
         });
 
-        mPageTv.setOnClickListener(new View.OnClickListener() {
+        mPageTv.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!presenter.isPPTInSpeakerList()) {

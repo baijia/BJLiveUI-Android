@@ -116,7 +116,7 @@
         </LinearLayout>
 
         <ListView
-            android:id="@+id/lv_jignxi_top"
+            android:id="@+id/lv_fragment_top"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/ll_fragment_red_title"
@@ -129,6 +129,39 @@
             android:layout_marginBottom="45dp">
 
         </ListView>
+
+        <RelativeLayout
+            android:id="@+id/rl_lp_ui_redpack_none"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:background="@drawable/layer_red_list_bg"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ll_fragment_red_title"
+            android:gravity="center"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="47dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="45dp">
+
+            <ImageView
+                android:id="@+id/iv_red_none_icon"
+                android:src="@drawable/iv_lp_ui_red_packet_not_icon"
+                android:layout_centerHorizontal="true"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:contentDescription="TODO" />
+
+            <TextView
+                android:textSize="14sp"
+                android:text="@string/string_red_none"
+                android:textColor="@color/color_00000000"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/iv_red_none_icon"
+                android:layout_marginTop="11dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
     </RelativeLayout>
     
     <RelativeLayout

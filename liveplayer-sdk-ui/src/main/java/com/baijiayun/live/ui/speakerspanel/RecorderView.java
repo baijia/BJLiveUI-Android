@@ -41,7 +41,7 @@ public class RecorderView extends FrameLayout {
         awardTv = bottomLayout.findViewById(R.id.live_award_count_tv);
         networkTv = bottomLayout.findViewById(R.id.item_video_network);
         tvName.setText(userName);
-        FrameLayout.LayoutParams tvLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LayoutParams tvLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tvLp.gravity = Gravity.BOTTOM | Gravity.START;
         bottomLayout.setLayoutParams(tvLp);
         this.addView(bottomLayout);

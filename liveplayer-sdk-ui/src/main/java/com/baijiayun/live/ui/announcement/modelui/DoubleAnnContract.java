@@ -11,7 +11,7 @@ public class DoubleAnnContract {
 
     interface View extends BaseView<Presenter> {
 
-        void setType(int type);
+        void setType(int type, int groupId);
 
         void setNoticeInfo(IAnnouncementModel iAnnouncementModel);
     }

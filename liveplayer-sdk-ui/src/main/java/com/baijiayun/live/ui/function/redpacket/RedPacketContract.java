@@ -40,6 +40,8 @@ public interface RedPacketContract {
         void showRedPacketScoreAmount(int mScoreAmount);
 
         int getCurrStateType();
+
+        void setRobEnable(boolean robEnable);
     }
 
     interface Presenter extends BasePresenter {

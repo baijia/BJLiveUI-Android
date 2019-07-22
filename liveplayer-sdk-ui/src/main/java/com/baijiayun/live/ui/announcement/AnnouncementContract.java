@@ -25,7 +25,7 @@ public interface AnnouncementContract {
 
         void editButtonEnable(boolean enable, @StringRes int stringRes);
 
-        void showCurrUI(int type);
+        void showCurrUI(int type, int groupId);
 
         void setNoticeInfo(IAnnouncementModel iAnnouncementModel);
 

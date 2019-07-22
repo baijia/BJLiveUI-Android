@@ -8,10 +8,12 @@ public class DoubleAnnPresenter implements DoubleAnnContract.Presenter, IAnnounc
 
     private DoubleAnnContract.View mView;
     private int mType = AnnouncementContract.TYPE_UI_STUDENT;
+    private int groupId = 0;
 
-    public DoubleAnnPresenter(DoubleAnnContract.View view, int type) {
+    public DoubleAnnPresenter(DoubleAnnContract.View view, int type, int groupId) {
         this.mView = view;
         this.mType = type;
+        this.groupId = groupId;
     }
 
     @Override
@@ -21,7 +23,7 @@ public class DoubleAnnPresenter implements DoubleAnnContract.Presenter, IAnnounc
 
     @Override
     public void subscribe() {
-        mView.setType(mType);
+        mView.setType(mType, groupId);
     }
 
     @Override

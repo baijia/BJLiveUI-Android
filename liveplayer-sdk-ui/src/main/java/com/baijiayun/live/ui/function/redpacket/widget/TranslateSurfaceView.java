@@ -17,7 +17,9 @@ import android.view.SurfaceView;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.livecore.utils.DisplayUtils;
+import com.baijiayun.livecore.utils.LPLogger;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -53,6 +55,9 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
 
     private Paint mPaintTitle;
     private Paint mPaintContext;
+
+    //红包雨状态是否可以抢        true 可以     false 不可以
+    private boolean isRobEnable = false;
 
     private List<MoveModel> moveList = new ArrayList<>();
 
@@ -98,30 +103,33 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
     public void prepare() {
         DrawThread drawThread = new DrawThread();
         drawThread.start();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+
         drawHandler = new DrawHandler(drawThread.getLooper(), this);
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_packet_down);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_packet_down, options);
         bitmapWidth = DisplayUtils.dip2px(getContext(), 44);
         bitmapHeight = DisplayUtils.dip2px(getContext(), 112);
-
 
 //        Matrix matrix = new Matrix();
 //        matrix.postScale(, );
 
         bitmapOpen = new Bitmap[COUNT_OPEN_BITMAP];
-        bitmapOpen[0] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_1);
-        bitmapOpen[1] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_2);
-        bitmapOpen[2] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_3);
-        bitmapOpen[3] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_4);
-        bitmapOpen[4] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_5);
-        bitmapOpen[5] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_6);
-        bitmapOpen[6] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_7);
-        bitmapOpen[7] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_8);
-        bitmapOpen[8] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_9);
-        bitmapOpen[9] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_10);
-        bitmapOpen[10] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_11);
-        bitmapOpen[11] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_12);
-        bitmapOpen[12] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_13);
-        bitmapOpen[13] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_14);
+        bitmapOpen[0] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_1, options);
+        bitmapOpen[1] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_2, options);
+        bitmapOpen[2] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_3, options);
+        bitmapOpen[3] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_4, options);
+        bitmapOpen[4] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_5, options);
+        bitmapOpen[5] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_6, options);
+        bitmapOpen[6] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_7, options);
+        bitmapOpen[7] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_8, options);
+        bitmapOpen[8] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_9, options);
+        bitmapOpen[9] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_10, options);
+        bitmapOpen[10] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_11, options);
+        bitmapOpen[11] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_12, options);
+        bitmapOpen[12] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_13, options);
+        bitmapOpen[13] = BitmapFactory.decodeResource(getResources(), R.drawable.iv_lp_ui_red_open_14, options);
 
         bitmapWidthOpen = DisplayUtils.dip2px(getContext(), 120);
         bitmapHeightOpen = bitmapWidthOpen;
@@ -165,6 +173,7 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
                 bitmapOpen[i].recycle();
                 bitmapOpen[i] = null;
             }
+            bitmapOpen = null;
         }
     }
 
@@ -179,6 +188,9 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
             drawHandler.sendEmptyMessage(DrawHandler.START_DRAW_KEY);
             return;
         }
+
+        if (moveList == null || moveList.size() == 0)
+            return;
 
         SurfaceHolder holder = getHolder();
         Canvas canvas = holder.lockCanvas();
@@ -267,6 +279,13 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
      * @param y
      */
     private void checkInRect(int x, int y) {
+
+        //是否可以抢
+        if (!isRobEnable) {
+            return;
+        }
+
+
         int length = moveList.size();
         for (int i = 0; i < length; i++) {
             MoveModel moveModel = moveList.get(i);
@@ -300,8 +319,6 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
 
     }
 
-
-
     private void resetMoveModel(MoveModel moveModel) {
         Random random = new Random();
         moveModel.isOpen = false;
@@ -324,6 +341,9 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
         moveList.add(moveModel);
     }
 
+    public void setRobEnable(boolean robEnable) {
+        this.isRobEnable = robEnable;
+    }
 
     public interface OnClickRedPacketListener {
 

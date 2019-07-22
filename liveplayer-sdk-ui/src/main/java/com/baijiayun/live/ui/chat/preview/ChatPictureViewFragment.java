@@ -84,7 +84,9 @@ public class ChatPictureViewFragment extends BaseDialogFragment implements ChatP
         imageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                presenter.showSaveDialog(convertBmpToByteArray());
+                byte[] src = convertBmpToByteArray();
+                if (src != null)
+                    presenter.showSaveDialog(src);
                 return true;
             }
         });
@@ -116,6 +118,7 @@ public class ChatPictureViewFragment extends BaseDialogFragment implements ChatP
      * 将bitmap转为字节数组,避免presenter使用Android api
      */
     private byte[] convertBmpToByteArray() {
+        if (imageView.getDrawable() == null) return null;
         Bitmap bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
@@ -130,7 +133,7 @@ public class ChatPictureViewFragment extends BaseDialogFragment implements ChatP
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         presenter = null;
     }

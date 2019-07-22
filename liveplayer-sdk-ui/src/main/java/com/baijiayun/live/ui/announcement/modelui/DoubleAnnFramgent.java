@@ -52,7 +52,7 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
     }
 
     @Override
-    public void setType(int type) {
+    public void setType(int type, int groupId) {
 
         if (type == AnnouncementContract.TYPE_UI_TEACHERORASSISTANT) {
             //大班老师
@@ -63,10 +63,16 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
         } else if (type == AnnouncementContract.TYPE_UI_GROUPTEACHERORASSISTANT) {
             //分组老师
             isTeacher = true;
+            showDownUI(false);
         } else {
             //学生
-            $.id(R.id.tv_double_ann_info).visibility(View.INVISIBLE);
             isTeacher = false;
+            showDownUI(false);
+        }
+
+        if (groupId == 0) {
+            //未分组隐藏通知显示
+            $.id(R.id.ll_announcement_double_group).visibility(View.GONE);
         }
     }
 
@@ -79,51 +85,58 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
         }
 
         View view;
+        View linkTipsView;
         String link;
         if ("0".equals(iAnnouncementModel.getGroup())) {
             //大班老师公告
+            view = $.id(R.id.tv_announcement_notice_info).view();
+            linkTipsView = $.id(R.id.tv_announcement_notice_info_tips).view();
             if (!TextUtils.isEmpty(iAnnouncementModel.getContent())) {
                 $.id(R.id.tv_announcement_notice_info).text(iAnnouncementModel.getContent());
-                view = $.id(R.id.tv_announcement_notice_info).view();
                 link = iAnnouncementModel.getLink();
             } else {
                 $.id(R.id.tv_announcement_notice_info).text(getResources().getString(R.string.live_announcement_none));
-                view = $.id(R.id.tv_announcement_notice_info).view();
                 link = null;
             }
         } else {
-
             //分组老师通知
+            view = $.id(R.id.tv_announcement_notice_group_info).view();
+            linkTipsView = $.id(R.id.tv_announcement_double_info_tips).view();
             if ("notice_change".equals(iAnnouncementModel.getMessageType())) {
                 if (!TextUtils.isEmpty(iAnnouncementModel.getContent())) {
-                    showDownUI(true);
                     $.id(R.id.tv_announcement_notice_group_info).text(iAnnouncementModel.getContent());
-                    view = $.id(R.id.tv_announcement_notice_group_info).view();
                     link = iAnnouncementModel.getLink();
-
                 } else {
-                    showDownUI(false);
                     $.id(R.id.tv_announcement_notice_group_info).text(getResources().getString(R.string.string_notice_group_none));
-                    view = $.id(R.id.tv_announcement_notice_group_info).view();
                     link = null;
                 }
                 //修改
             } else {
                 //主动获取
                 if (iAnnouncementModel.getSGroup() != null && !TextUtils.isEmpty(iAnnouncementModel.getSGroup().content)) {
-                    showDownUI(true);
                     $.id(R.id.tv_announcement_notice_group_info).text(iAnnouncementModel.getSGroup().content);
-                    view = $.id(R.id.tv_announcement_notice_group_info).view();
                     link = iAnnouncementModel.getSGroup().link;
                 } else {
-                    showDownUI(false);
                     $.id(R.id.tv_announcement_notice_group_info).text(getResources().getString(R.string.string_notice_group_none));
-                    view = $.id(R.id.tv_announcement_notice_group_info).view();
                     link = null;
                 }
             }
         }
+        setTipsLinkViewInfo(linkTipsView, link);
         setUrl(view, link);
+    }
+
+    /**
+     * 设置链接提示
+     */
+    private void setTipsLinkViewInfo(View view, String link) {
+        if (view == null)
+            return;
+        if (TextUtils.isEmpty(link)) {
+            ((TextView)view).setText("");
+        } else {
+            ((TextView)view).setText(getResources().getString(R.string.string_notice_link_tips));
+        }
     }
 
     /**
@@ -132,13 +145,9 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
     private void showDownUI(boolean isShow) {
 
         if(isShow) {
-            $.id(R.id.tv_announcement_double_group_title).visibility(View.VISIBLE);
-            $.id(R.id.tv_announcement_notice_group_info).visibility(View.VISIBLE);
             $.id(R.id.tv_double_ann_info).visibility(View.INVISIBLE);
             $.id(R.id.iv_double_ann_down).visibility(View.INVISIBLE);
         } else {
-            $.id(R.id.tv_announcement_double_group_title).visibility(View.INVISIBLE);
-            $.id(R.id.tv_announcement_notice_group_info).visibility(View.INVISIBLE);
 
             if (isTeacher) {
                 $.id(R.id.tv_double_ann_info).visibility(View.VISIBLE);
