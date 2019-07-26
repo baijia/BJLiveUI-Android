@@ -38,4 +38,13 @@
         android:textSize="17sp"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/fragment_left_menu_copy_2_SD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="拷贝日志到SD卡"
+        android:textColor="#15bae4"
+        android:textSize="17sp"
+        android:visibility="gone" />
 </LinearLayout>

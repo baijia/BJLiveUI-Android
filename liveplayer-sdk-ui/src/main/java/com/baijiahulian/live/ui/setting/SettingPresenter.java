@@ -9,6 +9,8 @@ import com.baijiahulian.livecore.utils.LPErrorPrintSubscriber;
 import com.baijiahulian.livecore.wrapper.LPPlayer;
 import com.baijiahulian.livecore.wrapper.LPRecorder;
 
+import java.util.ArrayList;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -28,6 +30,7 @@ public class SettingPresenter implements SettingContract.Presenter {
     private LiveRoom liveRoom;
     private Subscription subscriptionOfForbidAllChat, subscriptionOfMic, subscriptionOfCamera, subscriptionOfForbidRaiseHand,
             subscriptionOfForbidAllAudio, subscriptionOfUpLinkType, subscriptionOfDownLinkType;
+    private ArrayList<String> tcpCdnTag;
 
     public SettingPresenter(SettingContract.View view) {
         this.view = view;
@@ -39,6 +42,7 @@ public class SettingPresenter implements SettingContract.Presenter {
         recorder = routerListener.getLiveRoom().getRecorder();
         player = routerListener.getLiveRoom().getPlayer();
         liveRoom = routerListener.getLiveRoom();
+//        liveRoom.getPartnerConfig().msConfig.get("")
     }
 
     @Override
@@ -167,15 +171,15 @@ public class SettingPresenter implements SettingContract.Presenter {
                         if (aBoolean && recorder.isAudioAttached()) {
                             //静音
                             recorder.detachAudio();
-                            view.showMicClosed();
-                        } else if (!aBoolean) {
-                            //取消静音
-                            if (!recorder.isPublishing())
-                                recorder.publish();
-                            if (!recorder.isAudioAttached())
-                                recorder.attachAudio();
-                            view.showMicOpen();
                         }
+//                        else if (!aBoolean) {
+//                            //取消静音
+//                            if (!recorder.isPublishing())
+//                                recorder.publish();
+//                            if (!recorder.isAudioAttached())
+//                                recorder.attachAudio();
+//                            view.showMicOpen();
+//                        }
                     }
                 });
         subscriptionOfDownLinkType = liveRoom.getPlayer().getObservableOfLinkType().observeOn(AndroidSchedulers.mainThread())
@@ -200,6 +204,12 @@ public class SettingPresenter implements SettingContract.Presenter {
                         }
                     }
                 });
+
+        try {
+            tcpCdnTag = (ArrayList<String>) liveRoom.getPartnerConfig().msConfig.get("live_stream_cdn_list");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -219,6 +229,7 @@ public class SettingPresenter implements SettingContract.Presenter {
         recorder = null;
         player = null;
         view = null;
+        liveRoom = null;
     }
 
     @Override
@@ -351,7 +362,6 @@ public class SettingPresenter implements SettingContract.Presenter {
     public void setUpLinkTCP() {
         if (recorder.setLinkType(LPConstants.LPLinkType.TCP)) view.showUpLinkTCP();
         else view.showSwitchLinkTypeError();
-
     }
 
     @Override
@@ -409,7 +419,30 @@ public class SettingPresenter implements SettingContract.Presenter {
     }
 
     @Override
-    public boolean isSmallGroup() {
-        return liveRoom.getRoomType()== LPConstants.LPRoomType.SmallGroup;
+    public LPConstants.LPRoomType getRoomType() {
+        return liveRoom.getRoomType();
+    }
+
+    @Override
+    public int getCDNCount() {
+        return tcpCdnTag == null ? 0 : tcpCdnTag.size();
+    }
+
+    @Override
+    public void setUpCDNLink(int order) {
+        if(liveRoom.getRecorder().setTcpWithCdn(tcpCdnTag.get(order))){
+            view.showUpLinkTCP();
+        }else{
+            view.showSwitchLinkTypeError();
+        }
+    }
+
+    @Override
+    public void setDownCDNLink(int order) {
+        if(liveRoom.getPlayer().setLinkTypeTcpWithCdn(tcpCdnTag.get(order))){
+            view.showDownLinkTCP();
+        }else{
+            view.showSwitchLinkTypeError();
+        }
     }
 }

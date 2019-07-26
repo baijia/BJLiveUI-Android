@@ -204,7 +204,7 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_text, parent, false);
                 return new TextViewHolder(view);
             } else if (viewType == MESSAGE_TYPE_EMOJI) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_emoji, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bj_live_item_chat_emoji, parent, false);
                 return new EmojiViewHolder(view);
             } else if (viewType == MESSAGE_TYPE_IMAGE) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_image, parent, false);

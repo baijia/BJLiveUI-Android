@@ -7,7 +7,9 @@ import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +18,20 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.baijia.baijiashilian.liveplayer.ViESurfaceViewRenderer;
 import com.baijiahulian.live.ui.R;
 import com.baijiahulian.live.ui.utils.DisplayUtils;
+import com.baijiahulian.live.ui.utils.RxUtils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
+
+import rx.functions.Action1;
 
 /**
  * Created by Shubo on 2017/6/10.
@@ -32,7 +39,8 @@ import java.lang.ref.WeakReference;
 
 public class VideoView extends FrameLayout {
 
-    private TextView tvName;
+    private TextView tvName, awardTv;
+    private LinearLayout awardAndNameLayout;
     private SurfaceView surfaceView;
     private ImageView ivWaterMark;
     private ImageView loadingView;
@@ -54,7 +62,7 @@ public class VideoView extends FrameLayout {
         this.name = name;
         this.waterMarkPosition = waterMarkPosition;
         this.waterMarkUrl = waterMarkUrl;
-        if (view != null && view instanceof SurfaceView)
+        if (view instanceof SurfaceView)
             this.surfaceView = (SurfaceView) view;
         init();
     }
@@ -62,7 +70,7 @@ public class VideoView extends FrameLayout {
     public VideoView(Context context, String name, View view) {
         super(context);
         this.name = name;
-        if (view != null && view instanceof SurfaceView)
+        if (view instanceof SurfaceView)
             this.surfaceView = (SurfaceView) view;
         init();
     }
@@ -80,20 +88,16 @@ public class VideoView extends FrameLayout {
             ((ViewGroup) surfaceView.getParent()).removeView(surfaceView);
         }
         this.addView(surfaceView);
-        //名字
-        tvName = new TextView(getContext());
-        FrameLayout.LayoutParams tvLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        tvLp.gravity = Gravity.BOTTOM;
-        tvName.setGravity(Gravity.CENTER);
-        tvName.setTextColor(color);
-        tvName.setPadding(0, DisplayUtils.dip2px(getContext(), 2), 0, DisplayUtils.dip2px(getContext(), 2));
-        tvName.setLines(1);
+
+        awardAndNameLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.video_name_award_layout, null);
+        tvName = awardAndNameLayout.findViewById(R.id.live_name_tv);
+        awardTv = awardAndNameLayout.findViewById(R.id.live_award_count_tv);
         tvName.setText(name);
-        tvName.setTextSize(13);
-        tvName.setBackgroundResource(R.drawable.shape_remote_name_bg);
-        tvName.setLayoutParams(tvLp);
-        tvName.setVisibility(GONE);
-        this.addView(tvName);
+        LayoutParams tvLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        tvLp.gravity = Gravity.BOTTOM | Gravity.START;
+        awardAndNameLayout.setLayoutParams(tvLp);
+        this.addView(awardAndNameLayout);
+        awardAndNameLayout.setVisibility(View.GONE);
 
         loadingText = new TextView(getContext());
         loadingText.setLines(1);
@@ -101,12 +105,12 @@ public class VideoView extends FrameLayout {
         loadingText.setTextSize(13);
         loadingText.setGravity(Gravity.CENTER);
         loadingText.setTextColor(color);
-        FrameLayout.LayoutParams loadingTextLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        LayoutParams loadingTextLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         loadingTextLp.setMargins(0, DisplayUtils.dip2px(getContext(), 50), 0, 0);
         loadingTextLp.gravity = Gravity.BOTTOM;
         this.addView(loadingText, loadingTextLp);
 
-        FrameLayout.LayoutParams loadingLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        LayoutParams loadingLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         loadingView = new ImageView(getContext());
         loadingLp.gravity = Gravity.CENTER;
         loadingView.setAdjustViewBounds(true);
@@ -118,20 +122,20 @@ public class VideoView extends FrameLayout {
             startRotate();
     }
 
-    public void startRotate(){
+    public void startRotate() {
         Animation operatingAnim = AnimationUtils.loadAnimation(getContext(), R.anim.live_video_loading);
         operatingAnim.setInterpolator(new LinearInterpolator());
         loadingView.setVisibility(VISIBLE);
         loadingView.startAnimation(operatingAnim);
     }
 
-    public void stopRotate(){
+    public void stopRotate() {
         if (!isLoading) return;
         loadingText.setVisibility(GONE);
         loadingView.setVisibility(GONE);
         loadingView.clearAnimation();
         isLoading = false;
-        tvName.setVisibility(VISIBLE);
+        awardAndNameLayout.setVisibility(VISIBLE);
         if (ivWaterMark != null)
             ivWaterMark.setVisibility(VISIBLE);
     }
@@ -152,7 +156,7 @@ public class VideoView extends FrameLayout {
             videoView.waterMark = bitmap;
             int height = Math.min(videoView.waterMark.getHeight(), videoView.getMeasuredHeight() / 9);
             int width = Math.min(videoView.waterMark.getWidth(), videoView.getMeasuredWidth() / 9);
-            FrameLayout.LayoutParams ivLp = new FrameLayout.LayoutParams(width, height);
+            LayoutParams ivLp = new LayoutParams(width, height);
             switch (videoView.waterMarkPosition) {
                 case 1:
                     ivLp.gravity = GravityCompat.START | Gravity.TOP;
@@ -186,17 +190,17 @@ public class VideoView extends FrameLayout {
     @Override
     protected void onSizeChanged(final int w, final int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (isLoading && oldh > 0 && h > oldh){
-            loadingView.setPadding(w / 4,h / 4, w / 4, h / 4);
+        if (isLoading && oldh > 0 && h > oldh) {
+            loadingView.setPadding(w / 4, h / 4, w / 4, h / 4);
 //
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             loadingText.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
             loadingText.setLayoutParams(layoutParams);
 
             startRotate();
-        }else if (isLoading && h < oldh && oldh > 0){
+        } else if (isLoading && h < oldh && oldh > 0) {
             loadingView.setImageResource(R.drawable.ic_live_loading);
-            loadingView.setPadding(0,0, 0, 0);
+            loadingView.setPadding(0, 0, 0, 0);
             startRotate();
         }
         if (TextUtils.isEmpty(waterMarkUrl)) {
@@ -293,9 +297,24 @@ public class VideoView extends FrameLayout {
         }
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
         if (tvName != null)
             tvName.setText(name);
+    }
+
+    public void setAwardCount(int awardCount) {
+        if (awardCount > 0) {
+            awardTv.setVisibility(View.VISIBLE);
+            awardTv.setText(String.valueOf(awardCount));
+        }
+    }
+
+    public void setAwardTvVisibility(int visibility){
+        awardTv.setVisibility(visibility);
+    }
+
+    public void setAwardLayoutVisibility(int visibility){
+        awardAndNameLayout.setVisibility(visibility);
     }
 }

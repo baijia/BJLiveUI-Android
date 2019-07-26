@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="star">
+        <item>@drawable/star0001</item>
+        <item>@drawable/star0002</item>
+        <item>@drawable/star0003</item>
+        <item>@drawable/star0004</item>
+        <item>@drawable/star0005</item>
+        <item>@drawable/star0006</item>
+        <item>@drawable/star0007</item>
+        <item>@drawable/star0008</item>
+        <item>@drawable/star0009</item>
+        <item>@drawable/star0010</item>
+        <item>@drawable/star0011</item>
+        <item>@drawable/star0012</item>
+        <item>@drawable/star0013</item>
+        <item>@drawable/star0014</item>
+        <item>@drawable/star0015</item>
+        <item>@drawable/star0016</item>
+        <item>@drawable/star0017</item>
+        <item>@drawable/star0018</item>
+        <item>@drawable/star0019</item>
+        <item>@drawable/star0020</item>
+    </array>
+
+</resources>

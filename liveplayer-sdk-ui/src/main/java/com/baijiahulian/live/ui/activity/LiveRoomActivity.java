@@ -25,10 +25,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.OrientationEventListener;
@@ -54,7 +56,6 @@ import com.baijiahulian.live.ui.R;
 import com.baijiahulian.live.ui.announcement.AnnouncementFragment;
 import com.baijiahulian.live.ui.announcement.AnnouncementPresenter;
 import com.baijiahulian.live.ui.answersheet.QuestionToolFragment;
-import com.baijiahulian.live.ui.answersheet.QuestionToolPresenter;
 import com.baijiahulian.live.ui.base.BasePresenter;
 import com.baijiahulian.live.ui.base.BaseView;
 import com.baijiahulian.live.ui.base.DragFragment;
@@ -94,6 +95,7 @@ import com.baijiahulian.live.ui.rollcall.RollCallDialogPresenter;
 import com.baijiahulian.live.ui.setting.SettingDialogFragment;
 import com.baijiahulian.live.ui.setting.SettingPresenter;
 import com.baijiahulian.live.ui.share.LPShareDialog;
+import com.baijiahulian.live.ui.speakerspanel.AwardView;
 import com.baijiahulian.live.ui.speakerspanel.RecorderView;
 import com.baijiahulian.live.ui.speakerspanel.SpeakerPresenter;
 import com.baijiahulian.live.ui.speakerspanel.SpeakersFragment;
@@ -103,8 +105,10 @@ import com.baijiahulian.live.ui.topbar.TopBarPresenter;
 import com.baijiahulian.live.ui.users.OnlineUserDialogFragment;
 import com.baijiahulian.live.ui.users.OnlineUserPresenter;
 import com.baijiahulian.live.ui.utils.DisplayUtils;
+import com.baijiahulian.live.ui.utils.FileUtil;
 import com.baijiahulian.live.ui.utils.JsonObjectUtil;
 import com.baijiahulian.live.ui.utils.RxUtils;
+import com.baijiahulian.livecore.LiveSDK;
 import com.baijiahulian.livecore.context.LPConstants;
 import com.baijiahulian.livecore.context.LPError;
 import com.baijiahulian.livecore.context.LiveRoom;
@@ -145,7 +149,6 @@ import static com.baijiahulian.live.ui.utils.Precondition.checkNotNull;
 public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRouterListener {
     private RelativeLayout rlContainer;
     private RelativeLayout flBackground;
-    private FrameLayout flTop;
     private FrameLayout flLeft;
     private FrameLayout flLoading;
     private FrameLayout flError;
@@ -196,11 +199,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private static String liveHorseLamp; // 跑马灯
     private static int liveHorseLampInterval = 60; // 跑马灯时间间隔
     private IUserModel enterUser;
-    private RelativeLayout.LayoutParams lpBackground;
     private boolean mobileNetworkDialogShown = false;
     private MaterialDialog speakInviteDlg;  //取消用
-    //debug
-    private RadioGroup rgAecMode, rgAecmMode, rgAudioSourceMode, rgCommunication;
     private EditText etDebugAecDelay;
     private int aecMode = 0, aecmMode = 0, audioSource = 0, delay;
     private boolean isCommunication = true;
@@ -211,6 +211,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private int minVolume;
     private IUserModel privateChatUser;
     private Subscription subscriptionOfTeacherAbsent;
+    private AwardView awardView;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -232,10 +233,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_live_room);
-//        View anchor = findViewById(R.id.activity_live_room_center_anchor);
-//        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) anchor.getLayoutParams();
-//        lp.topMargin = DisplayUtils.getScreenWidthPixels(this) * 3 / 4;
-//        anchor.setLayoutParams(lp);
         initViews();
 
         // x86平台的机器不让进教室
@@ -301,15 +298,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 }
             }
         };
-        dlChat.openDrawer(Gravity.START);
+        dlChat.openDrawer(GravityCompat.START);
         checkScreenOrientationInit();
     }
 
     private boolean isDlchatOpen = false;
 
     private void initViews() {
-
-        lpBackground = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         flBackground = (RelativeLayout) findViewById(R.id.activity_live_room_background_container);
         DisplayMetrics displayMetrics = new DisplayMetrics();// 强制设置白版高度
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -317,7 +312,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         ViewGroup.LayoutParams params = flBackground.getLayoutParams();
         params.height = displayWidth * 3 / 4;
         flBackground.setLayoutParams(params);
-        flTop = (FrameLayout) findViewById(R.id.activity_live_room_top);
         flLeft = (FrameLayout) findViewById(R.id.activity_live_room_bottom_left);
         flLoading = (FrameLayout) findViewById(R.id.activity_live_room_loading);
         dlChat = (DrawerLayout) findViewById(R.id.activity_live_room_chat_drawer);
@@ -329,7 +323,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         flCloudRecord = (FrameLayout) findViewById(R.id.activity_live_room_cloud_record);
         rlContainer = (RelativeLayout) findViewById(R.id.activity_live_room_container);
         flQuestionTool = (DragFragment) findViewById(R.id.activity_dialog_question_tool);
-//        dlChat.setVisibility(View.GONE);
 
         dlChat.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -358,6 +351,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 }
             }
         });
+        awardView = (AwardView) findViewById(R.id.award_view);
     }
 
     @Override
@@ -570,6 +564,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                         if (!TextUtils.isEmpty(error.getMessage()))
                             showMessage(error.getMessage());
                         detachLocalVideo();
+                        break;
+                    case LPError.CODE_WARNING_PLAYER_LAG:
                         break;
                     default:
                         if (!TextUtils.isEmpty(error.getMessage()))
@@ -873,6 +869,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
+    public void showCopyLogDebugPanel() {
+        if (checkWriteFilePermission()){
+            Toast.makeText(LiveRoomActivity.this, FileUtil.copyFile(getLiveRoom().getLivePlayer().getLogFilePath(), FileUtil.getSDPath()), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public void showStreamDebugPanel() {
         userMediaModels = getLiveRoom().getSpeakQueueVM().getSpeakQueueList();
         subscriptionOfOnlineUserDebug = getLiveRoom().getSpeakQueueVM().getObservableOfMediaNew()
@@ -897,6 +900,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         window.setAttributes(lp);
 
         tvStreamInfo = (TextView) layout.findViewById(R.id.tv_dlg_debug_stream);
+
         subscriptionOfStreamInfo = Observable.interval(1500, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LPErrorPrintSubscriber<Long>() {
@@ -973,10 +977,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     }
                 })
                 .build();
-        rgAecMode = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_aec);
-        rgAecmMode = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_aecm);
-        rgAudioSourceMode = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_audio_source);
-        rgCommunication = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_is_communication);
+        //debug
+        RadioGroup rgAecMode = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_aec);
+        RadioGroup rgAecmMode = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_aecm);
+        RadioGroup rgAudioSourceMode = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_audio_source);
+        RadioGroup rgCommunication = (RadioGroup) dlg.getCustomView().findViewById(R.id.rg_lp_debug_mode_is_communication);
         etDebugAecDelay = (EditText) dlg.getCustomView().findViewById(R.id.et_debug_aec_delay);
         rgAecMode.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -1053,7 +1058,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     liveRoom.getRoomType() == LPConstants.LPRoomType.SmallGroup) {
                 if (liveRoom.isClassStarted()) {
                     liveRoom.getRecorder().publish();
-                    attachLocalAudio();
+                    if(!liveRoom.getRecorder().isAudioAttached()){
+                        attachLocalAudio();
+                    }
                     if (liveRoom.getAutoOpenCameraStatus()) {
                         Observable.timer(500, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new LPErrorPrintSubscriber<Long>() {
@@ -1133,10 +1140,14 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (view == null) return;
         if (flBackground.getChildCount() > 0)
             flBackground.removeAllViews();
-        if (view instanceof VideoView)
+        if (view instanceof VideoView){
             ((SurfaceView)((VideoView) view).getSurfaceView()).setZOrderMediaOverlay(false);
-        if (view instanceof RecorderView)
+            ((VideoView)view).setAwardLayoutVisibility(View.GONE);
+        }
+        if (view instanceof RecorderView){
             ((RecorderView)(view)).setZOrderMediaOverlay(false);
+            ((RecorderView)view).setAwardLayoutVisibility(View.GONE);
+        }
         flBackground.addView(view, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         if (view == lppptView) {
@@ -1152,8 +1163,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         return lppptView;
     }
 
+    private RollCallDialogFragment rollCallDialogFragment;
+
     public void showRollCallDlg(int time, OnPhoneRollCallListener.RollCall rollCallListener) {
-        RollCallDialogFragment rollCallDialogFragment = new RollCallDialogFragment();
+        rollCallDialogFragment = new RollCallDialogFragment();
         rollCallDialogFragment.setCancelable(false);
         rollCallDialogPresenter = new RollCallDialogPresenter(rollCallDialogFragment);
         rollCallDialogPresenter.setRollCallInfo(time, rollCallListener);
@@ -1166,6 +1179,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (rollCallDialogPresenter != null) {
             rollCallDialogPresenter.timeOut();
         }
+        if (tempDialogFragment instanceof RollCallDialogFragment)
+            tempDialogFragment = null;
+        removeFragment(rollCallDialogFragment);
+
     }
 
     @Override
@@ -1238,6 +1255,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     private static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
     private static final int REQUEST_CODE_PERMISSION_MIC = 2;
+    private static final int REQUEST_CODE_PERMISSION_WRITE = 3;
 
     @Override
     public boolean checkCameraPermission() {
@@ -1258,6 +1276,15 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         return false;
     }
 
+    private boolean checkWriteFilePermission(){
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(LiveRoomActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            return true;
+        }else {
+            ActivityCompat.requestPermissions(LiveRoomActivity.this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},  REQUEST_CODE_PERMISSION_WRITE);
+        }
+        return false;
+    }
+
     @Override
     public void attachLocalAudio() {
         if (checkMicPermission())
@@ -1267,7 +1294,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private void showSystemSettingDialog(int type) {
         new MaterialDialog.Builder(this)
                 .title(getString(R.string.live_sweet_hint))
-                .content(type == REQUEST_CODE_PERMISSION_CAMERA ? getString(R.string.live_no_camera_permission) : getString(R.string.live_no_mic_permission))
+                .content(mapType2String(type))
                 .positiveText(getString(R.string.live_quiz_dialog_confirm))
                 .positiveColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_blue))
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -1279,6 +1306,19 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 .canceledOnTouchOutside(true)
                 .build()
                 .show();
+    }
+
+    private String mapType2String(int type){
+        switch (type) {
+            case REQUEST_CODE_PERMISSION_CAMERA:
+                return getString(R.string.live_no_camera_permission);
+            case REQUEST_CODE_PERMISSION_MIC:
+                return getString(R.string.live_no_mic_permission);
+            case REQUEST_CODE_PERMISSION_WRITE:
+                return getString(R.string.live_no_write_permission);
+            default:
+                return "";
+        }
     }
 
     @Override
@@ -1297,6 +1337,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     liveRoom.getRecorder().attachAudio();
                 } else if (grantResults.length > 0) {
                     showSystemSettingDialog(REQUEST_CODE_PERMISSION_MIC);
+                }
+                break;
+            case REQUEST_CODE_PERMISSION_WRITE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(LiveRoomActivity.this, FileUtil.copyFile(getLiveRoom().getLivePlayer().getLogFilePath(), FileUtil.getSDPath()), Toast.LENGTH_SHORT).show();
+                } else if (grantResults.length > 0) {
+                    showSystemSettingDialog(REQUEST_CODE_PERMISSION_WRITE);
                 }
                 break;
             default:
@@ -1599,7 +1646,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         flRight.setVisibility(View.VISIBLE);
         flRightBottom.setVisibility(View.VISIBLE);
         onRecordFullScreenConfigurationChanged(false);
-        dlChat.openDrawer(Gravity.START);
+        dlChat.openDrawer(GravityCompat.START);
     }
 
     private MessageSentFragment messageSentFragment;
@@ -1663,7 +1710,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             flLeft.setVisibility(View.VISIBLE);
             dlChat.setVisibility(View.VISIBLE);
             flRightBottom.setVisibility(View.VISIBLE);
-            dlChat.openDrawer(Gravity.START);
+            dlChat.openDrawer(GravityCompat.START);
             flPPTLeft.setVisibility(View.GONE);
         }
     }
@@ -1894,6 +1941,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        Log.i("tag","ondestroy");
+
         shouldShowTechSupport = true;
         if (pptManagePresenter != null) {
             pptManagePresenter.destroy();
@@ -2149,13 +2199,25 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
+    public void showAwardAnimation(String userName) {
+        awardView.startAnim();
+        awardView.setVisibility(View.VISIBLE);
+        awardView.setUserName(userName);
+    }
+
+    private int getStreamType() {
+        return LiveSDK.getAudioOutput() == LPConstants.VoiceType.VOICE_CALL ?
+                AudioManager.STREAM_VOICE_CALL : AudioManager.STREAM_MUSIC;
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             if (mAudioManager == null) return true;
-            mAudioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, AudioManager.ADJUST_RAISE,
+            mAudioManager.adjustStreamVolume(getStreamType(), AudioManager.ADJUST_RAISE,
                     AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
-            int current = mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+            int current = mAudioManager.getStreamVolume(getStreamType());
             if (current > minVolume) {
                 try {
                     liveRoom.getPlayer().unMute();
@@ -2167,9 +2229,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             if (mAudioManager == null) return true;
-            mAudioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, AudioManager.ADJUST_LOWER,
+            mAudioManager.adjustStreamVolume(getStreamType(), AudioManager.ADJUST_LOWER,
                     AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
-            int current = mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+            int current = mAudioManager.getStreamVolume(getStreamType());
             if (current <= minVolume) {
                 try {
                     liveRoom.getPlayer().mute();

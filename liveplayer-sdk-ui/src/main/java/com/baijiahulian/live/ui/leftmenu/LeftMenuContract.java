@@ -34,5 +34,7 @@ interface LeftMenuContract {
         void showHuiyinDebugPanel();
 
         void showStreamDebugPanel();
+
+        void showCopyLogDebugPanel();
     }
 }

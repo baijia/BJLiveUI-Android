@@ -1,4 +1,4 @@
-package com.baijia.demo;
+package com.baijia.live.app;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.baijia.demo", appContext.getPackageName());
+        assertEquals("com.baijia.live.app", appContext.getPackageName());
     }
 }

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <RadioGroup
+        android:id="@+id/rg_env"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rg_env_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TEST" />
+
+        <RadioButton
+            android:id="@+id/rg_env_beta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BETA" />
+
+        <RadioButton
+            android:id="@+id/rg_env_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="PROD" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/activity_entry_join_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="code"
+        android:text="nl8t1h" />
+
+    <EditText
+        android:id="@+id/activity_entry_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:hint="name"
+        android:text="Shubo" />
+
+    <Button
+        android:id="@+id/enter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:text="enter" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="以下是调试面板" />
+
+        <EditText
+            android:id="@+id/et_audio_record_sample_rate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="设置采样频率"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/tv_audio_is_aec_supported"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="当前手机是否支持硬件消除回音" />
+
+        <RadioGroup
+            android:id="@+id/rg_audio_debug_enable_aec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/aec_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="不开启硬件消回音" />
+
+            <RadioButton
+                android:id="@+id/aec_yes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开启硬件消回音" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btn_audio_setting_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="确认回音配置" />
+
+        <Button
+            android:id="@+id/activity_entry_live"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="h5内嵌直播" />
+
+        <Button
+            android:id="@+id/activity_entry_playback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="h5内嵌回放" />
+    </LinearLayout>
+
+</LinearLayout>

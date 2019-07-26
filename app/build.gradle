@@ -2,13 +2,20 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
+
     defaultConfig {
-        applicationId "com.baijia.demo"
+        applicationId "com.baijia.live.app"
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
     }
     buildTypes {
         release {
@@ -19,9 +26,33 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+//    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+//        exclude group: 'com.android.support', module: 'support-annotations'
+//    })
+//    testCompile 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
 
-    implementation project(':liveplayer-sdk-ui')
+    implementation 'com.baijia.common:common-tools:1.0.1' // crash handler
+
+    implementation 'com.tencent.bugly:crashreport:2.6.6.1' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
+    implementation 'com.tencent.bugly:nativecrashreport:3.3.1' //其中latest.release指代最新Bugly NDK版本号，也可以指定明确的版本号，例如3.0
+    api project(':liveplayer-sdk-ui')
 }
+android {
+    lintOptions {
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+}
+
+//repositories {
+//    flatDir {
+//        dirs '/Users/Shubo/Desktop/workspace/liveplayer/liveplayer-android-sdk-core/BJHL-LivePlayer/liveplayer-sdk-core/libs'
+//    }
+//}
+

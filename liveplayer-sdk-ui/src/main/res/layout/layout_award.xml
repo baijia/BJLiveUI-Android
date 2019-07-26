@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <ImageView
+        android:id="@+id/golden_light_iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/roate_golden_light"
+        android:layout_gravity="center"
+        />
+
+    <ImageView
+        android:id="@+id/award_start_iv"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_gravity="center"
+        />
+
+    <ImageView
+        android:id="@+id/award_medal_iv"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:src="@drawable/award_medal"
+        android:layout_gravity="center"
+        />
+</merge>

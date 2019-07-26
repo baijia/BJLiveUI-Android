@@ -1,18 +1,15 @@
 package com.baijiahulian.live.ui.speakerspanel;
 
-import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 
-import com.baijiahulian.live.ui.R;
 import com.baijiahulian.live.ui.activity.LiveRoomRouterListener;
 import com.baijiahulian.live.ui.ppt.MyPPTView;
-import com.baijiahulian.live.ui.utils.QueryPlus;
 import com.baijiahulian.live.ui.utils.RxUtils;
 import com.baijiahulian.livecore.context.LPConstants;
 import com.baijiahulian.livecore.context.LPError;
 import com.baijiahulian.livecore.launch.LPEnterRoomNative;
+import com.baijiahulian.livecore.models.LPInteractionAwardModel;
 import com.baijiahulian.livecore.models.LPMediaModel;
 import com.baijiahulian.livecore.models.LPUserModel;
 import com.baijiahulian.livecore.models.LPVideoSizeModel;
@@ -29,8 +26,10 @@ import com.baijiahulian.livecore.wrapper.LPRecorder;
 import com.baijiahulian.livecore.wrapper.listener.LPOnPlayReadyListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -71,11 +70,13 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
     // 显示视频或发言用户的分段Map, key为SpeakerType， value为List，保存每个SpeakType下相应的tag或者userId;
     private LinkedHashMap<SpeakersType, ArrayList<String>> displayMap;
     private IUserModel tempUserIn;
+    private HashMap<String, Integer> awardRecord = new HashMap<>();
 
     private Subscription subscriptionOfMediaNew, subscriptionOfMediaChange, subscriptionOfMediaClose,
             subscriptionSpeakApply, subscriptionSpeakResponse, subscriptionOfActiveUser, subscriptionOfFullScreen,
             subscriptionOfUserOut, subscriptionOfPresenterChange, subscriptionOfShareDesktopAndPlayMedia,
-            subscriptionOfVideoSizeChange, subscriptionOfUserIn, subscriptionOfAutoFullScreenTeacher, subscriptionOfDebugVideo, subscriptionOfSwtichFullScreenTeacher;
+            subscriptionOfVideoSizeChange, subscriptionOfUserIn, subscriptionOfAutoFullScreenTeacher
+            , subscriptionOfSwtichFullScreenTeacher, subscriptionOfAward, subscriptionOfClassEnd;
 
     public SpeakerPresenter(SpeakersContract.View view, boolean disableSpeakQueuePlaceholder) {
         this.view = view;
@@ -126,7 +127,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
     }
 
     @Override
-    public void setPPTToFullScreen(){
+    public void setPPTToFullScreen() {
         if (!PPT_TAG.equals(fullScreenKVO.getParameter())) {
             // if full screen shows someone's video, we will switch it with PPT,
             // we need all video and speaking in the list;
@@ -148,14 +149,14 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                 if (!routerListener.isTeacherOrAssistant()) {
                     displayMap.get(SpeakersType.Presenter).add(fullId);
                 } else {
-                    if (RECORD_TAG.equals(fullId)){
+                    if (RECORD_TAG.equals(fullId)) {
                         displayMap.get(SpeakersType.Record).add(RECORD_TAG);
                     } else if (routerListener.getLiveRoom().getPresenterUser() != null && routerListener.getLiveRoom().getPresenterUser().getUserId().equals(fullId)) {
                         displayMap.get(SpeakersType.Presenter).add(fullId);
-                    } else{
+                    } else {
                         displayMap.get(SpeakersType.VideoPlay).add(fullId);
                         if (fullScreenView instanceof VideoView && getSpeakModel(fullId) != null)
-                            ((VideoView)fullScreenView).setName(getSpeakModel(fullId).getUser().getName());
+                            ((VideoView) fullScreenView).setName(getSpeakModel(fullId).getUser().getName());
                     }
                 }
                 view.notifyViewAdded(fullScreenView, indexOfUserId(fullId));
@@ -181,9 +182,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
         lpOnPlayReadyListener = new LPOnPlayReadyListener() {
             @Override
             public void ready(int userId) {
-
-                Log.e("yjm", String.valueOf(userId));
-                if (userId < 0){
+                if (userId < 0) {
                     view.stopLoadingAnimation(-1);
                     return;
                 }
@@ -194,7 +193,8 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                     else if (fullScreenKVO.getParameter() != null && fullScreenKVO.getParameter().equals(String.valueOf(userId))) {
                         if (routerListener.getBackgroundContainer().getChildCount() > 0 && routerListener.getBackgroundContainer().getChildAt(0) instanceof VideoView)
                             ((VideoView) routerListener.getBackgroundContainer().getChildAt(0)).stopRotate();
-                    }else {
+                            ((VideoView) routerListener.getBackgroundContainer().getChildAt(0)).setAwardLayoutVisibility(View.GONE);
+                    } else {
                         view.stopLoadingAnimation(-1);
                     }
                 } catch (Exception e) {
@@ -223,17 +223,17 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
         }
 
         for (IMediaModel model : routerListener.getLiveRoom().getSpeakQueueVM().getSpeakQueueList()) {
-           if (routerListener.getLiveRoom().getPresenterUser() == null){
-               if (model.isVideoOn())
-                   displayMap.get(SpeakersType.VideoPlay).add(model.getUser().getUserId());
-               else
-                   displayMap.get(SpeakersType.Speaking).add(model.getUser().getUserId());
-           }else{
-               if (!model.getUser().getUserId().equals(routerListener.getLiveRoom().getPresenterUser().getUserId()) && model.isVideoOn())
-                   displayMap.get(SpeakersType.VideoPlay).add(model.getUser().getUserId());
-               else if (!model.getUser().getUserId().equals(routerListener.getLiveRoom().getPresenterUser().getUserId()) && !model.isVideoOn())
-                   displayMap.get(SpeakersType.Speaking).add(model.getUser().getUserId());
-           }
+            if (routerListener.getLiveRoom().getPresenterUser() == null) {
+                if (model.isVideoOn())
+                    displayMap.get(SpeakersType.VideoPlay).add(model.getUser().getUserId());
+                else
+                    displayMap.get(SpeakersType.Speaking).add(model.getUser().getUserId());
+            } else {
+                if (!model.getUser().getUserId().equals(routerListener.getLiveRoom().getPresenterUser().getUserId()) && model.isVideoOn())
+                    displayMap.get(SpeakersType.VideoPlay).add(model.getUser().getUserId());
+                else if (!model.getUser().getUserId().equals(routerListener.getLiveRoom().getPresenterUser().getUserId()) && !model.isVideoOn())
+                    displayMap.get(SpeakersType.Speaking).add(model.getUser().getUserId());
+            }
         }
 
         for (IUserModel model : routerListener.getLiveRoom().getSpeakQueueVM().getApplyList()) {
@@ -276,11 +276,12 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                             if (getSpeakersType(iMediaModel.getUser().getUserId()) == SpeakersType.Presenter) {
                                 //if presenter already exists in the list, update it.
                                 int presenterPosition = indexOfUserId(iMediaModel.getUser().getUserId());
-                                if (view.getChildAt(presenterPosition) != null){
+                                if (view.getChildAt(presenterPosition) != null) {
                                     if (iMediaModel.isVideoOn())
-                                    view.notifyItemChanged(presenterPosition, iMediaModel);
-                                }else{ // if presenter has its position in the view, update view
-                                    view.notifyItemInserted(presenterPosition, null);}
+                                        view.notifyItemChanged(presenterPosition, iMediaModel);
+                                } else { // if presenter has its position in the view, update view
+                                    view.notifyItemInserted(presenterPosition, null);
+                                }
                             } else {
                                 //if presenter is not in the list, add new presenter
 //                                if (fullScreenKVO.getParameter() != null && iMediaModel.getUser().getUserId().equals(fullScreenKVO.getParameter())){
@@ -379,12 +380,14 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                 view.notifyItemInserted(indexOfUserId(iMediaModel.getUser().getUserId()), removedView);
                             } else { // 重播
                                 if (iMediaModel.skipRelease() != 1)
-                                view.notifyItemChanged(position, iMediaModel);
+                                    view.notifyItemChanged(position, iMediaModel);
                             }
                         } else if (speakersType == SpeakersType.Speaking) { // 视频未打开用户
-//                            view.notifyItemChanged(position);
+//                            view.notifyItemChanged(position, iMediaModel);
                             if (iMediaModel.isVideoOn())
                                 playVideo(iMediaModel.getUser().getUserId());
+                            else
+                                getPlayer().playAudio(iMediaModel.getUser().getUserId());
                         } else {
                             throw new RuntimeException("position > _displayApplySection");
                         }
@@ -408,7 +411,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                             return;
                         }
                         int position = indexOfUserId(iMediaModel.getUser().getUserId());
-                        if (position == -1){
+                        if (position == -1) {
                             return;
                         }
                         SpeakersType speakersType = getSpeakersType(iMediaModel.getUser().getUserId());
@@ -451,28 +454,28 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                         }
                         setPPTToFullScreen();
 
-                        if (routerListener.isTeacherOrAssistant()){
+                        if (routerListener.isTeacherOrAssistant()) {
                             if (displayMap.get(SpeakersType.Presenter).isEmpty()) {
                                 if (newPresenter.equals(routerListener.getLiveRoom().getCurrentUser().getUserId()))
                                     return;
                                 int switchIndex = indexOfUserId(newPresenter);
-                                if (switchIndex < 0){
+                                if (switchIndex < 0) {
                                     displayMap.get(SpeakersType.Presenter).add(newPresenter);
                                     view.notifyItemInserted(0, null);
                                     return;
                                 }
                                 View removedView = null;
-                                if (displayMap.get(SpeakersType.VideoPlay).contains(newPresenter)){
+                                if (displayMap.get(SpeakersType.VideoPlay).contains(newPresenter)) {
                                     removedView = view.notifyItemDeleted(switchIndex);
                                     displayMap.get(SpeakersType.VideoPlay).remove(newPresenter);
 
-                                }else if (displayMap.get(SpeakersType.Speaking).contains(newPresenter)){
+                                } else if (displayMap.get(SpeakersType.Speaking).contains(newPresenter)) {
                                     removedView = view.notifyItemDeleted(switchIndex);
                                     displayMap.get(SpeakersType.Speaking).remove(newPresenter);
                                 }
                                 displayMap.get(SpeakersType.Presenter).add(newPresenter);
                                 view.notifyItemInserted(0, removedView);
-                            }else {
+                            } else {
                                 String lastPresenter = displayMap.get(SpeakersType.Presenter).get(0);
                                 if (newPresenter.equals(lastPresenter)) return;
 
@@ -489,11 +492,11 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                     }
                                 }
                                 View removePresenterView = null;
-                                if (newPresenter.equals(routerListener.getLiveRoom().getCurrentUser().getUserId())){
+                                if (newPresenter.equals(routerListener.getLiveRoom().getCurrentUser().getUserId())) {
                                     removePresenterView = view.notifyItemDeleted(0);
                                     displayMap.get(SpeakersType.Presenter).clear();
                                     view.showToast("您成为了主讲");
-                                }else{
+                                } else {
                                     displayMap.get(SpeakersType.Presenter).clear();
                                     displayMap.get(SpeakersType.Presenter).add(newPresenter);
                                     removePresenterView = view.notifyItemDeleted(0);
@@ -502,11 +505,11 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                 }
 
                                 IMediaModel lastPresenterModel = getSpeakModel(lastPresenter);
-                                if (lastPresenterModel != null && (lastPresenterModel.isVideoOn() || lastPresenterModel.isAudioOn())){
-                                    if (lastPresenterModel.isVideoOn()){
+                                if (lastPresenterModel != null && (lastPresenterModel.isVideoOn() || lastPresenterModel.isAudioOn())) {
+                                    if (lastPresenterModel.isVideoOn()) {
                                         displayMap.get(SpeakersType.VideoPlay).add(lastPresenter);
                                         view.notifyItemInserted(indexOfUserId(lastPresenter), removePresenterView);
-                                    }else if (lastPresenterModel.isAudioOn()){
+                                    } else if (lastPresenterModel.isAudioOn()) {
                                         displayMap.get(SpeakersType.Speaking).add(lastPresenter);
                                         view.notifyItemInserted(indexOfUserId(lastPresenter), removePresenterView);
                                     }
@@ -535,12 +538,12 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                 if (lastModel != null && (lastModel.isAudioOn() || lastModel.isVideoOn())) {
                                     // if new presenter's camera or mic is on, we will insert a new position for him
                                     if (lastModel.isVideoOn()) {
-                                        if (!displayMap.get(SpeakersType.VideoPlay).contains(lastPresenter)){
+                                        if (!displayMap.get(SpeakersType.VideoPlay).contains(lastPresenter)) {
                                             displayMap.get(SpeakersType.VideoPlay).add(lastPresenter);
                                             view.notifyItemInserted(indexOfUserId(lastPresenter), removedPresenterView);
                                         }
                                     } else if (!lastModel.isVideoOn()) {
-                                        if (!displayMap.get(SpeakersType.Speaking).contains(lastPresenter)){
+                                        if (!displayMap.get(SpeakersType.Speaking).contains(lastPresenter)) {
                                             displayMap.get(SpeakersType.Speaking).add(lastPresenter);
                                             view.notifyItemInserted(indexOfUserId(lastPresenter), removedPresenterView);
                                         }
@@ -550,7 +553,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                 // new presenter was at list
                                 int switchIndex = indexOfUserId(newPresenter); //  find out new presenter's last position
 
-                               // switch presenter in displayMap
+                                // switch presenter in displayMap
                                 displayMap.get(SpeakersType.Presenter).clear();
                                 displayMap.get(SpeakersType.Presenter).add(newPresenter);
 
@@ -570,7 +573,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                             View removePresenterView = view.notifyItemDeleted(0);
                                             view.notifyItemInserted(0, removeView);
                                             view.notifyItemInserted(switchIndex, removePresenterView);
-                                        } else if (displayMap.get(SpeakersType.Speaking).contains(newPresenter)){
+                                        } else if (displayMap.get(SpeakersType.Speaking).contains(newPresenter)) {
                                             View removePresenterView = view.notifyItemDeleted(switchIndex);
                                             displayMap.get(SpeakersType.Speaking).remove(newPresenter);
                                             displayMap.get(SpeakersType.VideoPlay).add(lastPresenter);
@@ -587,7 +590,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
 
                                             view.notifyItemDeleted(0);
                                             view.notifyItemInserted(0, null);
-                                        } else if (displayMap.get(SpeakersType.VideoPlay).contains(newPresenter)){
+                                        } else if (displayMap.get(SpeakersType.VideoPlay).contains(newPresenter)) {
                                             View removePresenterView = view.notifyItemDeleted(switchIndex);
                                             displayMap.get(SpeakersType.VideoPlay).remove(newPresenter);
                                             displayMap.get(SpeakersType.Speaking).add(lastPresenter);
@@ -595,7 +598,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
 
                                             view.notifyItemDeleted(0);
                                             view.notifyItemInserted(0, removePresenterView);
-                                        }else {
+                                        } else {
                                             throw new RuntimeException("new presenter not in the speakList");
                                         }
                                     }
@@ -732,7 +735,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                                 !fullScreenKVO.getParameter().equals(routerListener.getLiveRoom().getTeacherUser().getUserId())) {
                             String teacherId = routerListener.getLiveRoom().getTeacherUser().getUserId();
 
-                            if (!TextUtils.isEmpty(teacherId) && getSpeakModel(teacherId) != null){
+                            if (!TextUtils.isEmpty(teacherId) && getSpeakModel(teacherId) != null) {
 
 //                                fullScreenKVO.setParameter(teacherId);
                             }
@@ -843,7 +846,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                             try {
                                 displayMap.get(SpeakersType.Applying).add(iMediaModel.getUser().getUserId());
                                 view.notifyItemInserted(indexOfUserId(iMediaModel.getUser().getUserId()), null);
-                            } catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -864,6 +867,47 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
                         }
                     });
         }
+        subscriptionOfAward = routerListener.getLiveRoom()
+                .getObservableOfAward()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new LPErrorPrintSubscriber<LPInteractionAwardModel>() {
+                    @Override
+                    public void call(LPInteractionAwardModel awardModel) {
+                        awardRecord.putAll(awardModel.value.record);
+                        if(awardModel.isFromCache && awardModel.value.record != null){
+                            for(Map.Entry<String,Integer> entry : awardModel.value.record.entrySet()){
+                                IMediaModel iMediaModel = getSpeakModelWithUserNumber(entry.getKey());
+                                notifyAward(iMediaModel, entry.getValue(), false);
+                            }
+                        } else{
+                            IMediaModel iMediaModel = getSpeakModelWithUserNumber(awardModel.value.to);
+                            notifyAward(iMediaModel, awardModel.value.record.get(awardModel.value.to), true);
+                        }
+                    }
+                });
+
+        subscriptionOfClassEnd = routerListener.getLiveRoom()
+                .getObservableOfClassEnd()
+                .mergeWith(routerListener.getLiveRoom().getObservableOfClassSwitch())
+                .subscribe(new LPErrorPrintSubscriber<Void>() {
+                    @Override
+                    public void call(Void aVoid) {
+                        awardRecord.clear();
+                    }
+                });
+    }
+
+    private void notifyAward(IMediaModel iMediaModel, int awardCount, boolean isShowAwardAnimation){
+        if(iMediaModel != null){
+            int index = indexOfUserId(iMediaModel.getUser().getUserId());
+            if(index == -1 && iMediaModel.getUser().getNumber().equals(getCurrentUser().getNumber())){
+                index = indexOfUserId(RECORD_TAG);
+            }
+            view.notifyAwardCountChange(index, awardCount);
+            if(isShowAwardAnimation){
+                routerListener.showAwardAnimation(iMediaModel.getUser().getName());
+            }
+        }
     }
 
     @Override
@@ -881,8 +925,9 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
         RxUtils.unSubscribe(subscriptionOfVideoSizeChange);
         RxUtils.unSubscribe(subscriptionOfShareDesktopAndPlayMedia);
         RxUtils.unSubscribe(subscriptionOfAutoFullScreenTeacher);
-        RxUtils.unSubscribe(subscriptionOfDebugVideo);
+        RxUtils.unSubscribe(subscriptionOfAward);
         RxUtils.unSubscribe(subscriptionOfSwtichFullScreenTeacher);
+        RxUtils.unSubscribe(subscriptionOfClassEnd);
     }
 
     @Override
@@ -893,13 +938,13 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
     }
 
     @Override
-    public IUserModel getPresenter(){
+    public IUserModel getPresenter() {
         return routerListener.getLiveRoom().getPresenterUser();
     }
 
     @Override
-    public void requestPresenterChange(String userId, boolean isSet){
-        if (!clickableCheck()){
+    public void requestPresenterChange(String userId, boolean isSet) {
+        if (!clickableCheck()) {
             view.showToast("请勿频繁切换");
             return;
         }
@@ -917,10 +962,10 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
     }
 
     @Override
-    public void requestStudentDrawingAuth(String userId, boolean isAddAuth){
+    public void requestStudentDrawingAuth(String userId, boolean isAddAuth) {
         IMediaModel model = getSpeakModel(userId);
         if (model == null) return;
-        LPError lpError = routerListener.getLiveRoom().getSpeakQueueVM().requestStudentDrawingAuthChange( isAddAuth, model.getUser().getNumber());
+        LPError lpError = routerListener.getLiveRoom().getSpeakQueueVM().requestStudentDrawingAuthChange(isAddAuth, model.getUser().getNumber());
 //        if (lpError == null && isAddAuth){
 //            view.showToast("授权画笔成功");
 //        }else if (lpError == null && !isAddAuth){
@@ -1015,6 +1060,34 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
         return model;
     }
 
+    private IMediaModel getSpeakModelWithUserNumber(String userNumber) {
+        if (TextUtils.isEmpty(userNumber)) return null;
+        if(userNumber.equals(routerListener.getLiveRoom().getCurrentUser().getNumber())){
+            LPMediaModel model = new LPMediaModel();
+            model.user = (LPUserModel) routerListener.getLiveRoom().getCurrentUser();
+            return model;
+        }
+        for (IMediaModel model : routerListener.getLiveRoom().getSpeakQueueVM().getSpeakQueueList()) {
+            if (model.getUser().getNumber().equals(userNumber)) {
+                return model;
+            }
+        }
+        // presenter mismatching
+        if (routerListener.getLiveRoom().getPresenterUser() != null &&
+                userNumber.equals(routerListener.getLiveRoom().getPresenterUser().getNumber())) {
+            LPMediaModel model = new LPMediaModel();
+            model.user = (LPUserModel) routerListener.getLiveRoom().getPresenterUser();
+            return model;
+        }
+
+        if (tempUserIn != null && tempUserIn.getNumber().equals(userNumber)) {
+            LPMediaModel model = new LPMediaModel();
+            model.user = (LPUserModel) tempUserIn;
+            return model;
+        }
+        return null;
+    }
+
     @Override
     public IMediaModel getSpeakModel(int position) {
         String userId = getList().get(position);
@@ -1046,7 +1119,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
             displayMap.get(SpeakersType.Speaking).remove(userId);
         }
 
-        if (displayMap.get(SpeakersType.VideoPlay).contains(userId)){
+        if (displayMap.get(SpeakersType.VideoPlay).contains(userId)) {
             view.notifyItemChanged(position, null);
             return;
         }
@@ -1173,7 +1246,6 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
     }
 
 
-
     @Override
     public String getItem(int position) {
         if (position < getList().size())
@@ -1212,7 +1284,7 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
             if (displayMap.get(SpeakersType.Record).isEmpty()) {
                 displayMap.get(SpeakersType.Record).add(RECORD_TAG);
                 view.notifyItemInserted(indexOfUserId(RECORD_TAG), null);
-            }else {
+            } else {
                 view.notifyItemChanged(indexOfUserId(RECORD_TAG), null);
             }
         }
@@ -1290,6 +1362,25 @@ public class SpeakerPresenter implements SpeakersContract.Presenter {
             }
         });
         return true;
+    }
+
+    @Override
+    public void requestAward(String userNumber) {
+        awardRecord.put(userNumber, (awardRecord.get(userNumber) == null) ? 1 : awardRecord.get(userNumber) + 1);
+        routerListener.getLiveRoom().requestAward(userNumber, awardRecord);
+    }
+
+    @Override
+    public int getRewardCount(String userNumber) {
+        if(TextUtils.isEmpty(userNumber)){
+            return 0;
+        }
+        return awardRecord.get(userNumber) == null ? 0 : awardRecord.get(userNumber);
+    }
+
+    @Override
+    public IUserModel getCurrentUser() {
+        return routerListener.getLiveRoom().getCurrentUser();
     }
 
 }

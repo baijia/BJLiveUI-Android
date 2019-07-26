@@ -189,6 +189,8 @@ public interface LiveRoomRouterListener {
 
     void showDebugBtn();
 
+    void showCopyLogDebugPanel();
+
     void enableStudentSpeakMode();
 
     void showClassSwitch();
@@ -216,4 +218,6 @@ public interface LiveRoomRouterListener {
     void answerStart(LPAnswerSheetModel model);
 
     void answerEnd(boolean ended);
+
+    void showAwardAnimation(String userName);
 }

@@ -38,5 +38,6 @@
     <color name="live_grey_tech_support">#CDCDCE</color>
     <color name="live_grey_question_tool">#666666</color>
     <color name="live_grey_round_option">#EAEAEA</color>>
+    <color name="live_award_golden">#F7E123</color>
 
 </resources>

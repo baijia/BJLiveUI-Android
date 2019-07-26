@@ -2,12 +2,11 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
-
+        classpath 'com.android.tools.build:gradle:3.2.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -16,11 +15,44 @@ buildscript {
 allprojects {
     repositories {
         maven { url 'https://raw.github.com/baijia/maven/master/' }
-        jcenter()
         google()
+        jcenter()
+    }
+}
+
+subprojects {
+    project.configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.android.support'
+                    && !details.requested.name.contains('multidex') ) {
+                details.useVersion "27.1.1"
+            }
+        }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+ext {
+    minSdkVersion = 16
+    targetSdkVersion = 27
+    compileSdkVersion = 28
+    buildToolsVersion = '28.0.3'
+
+    versionCode = 20190605
+    versionName = "7.2.3"
+    applicationId = "com.baijia.live"
+
+    //application dependencies
+    junitVersion = '4.12'
+//    supportLibraryVersion = '28.0.0'
+    supportLibraryVersion = '27.1.1'
+    rxJavaVersion = '1.2.3'
+    rxAndroidVersion = '1.2.1'
+    frescoVersion = '1.3.0'
+    pickerViewVersion = '2.1.0'
+
+    hubbleVersion = '1.2.0'
 }

@@ -15,11 +15,12 @@ import com.baijiahulian.live.ui.base.BaseDialogFragment;
 public abstract class LiveRoomBaseActivity extends AppCompatActivity {
 
     protected boolean isForeground = true;// 判断Activity是否处于前台
-    private BaseDialogFragment tempDialogFragment;
+    protected BaseDialogFragment tempDialogFragment;
     @Override
     protected void onCreate(Bundle bundle) {
         if (bundle != null) {
-            //如果系统回收的Activity， 但是系统却保留了Fragment， 当Activity被重新初始化， 此时， 系统保存的Fragment 的getActivity为空，
+            //如果系统回收的Activity， 但是系统却保留了Fragment， 当Activity被重新初始化，
+            // 此时， 系统保存的Fragment 的getActivity为空，
             //所以要移除旧的Fragment ， 重新初始化新的Fragment
             String FRAGMENTS_TAG = "android:support:fragments";
             bundle.remove(FRAGMENTS_TAG);

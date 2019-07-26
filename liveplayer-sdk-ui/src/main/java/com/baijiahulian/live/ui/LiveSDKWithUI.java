@@ -118,11 +118,11 @@ public class LiveSDKWithUI {
     /**
      * 跑马灯字段
      */
-    public static void setLiveRoomMarqueeTape(String str){
+    public static void setLiveRoomMarqueeTape(String str) {
         LiveRoomActivity.setLiveRoomMarqueeTape(str);
     }
 
-    public static void setLiveRoomMarqueeTape(String str, int interval){
+    public static void setLiveRoomMarqueeTape(String str, int interval) {
         LiveRoomActivity.setLiveRoomMarqueeTape(str, interval);
     }
 
@@ -162,11 +162,21 @@ public class LiveSDKWithUI {
         String userAvatar;
         String userNumber;
         LPConstants.LPUserType userType;
+        int group;
 
         public LiveRoomUserModel(@NonNull String userName, @Nullable String userAvatar, @Nullable String userNumber, @NonNull LPConstants.LPUserType userType) {
             this.userName = userName;
             this.userAvatar = userAvatar;
             this.userNumber = userNumber;
+            this.userType = userType;
+        }
+
+        public LiveRoomUserModel(@NonNull String userName, @Nullable String userAvatar, @Nullable String userNumber,
+                                 @NonNull LPConstants.LPUserType userType, int group) {
+            this.userName = userName;
+            this.userAvatar = userAvatar;
+            this.userNumber = userNumber;
+            this.group = group;
             this.userType = userType;
         }
 
@@ -197,7 +207,7 @@ public class LiveSDKWithUI {
 
         @Override
         public int getGroup() {
-            return 0;
+            return group;
         }
 
         @Override

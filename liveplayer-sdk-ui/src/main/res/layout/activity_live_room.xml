@@ -149,4 +149,12 @@
         android:clickable="true"
         android:visibility="gone"/>
 
+    <com.baijiahulian.live.ui.speakerspanel.AwardView
+        android:id="@+id/award_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
 </RelativeLayout>

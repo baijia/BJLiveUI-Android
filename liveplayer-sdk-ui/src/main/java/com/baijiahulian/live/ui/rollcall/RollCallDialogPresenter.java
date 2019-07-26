@@ -33,6 +33,7 @@ public class RollCallDialogPresenter implements RollCallDialogContract.Presenter
     public void setRollCallInfo(int maxTime, OnPhoneRollCallListener.RollCall rollCallConfirmListener) {
         this.maxTime = maxTime;
         this.rollCallListener = rollCallConfirmListener;
+        subscribe();
     }
 
     @Override

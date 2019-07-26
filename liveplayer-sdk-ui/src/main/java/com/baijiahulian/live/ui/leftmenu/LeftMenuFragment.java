@@ -69,6 +69,13 @@ public class LeftMenuFragment extends BaseFragment implements LeftMenuContract.V
                 presenter.showHuiyinDebugPanel();
             }
         });
+        $.id(R.id.fragment_left_menu_copy_2_SD).visible();
+        $.id(R.id.fragment_left_menu_copy_2_SD).view().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.showCopyLogDebugPanel();
+            }
+        });
     }
 
     @Override

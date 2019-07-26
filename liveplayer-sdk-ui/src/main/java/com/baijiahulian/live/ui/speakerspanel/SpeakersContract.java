@@ -56,6 +56,8 @@ interface SpeakersContract {
         void stopLoadingAnimation(int position);
 
         void showToast(String s);
+
+        void notifyAwardCountChange(int position, int awardCount);
     }
 
     interface Presenter extends BasePresenter {
@@ -134,5 +136,12 @@ interface SpeakersContract {
         boolean isEnableGrantDrawing();
 
         boolean isEnableSwitchPresenter();
+
+        void requestAward(String userNumber);
+
+        int getRewardCount(String userNumber);
+
+        IUserModel getCurrentUser();
+
     }
 }

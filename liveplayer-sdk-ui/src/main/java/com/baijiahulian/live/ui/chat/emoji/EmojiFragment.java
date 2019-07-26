@@ -183,13 +183,13 @@ public class EmojiFragment extends BaseFragment implements EmojiContract.View {
         }
 
         @Override
-        public View getView(int position, android.view.View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                convertView = inflater.inflate(R.layout.item_emoji, parent, false);
+                convertView = inflater.inflate(R.layout.bj_live_item_emoji, parent, false);
                 holder = new ViewHolder();
-                holder.imageView = (ImageView) convertView.findViewById(R.id.item_emoji_iv);
+                holder.imageView = (ImageView) convertView.findViewById(R.id.bj_live_item_emoji_iv);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();

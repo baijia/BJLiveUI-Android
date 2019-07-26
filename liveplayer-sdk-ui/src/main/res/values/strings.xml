@@ -139,6 +139,7 @@
     <string name="live_student_auth_drawing">老师开启了你的画笔权限</string>
     <string name="live_no_camera_permission">摄像头权限获取失败，请前往系统设置中允许访问摄像头</string>
     <string name="live_no_mic_permission">麦克风权限获取失败，请前往系统设置中允许访问麦克风</string>
+    <string name="live_no_write_permission">写权限获取失败，请前往系统设置中允许访问外存</string>
     <string name="live_i_got_it">知道了</string>
     <string name="live_force_speak_tip_all">老师开启了你的摄像头和麦克风，现在可以发言了</string>
     <string name="live_force_speak_tip_audio">老师开启了你的麦克风，现在可以发言了</string>
@@ -157,7 +158,8 @@
     <string name="live_room_question_tool_submit">提交答题</string>
     <string name="live_room_ppt_load_error">动态PPT加载出错,错误码：%1$d</string>
     <string name="live_room_ppt_switch_confirm">确定切换</string>
-    <string name="live_room_ppt_switch">是否切换到静态PPT?</string>>
+    <string name="live_room_ppt_switch">是否切换到静态PPT?</string>
+    <string name="live_award">奖励</string>
 
 </resources>
 

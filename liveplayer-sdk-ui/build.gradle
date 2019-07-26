@@ -3,7 +3,6 @@ apply plugin: 'maven'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 27
@@ -26,14 +25,17 @@ dependencies {
     //    testCompile 'junit:junit:4.12'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
-    implementation 'com.baijia.common:common-image-crop:1.2.9'
+    implementation ('com.baijia.common:common-image-crop:1.2.9'){
+        exclude group: 'com.android.support'
+    }
     // image crop
-    implementation 'com.afollestad.material-dialogs:commons:0.9.4.5'
+    implementation ('com.afollestad.material-dialogs:commons:0.9.4.5'){
+        exclude group: 'com.android.support'
+    }
     implementation 'io.reactivex:rxjava:1.3.4'
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.google.code.gson:gson:2.8.2'
-    api 'com.baijia.live:liveplayer-sdk-core:1.4.6'
-    implementation 'com.baijia.live:liveplayer-sdk-core-ppt:1.4.6'
+    api 'com.baijia.live:liveplayer-sdk-core-ppt:1.4.18'
 }
 android {
     lintOptions {

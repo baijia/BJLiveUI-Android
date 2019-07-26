@@ -113,6 +113,12 @@ interface SettingContract {
 
         void switchForbidAllAudio();
 
-        boolean isSmallGroup();
+        LPConstants.LPRoomType getRoomType();
+
+        int getCDNCount();
+
+        void setUpCDNLink(int order);
+
+        void setDownCDNLink(int order);
     }
 }

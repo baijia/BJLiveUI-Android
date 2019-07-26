@@ -1,4 +1,4 @@
-package com.baijia.demo;
+package com.baijia.live.app;
 
 import org.junit.Test;
 

@@ -185,19 +185,17 @@ public class RightBottomMenuPresenter implements RightBottomMenuContract.Present
                             //静音
                             if (liveRoomRouterListener.getLiveRoom().getRecorder().isAudioAttached()) {
                                 liveRoomRouterListener.getLiveRoom().getRecorder().detachAudio();
-                                if (!liveRoomRouterListener.getLiveRoom().getRecorder().isVideoAttached()) {
-                                    liveRoomRouterListener.getLiveRoom().getRecorder().stopPublishing();
-                                }
-                            }
-                        } else {
-                            if (isSpeaking) {
-                                //发言状态，打开音频
-                                if (!liveRoomRouterListener.getLiveRoom().getRecorder().isPublishing()) {
-                                    liveRoomRouterListener.getLiveRoom().getRecorder().publish();
-                                }
-                                liveRoomRouterListener.attachLocalAudio();
                             }
                         }
+//                        else {
+//                            if (isSpeaking) {
+//                                //发言状态，自动打开麦克风
+//                                if (!liveRoomRouterListener.getLiveRoom().getRecorder().isPublishing()) {
+//                                    liveRoomRouterListener.getLiveRoom().getRecorder().publish();
+//                                }
+//                                liveRoomRouterListener.attachLocalAudio();
+//                            }
+//                        }
 
                     }
                 });
