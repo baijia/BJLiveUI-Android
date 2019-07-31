@@ -9,19 +9,14 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.color.CircleView;
 import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
+import com.baijiayun.live.ui.viewsupport.CircleTextView;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPGroupItem;
 import com.baijiayun.livecore.models.LPUserModel;
 import com.baijiayun.livecore.models.roomresponse.LPResRoomGroupInfoModel;
-import com.baijiayun.livecore.utils.DisplayUtils;
-import com.baijiayun.livecore.utils.LPLogger;
-import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -36,9 +31,11 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
     private List<LPGroupItem> lpGroupItems;
     private OnUpdateListener mOnUpdateListener;
     private String mAssistantLabel;
+    private int mGroupId = -1;
 
-    public GroupExtendableListViewAdapter(String assistantLabel){
+    public GroupExtendableListViewAdapter(String assistantLabel, int groupId){
         this.mAssistantLabel = assistantLabel;
+        this.mGroupId = groupId;
     }
 
     private String []color = {
@@ -120,7 +117,7 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
             groupHolder.mIvItemOnlinePartentState = convertView.findViewById(R.id.iv_item_online_partent_state);
             groupHolder.mTvItemOnlinePartentTitle = convertView.findViewById(R.id.tv_item_online_partent_title);
             groupHolder.mTvItemOnlinePartentNumber = convertView.findViewById(R.id.tv_item_online_partent_number);
-            groupHolder.mCvItemOnlinePartentColor = convertView.findViewById(R.id.cv_item_online_partent_color);
+            groupHolder.mCtvItemOnlinePartent = convertView.findViewById(R.id.ctv_item_online_partent);
 
             convertView.setTag(groupHolder);
         } else {
@@ -130,7 +127,7 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
         LPGroupItem item = (LPGroupItem) getGroup(groupPosition);
         LPResRoomGroupInfoModel.GroupItem groupItem = item.groupItemModel;
         groupHolder.mTvItemOnlinePartentTitle.setText("" + (groupItem != null && !TextUtils.isEmpty(groupItem.name) ? groupItem.name : "分组" + ++groupPosition));
-        groupHolder.mCvItemOnlinePartentColor.setBackgroundColor(Color.parseColor(color[(groupItem != null ? groupItem.id : 1 - 1) % 16]));
+        groupHolder.mCtvItemOnlinePartent.setCircleBackgroundColor(Color.parseColor(color[(groupItem != null ? groupItem.id : 1 - 1) % 16]));
         groupHolder.mTvItemOnlinePartentNumber.setText("" + item.count);
 
         if (isExpanded) {
@@ -138,6 +135,13 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
         } else {
             groupHolder.mIvItemOnlinePartentState.setImageDrawable(parent.getContext().getResources().getDrawable(R.drawable.iv_lp_ui_group_close));
         }
+
+        if (groupItem != null && groupItem.id == mGroupId) {
+            groupHolder.mCtvItemOnlinePartent.setText("√");
+        } else {
+            groupHolder.mCtvItemOnlinePartent.setText("");
+        }
+
         return convertView;
     }
 
@@ -203,18 +207,18 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
     }
 
     class GroupHolder {
-        public ImageView mIvItemOnlinePartentState;
-        public TextView mTvItemOnlinePartentTitle;
-        public TextView mTvItemOnlinePartentNumber;
-        public CircleView mCvItemOnlinePartentColor;
+        ImageView mIvItemOnlinePartentState;
+        TextView mTvItemOnlinePartentTitle;
+        TextView mTvItemOnlinePartentNumber;
+        CircleTextView mCtvItemOnlinePartent;
     }
 
     class GroupChildHolder {
-        public CircleImageView mItemOnlineUserAvatar;
-        public TextView mItemOnlineUserName;
-        public TextView mItemOnlineUserTeacherTag;
-        public TextView mItemOnlineUserAssistTag;
-        public TextView mItemOlineUserPresenterTag;
+        CircleImageView mItemOnlineUserAvatar;
+        TextView mItemOnlineUserName;
+        TextView mItemOnlineUserTeacherTag;
+        TextView mItemOnlineUserAssistTag;
+        TextView mItemOlineUserPresenterTag;
     }
 
     public void setOnUpdateListener(OnUpdateListener listener) {

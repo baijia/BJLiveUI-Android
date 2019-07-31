@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:gravity="center_vertical"
+    android:paddingRight="4dp"
     android:layout_height="50dp">
 
     <ImageView
@@ -23,10 +24,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content" />
 
-    <com.afollestad.materialdialogs.color.CircleView
-        android:id="@+id/cv_item_online_partent_color"
+    <com.baijiayun.live.ui.viewsupport.CircleTextView
+        android:id="@+id/ctv_item_online_partent"
         android:layout_marginRight="4dp"
         android:layout_marginLeft="3dp"
+        android:textSize="11sp"
+        android:gravity="center"
+        android:textColor="@color/live_white"
         android:layout_width="15dp"
         android:layout_height="15dp" />
 

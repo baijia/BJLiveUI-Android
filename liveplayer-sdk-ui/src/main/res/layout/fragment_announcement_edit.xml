@@ -5,6 +5,7 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/tv_announcement_edit_title"
         android:drawableLeft="@drawable/iv_lp_ui_notice"
         android:text="@string/live_announcement"
         android:textSize="14sp"

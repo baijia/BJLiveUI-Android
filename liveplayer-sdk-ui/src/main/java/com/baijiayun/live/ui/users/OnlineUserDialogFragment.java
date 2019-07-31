@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,20 +16,13 @@ import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.users.group.GroupExtendableListViewAdapter;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPGroupItem;
 import com.baijiayun.livecore.models.imodels.IUserModel;
-import com.baijiayun.livecore.models.roomresponse.LPResRoomGroupInfoModel;
 import com.baijiayun.livecore.utils.DisplayUtils;
-import com.baijiayun.livecore.utils.LPLogger;
-import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Shubo on 2017/4/5.
@@ -107,7 +99,7 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
         adapter = new OnlineUserAdapter();
         recyclerView.setAdapter(adapter);
 
-        mGroupAdapter = new GroupExtendableListViewAdapter(presenter.getAssistantLabel());
+        mGroupAdapter = new GroupExtendableListViewAdapter(presenter.getAssistantLabel(), presenter.getGroupId());
         mElvOnlineGroup.setAdapter(mGroupAdapter);
         mGroupAdapter.setOnUpdateListener(new GroupExtendableListViewAdapter.OnUpdateListener() {
             @Override

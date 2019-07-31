@@ -211,6 +211,7 @@
     <string name="string_notice_link_tips">点击公告可以跳转</string>
 
     <string name="string_board_error">当前教室不支持多白板</string>
+    <string name="string_standard_answer">正确答案：%1$s</string>
 
     <string name="string_group">分组</string>
 </resources>

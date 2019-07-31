@@ -27,12 +27,12 @@ class SwitchPPTContract {
         /**
          * 添加白板
          */
-        boolean addPage();
+        void addPage();
 
         /**
          * 删除白板
          */
-        boolean delPage(int pageId);
+        void delPage(int pageId);
 
         LiveRoomRouterListener getRoute();
 

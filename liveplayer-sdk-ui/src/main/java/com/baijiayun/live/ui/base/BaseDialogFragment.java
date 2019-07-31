@@ -158,8 +158,8 @@ public abstract class BaseDialogFragment extends DialogFragment {
 
     public void showCross() {
         $.id(R.id.dialog_base_edit).visibility(View.GONE);
-        $.id(R.id.dialog_cross).visibility(View.VISIBLE);
-        $.id(R.id.dialog_cross).clicked(new View.OnClickListener() {
+        $.id(R.id.dialog_close).visibility(View.VISIBLE);
+        $.id(R.id.dialog_close).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismissAllowingStateLoss();

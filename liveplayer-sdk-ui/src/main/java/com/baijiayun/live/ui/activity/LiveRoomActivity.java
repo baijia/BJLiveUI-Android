@@ -52,6 +52,8 @@ import com.baijiayun.live.ui.LiveSDKWithUI;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.announcement.AnnouncementFragment;
 import com.baijiayun.live.ui.announcement.AnnouncementPresenter;
+import com.baijiayun.live.ui.answersheet.QuestionShowFragment;
+import com.baijiayun.live.ui.answersheet.QuestionShowPresenter;
 import com.baijiayun.live.ui.answersheet.QuestionToolFragment;
 import com.baijiayun.live.ui.answersheet.QuestionToolPresenter;
 import com.baijiayun.live.ui.base.BasePresenter;
@@ -123,6 +125,7 @@ import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
 import com.baijiayun.livecore.models.roomresponse.LPResRoomMediaControlModel;
+import com.baijiayun.livecore.ppt.listener.OnPPTStateListener;
 import com.baijiayun.livecore.wrapper.model.LPAVMediaModel;
 
 import java.io.File;
@@ -142,6 +145,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 import static android.R.attr.path;
+import static android.R.attr.theme;
 import static com.baijiayun.live.ui.utils.Precondition.checkNotNull;
 
 public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRouterListener {
@@ -168,6 +172,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private LeftMenuFragment leftMenuFragment;
     private RightMenuFragment rightMenuFragment;
     private QuestionToolFragment questionToolFragment;
+    private QuestionShowFragment questionShowFragment;
     private WindowManager windowManager;
     private SpeakersFragment speakersFragment;
     private SpeakerPresenter speakerPresenter;
@@ -191,6 +196,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     //白板/PPT页展示
     private SwitchPPTFragmentPresenter switchPPTFragmentPresenter;
+    private OnPPTStateListener mOnPPTStateListener;
 
     private Disposable subscriptionOfLoginConflict, subscriptionOfStreamInfo,
             subscriptionOfMarquee;
@@ -226,6 +232,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private final String TAG = LiveRoomActivity.class.getCanonicalName();
 
     private Handler mHandler = new Handler();
+    private LPAnswerModel lpAnswerModel;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -1487,6 +1494,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             removeFragment(questionToolFragment);
             questionToolFragment = null;
         }
+        if (questionShowFragment != null && questionShowFragment.isAdded()) {
+            removeFragment(questionShowFragment);
+            questionShowFragment = null;
+        }
 
         removeAllFragment();
 
@@ -1537,6 +1548,20 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         globalPresenter.setRouter(this);
         globalPresenter.subscribe();
 
+        //PPT操作监听
+        mOnPPTStateListener = new OnPPTStateListener() {
+            @Override
+            public void onSuccess(int code, String successMessage) {
+                if (code == OnPPTStateListener.CODE_PPT_WHITEBOARD_ADD) {
+                    if (lppptView != null)
+                        lppptView.switchPPTPage("0", Integer.valueOf(successMessage));
+                }
+            }
+            @Override
+            public void onError(int code, String errorMessage) {
+                showMessage(errorMessage);
+            }
+        };
 
         lppptView = new MyPPTView(this);
 
@@ -1544,6 +1569,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         lppptView.attachLiveRoom(liveRoom);
 //        lppptView.setAnimPPTEnable(false);
 //        lppptView.setFlingEnable(false);
+        lppptView.setOnPPTStateListener(mOnPPTStateListener);
 
         bindVP(lppptView, new PPTPresenter(lppptView));
         flBackground.addView(lppptView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1755,7 +1781,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         args.putInt("currentIndex", currentIndex);
         args.putInt("maxIndex", maxIndex);
         quickSwitchPPTFragment.setArguments(args);
-        switchPPTFragmentPresenter = new SwitchPPTFragmentPresenter(quickSwitchPPTFragment);
+        switchPPTFragmentPresenter = new SwitchPPTFragmentPresenter(quickSwitchPPTFragment, lppptView.isMultiWhiteboardEnable());
         bindVP(quickSwitchPPTFragment, switchPPTFragmentPresenter);
         showDialogFragment(quickSwitchPPTFragment);
     }
@@ -1827,6 +1853,27 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         }
         pptManageFragment.setPresenter(pptManagePresenter);
         showDialogFragment(pptManageFragment);
+    }
+
+    @Override
+    public void addPPTWhiteboardPage() {
+        if (lppptView == null)
+            return;
+        lppptView.addPPTWhiteboardPage();
+    }
+
+    @Override
+    public void deletePPTWhiteboardPage(int pageId) {
+        if (lppptView == null)
+            return;
+        lppptView.deletePPTWhiteboardPage(pageId);
+    }
+
+    @Override
+    public void changePage(String docId, int pageNum) {
+        if (lppptView == null)
+            return;
+        lppptView.switchPPTPage(docId, pageNum);
     }
 
     @Override
@@ -2272,6 +2319,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     @Override
     public void answerStart(LPAnswerModel model) {
+        this.lpAnswerModel = model;
+        removeAnswer();
         QuestionToolPresenter questionToolPresenter = new QuestionToolPresenter();
         questionToolPresenter.setRouter(this);
         questionToolPresenter.setLpQuestionToolModel(model);
@@ -2288,6 +2337,25 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         showFragment(questionToolFragment);
     }
 
+    /**
+     * 显示答题器Answer
+     */
+    private void showAnswer() {
+        QuestionShowPresenter questionShowPresenter = new QuestionShowPresenter();
+        questionShowPresenter.setRouter(this);
+        questionShowPresenter.setLpQuestionToolModel(lpAnswerModel);
+        questionShowFragment = new QuestionShowFragment();
+        questionShowPresenter.setView(questionShowFragment);
+        bindVP(questionShowFragment, questionShowPresenter);
+        flQuestionTool.setVisibility(View.VISIBLE);
+//        flQuestionTool.setVisibility(View.GONE);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        flQuestionTool.setLayoutParams(layoutParams);
+        addFragment(R.id.activity_dialog_question_tool, questionShowFragment);
+
+        showFragment(questionShowFragment);
+    }
     @Override
     public void answerEnd(boolean ended) {
         if (questionToolFragment != null && questionToolFragment.isAdded()) {
@@ -2296,6 +2364,18 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 Toast.makeText(this, "答题时间已到", Toast.LENGTH_SHORT).show();
             flQuestionTool.setVisibility(View.GONE);
             questionToolFragment = null;
+        }
+        if (lpAnswerModel != null && lpAnswerModel.isShowAnswer && ended) {
+            showAnswer();
+        }
+    }
+
+    @Override
+    public void removeAnswer() {
+        if (questionShowFragment != null && questionShowFragment.isAdded()) {
+            removeFragment(questionShowFragment);
+            flQuestionTool.setVisibility(View.GONE);
+            questionShowFragment = null;
         }
     }
 
@@ -2326,6 +2406,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             removeFragment(questionAnswerFragment);
             findViewById(R.id.activity_live_room_question_answer).setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void setQuestionAnswerCahce(LPAnswerModel lpAnswerModel) {
+        this.lpAnswerModel = lpAnswerModel;
     }
 
     @Override

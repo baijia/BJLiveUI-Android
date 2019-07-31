@@ -24,7 +24,6 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
     private QueryPlus $;
     private QuestionToolContract.Presenter presenter;
     private LinearLayout newLayout;
-    private StringBuilder rightAnswer = new StringBuilder("");
     private boolean isSubmit = false;
 
     @Override
@@ -39,7 +38,7 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
         int index = 0;
 
 
-        ($.id(R.id.dialog_cross)).clicked(new View.OnClickListener() {
+        ($.id(R.id.dialog_close)).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 presenter.removeQuestionTool(false);
@@ -59,8 +58,6 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
                 if (presenter.submitAnswers()) {
                     Toast.makeText(getContext(), "提交成功！", Toast.LENGTH_SHORT).show();
                     isSubmit = true;
-                    ((TextView) ($.id(R.id.dialog_question_tool_answer_text)).view()).setText(rightAnswer.toString());
-                    ($.id(R.id.dialog_question_tool_answer)).visibility(View.VISIBLE);
                     ((Button) ($.id(R.id.dialog_btn_submit)).view()).setText("确定");
 //                    dismissAllowingStateLoss();
                 } else {
@@ -74,10 +71,6 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
             for (final LPAnswerSheetOptionModel model : presenter.getOptions()) {
                 index++;
                 final TextView buttonOption = new TextView(getContext());
-                if (model.isRight || model.isCorrect) {
-                    rightAnswer.append(model.text);
-                    rightAnswer.append(" ");
-                }
                 buttonOption.setText(model.text);
                 buttonOption.setTextColor(getResources().getColor(R.color.live_blue));
                 buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_unchecked);
@@ -106,17 +99,16 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
                 if (index % 4 == 1) {
                     newLayout = new LinearLayout(getContext());
                     newLayout.setOrientation(LinearLayout.HORIZONTAL);
-                    newLayout.setGravity(Gravity.LEFT);
+                    newLayout.setGravity(Gravity.CENTER_HORIZONTAL);
                     LinearLayout.LayoutParams newLayoutParams = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    newLayoutParams.setMargins(DisplayUtils.dip2px(getContext(), 21), DisplayUtils.dip2px(getContext(), 8), 0, 0);
-                    newLayout.addView(buttonOption, layoutParams);
+                    newLayoutParams.setMargins(DisplayUtils.dip2px(getContext(), 8), DisplayUtils.dip2px(getContext(), 8), DisplayUtils.dip2px(getContext(), 8), DisplayUtils.dip2px(getContext(), 8));
                     optionsLayout.setOrientation(LinearLayout.VERTICAL);
                     optionsLayout.addView(newLayout, newLayoutParams);
-                } else {
-                    layoutParams.setMargins(DisplayUtils.dip2px(getContext(), 14), 0, 0, 0);
-                    if (newLayout != null)
-                        newLayout.addView(buttonOption, layoutParams);
+                }
+                layoutParams.setMargins(DisplayUtils.dip2px(getContext(), 8), 0, DisplayUtils.dip2px(getContext(), 8), 0);
+                if (newLayout != null) {
+                    newLayout.addView(buttonOption, layoutParams);
                 }
             }
         }

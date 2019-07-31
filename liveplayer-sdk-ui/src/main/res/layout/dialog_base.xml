@@ -27,7 +27,7 @@
             android:textSize="16sp" />
 
         <LinearLayout
-            android:id="@+id/dialog_cross"
+            android:id="@+id/dialog_close"
             android:layout_width="30dp"
             android:layout_height="match_parent"
             android:orientation="horizontal"

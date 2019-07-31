@@ -15,16 +15,13 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.R;
-import com.baijiayun.live.ui.activity.LiveRoomActivity;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.QueryPlus;
-import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.ppt.util.ShapeContent;
 import com.baijiayun.livecore.utils.DisplayUtils;
 import com.baijiayun.livecore.viewmodels.impl.LPDocListViewModel;
@@ -107,15 +104,15 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
             @Override
             public void onClick(View v) {
 
-                if (mBoardList.size() >= 10) {
-                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_add_tips));
-                    return;
-                }
+//                if (mBoardList.size() >= 10) {
+//                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_add_tips));
+//                    return;
+//                }
                 isChangePage = true;
                 //添加白板
-                boolean result = presenter.addPage();
-                if (!result)
-                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_error));
+                presenter.addPage();
+//                if (!result)
+//                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_error));
             }
         });
 
@@ -318,7 +315,7 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
                 holder.mIvPptDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        deleteBoard(list.size(), list.get(position).pageId);
+                        deleteBoard(list.get(position).pageId);
                     }
                 });
 
@@ -354,15 +351,10 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
 
     }
 
-    private void deleteBoard(int size, int pageId) {
+    private void deleteBoard(int pageId) {
 
         if (pageId < 0)
             return;
-
-        if (size <= 1) {
-            presenter.getRoute().showMessage(getResources().getString(R.string.string_board_del_tips));
-            return;
-        }
 
         new MaterialDialog.Builder(getActivity())
                 .title(getString(R.string.live_exit_hint_title))
@@ -375,9 +367,7 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        boolean result = presenter.delPage(pageId);
-                        if (!result)
-                            presenter.getRoute().showMessage(getResources().getString(R.string.string_board_error));
+                        presenter.delPage(pageId);
                     }
                 })
                 .onNegative(new MaterialDialog.SingleButtonCallback() {

@@ -14,9 +14,11 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
     private SwitchPPTContract.View view;
     private LiveRoomRouterListener listener;
     private Disposable subscriptionOfDocListChange;
+    private boolean enableMultiWhiteboard;
 
-    public SwitchPPTFragmentPresenter(SwitchPPTContract.View view) {
+    public SwitchPPTFragmentPresenter(SwitchPPTContract.View view, boolean enableMultiWhiteboard) {
         this.view = view;
+        this.enableMultiWhiteboard = enableMultiWhiteboard;
     }
 
     @Override
@@ -29,7 +31,7 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
         subscriptionOfDocListChange = listener.getLiveRoom().getDocListVM().getObservableOfDocListChanged()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(docModels -> view.docListChanged(docModels));
-        view.setType(!listener.isTeacherOrAssistant(), "0".equals(listener.getLiveRoom().getEnableMultiWhiteboard()));
+        view.setType(!listener.isTeacherOrAssistant(), !enableMultiWhiteboard);
         view.docListChanged(listener.getLiveRoom().getDocListVM().getDocList());
         view.setIndex();
     }
@@ -56,13 +58,13 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
     }
 
     @Override
-    public boolean addPage() {
-        return listener.getLiveRoom().pageAdd();
+    public void addPage() {
+        listener.addPPTWhiteboardPage();
     }
 
     @Override
-    public boolean delPage(int pageId) {
-        return listener.getLiveRoom().pageDel(pageId);
+    public void delPage(int pageId) {
+        listener.deletePPTWhiteboardPage(pageId);
     }
 
     @Override
@@ -72,6 +74,6 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
 
     @Override
     public void changePage(int page) {
-        listener.getLiveRoom().pageChange("0", page);
+        listener.changePage("0", page);
     }
 }

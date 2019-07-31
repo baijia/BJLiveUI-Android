@@ -3,7 +3,6 @@ package com.baijiayun.live.ui.answersheet;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPAnswerSheetOptionModel;
-import com.baijiayun.livecore.models.LPAnswerSheetModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -127,6 +126,7 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
     public boolean submitAnswers() {
 //        return roomRouterListener.getLiveRoom().submitAnswerSheet(checkedOptions);
         checkOptions();
+        roomRouterListener.setQuestionAnswerCahce(lpAnswerModel);
         return roomRouterListener.getLiveRoom().getToolBoxVM().submitAnswers(lpAnswerModel);
     }
 }

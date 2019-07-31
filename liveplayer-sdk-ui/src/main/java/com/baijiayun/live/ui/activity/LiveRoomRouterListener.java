@@ -10,7 +10,6 @@ import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
-import com.baijiayun.livecore.models.LPAnswerSheetModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
@@ -49,6 +48,23 @@ public interface LiveRoomRouterListener {
     void navigateToUserList();
 
     void navigateToPPTWareHouse();
+
+    /**
+     * 多白板 : 添加白板
+     */
+    void addPPTWhiteboardPage();
+
+    /**
+     * 多白板 ：删除白板
+     */
+    void deletePPTWhiteboardPage(int pageId);
+
+    /**
+     * 翻页
+     * @param docId         文档docId
+     * @param pageNum       当前docId的页码
+     */
+    void changePage(String docId, int pageNum);
 
     void disableSpeakerMode();
 
@@ -224,9 +240,13 @@ public interface LiveRoomRouterListener {
 
     void answerEnd(boolean ended);
 
+    void removeAnswer();
+
     void showAwardAnimation(String userName);
 
     void showQuestionAnswer(boolean showFragment);
+
+    void setQuestionAnswerCahce(LPAnswerModel lpAnswerModel);
 
     boolean isQuestionAnswerShow();
 
