@@ -114,11 +114,13 @@ import com.baijiahulian.livecore.context.LPError;
 import com.baijiahulian.livecore.context.LiveRoom;
 import com.baijiahulian.livecore.context.OnLiveRoomListener;
 import com.baijiahulian.livecore.launch.LPLaunchListener;
+import com.baijiahulian.livecore.launch.LPStateListener;
 import com.baijiahulian.livecore.listener.OnPhoneRollCallListener;
 import com.baijiahulian.livecore.models.LPAnswerSheetModel;
 import com.baijiahulian.livecore.models.LPCheckRecordStatusModel;
 import com.baijiahulian.livecore.models.LPJsonModel;
 import com.baijiahulian.livecore.models.LPKVModel;
+import com.baijiahulian.livecore.models.LPStreamModel;
 import com.baijiahulian.livecore.models.imodels.ILoginConflictModel;
 import com.baijiahulian.livecore.models.imodels.IMediaControlModel;
 import com.baijiahulian.livecore.models.imodels.IMediaModel;
@@ -247,6 +249,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 super.finish();
             }
         }
+
+        LiveSDK.setLPStateListener(new LPStateListener() {
+            @Override
+            public void onServerState(String s) {
+                Log.d("******LiveRoomActivity", "onServerState : " + s);
+            }
+        });
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             onConfigurationChanged(getResources().getConfiguration());
@@ -1568,6 +1577,21 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     }
                 });
 
+        liveRoom.getObservableOfPacketLoss(1500)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new LPErrorPrintSubscriber<List<LPStreamModel>>() {
+                    @Override
+                    public void call(List<LPStreamModel> list) {
+
+                        for (LPStreamModel model : list) {
+                            LPLogger.d("******LiveRoomActivity", "PackLoss : "
+                                    + model.userId
+                                    + " : " + model.videoLossRate
+                                    + " : " + model.audioLossRate);
+                        }
+                    }
+                });
+
         //成功进入房间后统一不再显示
         shouldShowTechSupport = false;
         if (!isTeacherOrAssistant())
@@ -2206,8 +2230,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     private int getStreamType() {
-        return LiveSDK.getAudioOutput() == LPConstants.VoiceType.VOICE_CALL ?
-                AudioManager.STREAM_VOICE_CALL : AudioManager.STREAM_MUSIC;
+//        return LiveSDK.getAudioOutput() == LPConstants.VoiceType.VOICE_CALL ?
+//                AudioManager.STREAM_VOICE_CALL : AudioManager.STREAM_MUSIC;
+        return AudioManager.STREAM_VOICE_CALL;
     }
 
     @Override
