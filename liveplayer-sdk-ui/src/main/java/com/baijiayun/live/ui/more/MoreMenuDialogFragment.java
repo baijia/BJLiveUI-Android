@@ -124,6 +124,11 @@ public class MoreMenuDialogFragment extends BaseDialogFragment implements MoreMe
     }
 
     @Override
+    public void setAudition() {
+        $.id(R.id.dialog_more_setting).visibility(View.GONE);
+    }
+
+    @Override
     public void showCloudRecordNotAllowed(String reason) {
         showToast(reason);
     }

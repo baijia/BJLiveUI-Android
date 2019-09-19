@@ -140,6 +140,9 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
             tempDialogFragment = dialogFragment;
             return;
         }
+        if (getSupportFragmentManager().isStateSaved()) {
+            return;
+        }
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         dialogFragment.show(ft, dialogFragment.getClass().getSimpleName() + dialogFragment.hashCode());
         getSupportFragmentManager().executePendingTransactions();

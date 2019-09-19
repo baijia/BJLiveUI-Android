@@ -9,6 +9,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.color.CircleView;
 import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.viewsupport.CircleTextView;

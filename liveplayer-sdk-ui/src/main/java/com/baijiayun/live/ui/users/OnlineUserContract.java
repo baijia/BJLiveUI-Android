@@ -4,7 +4,9 @@ import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
 import com.baijiayun.livecore.models.LPGroupItem;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.models.roomresponse.LPResRoomGroupInfoModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**

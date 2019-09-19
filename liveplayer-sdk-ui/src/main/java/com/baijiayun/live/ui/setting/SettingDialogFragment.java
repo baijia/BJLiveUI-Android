@@ -524,6 +524,11 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
     }
 
     @Override
+    public void showSwitchForbid() {
+        showToast(getString(R.string.live_room_forbid_and_kick_permission_forbid));
+    }
+
+    @Override
     public void setPresenter(SettingContract.Presenter presenter) {
         super.setBasePresenter(presenter);
         this.presenter = presenter;

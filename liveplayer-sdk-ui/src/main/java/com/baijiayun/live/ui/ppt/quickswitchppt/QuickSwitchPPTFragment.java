@@ -15,13 +15,16 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.R;
+import com.baijiayun.live.ui.activity.LiveRoomActivity;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.QueryPlus;
+import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.ppt.util.ShapeContent;
 import com.baijiayun.livecore.utils.DisplayUtils;
 import com.baijiayun.livecore.viewmodels.impl.LPDocListViewModel;
@@ -103,7 +106,10 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
         $.id(R.id.iv_board_add).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (!presenter.canOperateDocumentControl()) {
+                    showToast(getString(R.string.live_room_document_control_permission_forbid));
+                    return;
+                }
 //                if (mBoardList.size() >= 10) {
 //                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_add_tips));
 //                    return;
@@ -119,6 +125,10 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
         $.id(R.id.tv_ppt_ok).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!presenter.canOperateDocumentControl()) {
+                    showToast(getString(R.string.live_room_document_control_permission_forbid));
+                    return;
+                }
                 switchEditStatu(false);
             }
         });
@@ -326,6 +336,10 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
             holder.PPTRL.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!presenter.canOperateDocumentControl()) {
+                        showToast(getString(R.string.live_room_document_control_permission_forbid));
+                        return;
+                    }
                     presenter.setSwitchPosition(holder.getAdapterPosition() + (deviation < 0 ? 0 : deviation));
                 }
             });
@@ -333,6 +347,10 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
             holder.PPTRL.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    if (!presenter.canOperateDocumentControl()) {
+                        showToast(getString(R.string.live_room_document_control_permission_forbid));
+                        return false;
+                    }
                     //长按进行编辑
                     if (!isBoard || isStudent || enableMultiWhiteboard)
                         return false;

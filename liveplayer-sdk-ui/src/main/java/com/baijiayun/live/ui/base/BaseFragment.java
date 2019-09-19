@@ -10,10 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.live.ui.utils.Precondition;
-
-import static com.baijiayun.live.ui.utils.Precondition.checkNotNull;
+import com.baijiayun.live.ui.utils.QueryPlus;
 
 /**
  * Created by Shubo on 2017/2/13.
@@ -97,5 +95,4 @@ public abstract class BaseFragment extends Fragment {
         Log.d(TAG, "onDetach");
         super.onDetach();
     }
-
 }

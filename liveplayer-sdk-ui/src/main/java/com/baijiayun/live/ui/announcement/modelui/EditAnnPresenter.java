@@ -62,6 +62,14 @@ public class EditAnnPresenter implements EditAnnContract.Presenter, IAnnouncemen
 //                    }
 //                });
         mView.initInfo(iAnnModel);
+        if (mRouter.getLiveRoom().isTeacherOrAssistant()) {
+            //公告
+            mView.setTitle(1);
+        } else {
+            //通知
+            mView.setTitle(2);
+        }
+
     }
 
     @Override

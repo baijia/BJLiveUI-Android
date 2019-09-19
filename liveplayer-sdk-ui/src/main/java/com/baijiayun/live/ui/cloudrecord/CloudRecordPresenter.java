@@ -2,6 +2,7 @@ package com.baijiayun.live.ui.cloudrecord;
 
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.context.LPConstants;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -49,5 +50,10 @@ public class CloudRecordPresenter implements CloudRecordContract.Presenter {
     @Override
     public void cancelCloudRecord() {
         liveRoomRouterListener.getLiveRoom().requestCloudRecord(false);
+    }
+    @Override
+    public boolean canOperateCloudRecord() {
+        return !(liveRoomRouterListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
+                liveRoomRouterListener.getLiveRoom().getAdminAuth()!=null && !liveRoomRouterListener.getLiveRoom().getAdminAuth().cloudRecord);
     }
 }

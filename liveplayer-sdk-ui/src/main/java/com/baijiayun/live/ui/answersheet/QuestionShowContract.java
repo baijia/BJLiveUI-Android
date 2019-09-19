@@ -10,11 +10,11 @@ import com.baijiayun.livecore.models.LPAnswerModel;
  */
 
 public interface QuestionShowContract {
-    interface View extends BaseView<Presenter> {
+    interface View extends BaseView<Presenter>{
         void onShowAnswer(LPAnswerModel lpAnswerModel);
     }
 
-    interface Presenter extends BasePresenter {
+    interface Presenter extends BasePresenter{
         void removeQuestionShow();
     }
 }

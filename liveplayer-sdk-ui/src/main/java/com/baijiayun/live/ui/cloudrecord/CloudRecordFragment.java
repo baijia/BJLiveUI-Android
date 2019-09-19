@@ -36,6 +36,10 @@ public class CloudRecordFragment extends BaseFragment implements CloudRecordCont
         $.contentView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!presenter.canOperateCloudRecord()) {
+                    showToast(getString(R.string.live_room_cloud_record_permission_forbid));
+                    return;
+                }
                 new MaterialDialog.Builder(getActivity())
                         .title(getString(R.string.live_cloud_record_setting))
                         .content(getString(R.string.live_cloud_record_setting_content))

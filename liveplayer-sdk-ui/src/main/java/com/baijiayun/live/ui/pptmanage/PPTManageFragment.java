@@ -60,6 +60,10 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
         $.id(R.id.dialog_ppt_manage_btn).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!presenter.canOperateDocument()) {
+                    showToast(getString(R.string.live_room_document_upload_permission_forbid));
+                    return;
+                }
                 if (isEditing()) {
                     presenter.removeSelectedItems();
                 } else {
@@ -88,6 +92,10 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
 
     @Override
     protected void enableEdit() {
+        if (!presenter.canOperateDocument()) {
+            showToast(getString(R.string.live_room_document_upload_permission_forbid));
+            return;
+        }
         super.enableEdit();
         $.id(R.id.dialog_ppt_manage_btn)
                 .background(ContextCompat.getColor(getContext(), R.color.live_fail_dark))

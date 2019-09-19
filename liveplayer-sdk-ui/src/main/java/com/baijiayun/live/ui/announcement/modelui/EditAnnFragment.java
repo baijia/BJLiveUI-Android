@@ -95,6 +95,15 @@ public class EditAnnFragment extends BaseFragment implements EditAnnContract.Vie
     }
 
     @Override
+    public void setTitle(int titleType) {
+        if (titleType == 1) {
+            $.id(R.id.tv_announcement_edit_title).text(getResources().getString(R.string.live_announcement));
+        } else {
+            $.id(R.id.tv_announcement_edit_title).text(getResources().getString(R.string.string_notice_group_title));
+        }
+    }
+
+    @Override
     public NoticeInfo getNoticeInfo() {
 
         NoticeInfo info = new NoticeInfo();

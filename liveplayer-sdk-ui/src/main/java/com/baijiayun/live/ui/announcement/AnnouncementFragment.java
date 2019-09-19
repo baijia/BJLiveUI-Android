@@ -1,22 +1,16 @@
 package com.baijiayun.live.ui.announcement;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.EditText;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.announcement.modelui.BlankTipsFragment;
 import com.baijiayun.live.ui.announcement.modelui.BlankTipsPresenter;
-import com.baijiayun.live.ui.announcement.modelui.DoubleAnnContract;
 import com.baijiayun.live.ui.announcement.modelui.DoubleAnnFramgent;
 import com.baijiayun.live.ui.announcement.modelui.DoubleAnnPresenter;
 import com.baijiayun.live.ui.announcement.modelui.EditAnnContract;
@@ -30,8 +24,6 @@ import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.models.imodels.IAnnouncementModel;
-
-import java.util.function.DoublePredicate;
 
 /**
  * Created by Shubo on 2017/4/19.
@@ -83,7 +75,10 @@ public class AnnouncementFragment extends BaseDialogFragment implements Announce
         $.id(R.id.tv_announcement_edit_button).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (!mPresenter.canOperateNoite()) {
+                    showToast(getString(R.string.live_room_notice_permission_forbid));
+                    return;
+                }
                 if (mCurrFragment instanceof EditAnnFragment) {
                     //当前为编辑页面
                     NoticeInfo info = ((IAnnouncementUI)mCurrPresenter).getNotice();

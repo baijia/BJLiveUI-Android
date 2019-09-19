@@ -15,5 +15,7 @@ public interface CloudRecordContract {
 
     interface Presenter extends BasePresenter {
         void cancelCloudRecord();
+
+        boolean canOperateCloudRecord();
     }
 }

@@ -6,6 +6,7 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.activity.GlobalPresenter;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.imodels.IAnnouncementModel;
 import com.baijiayun.livecore.utils.LPLogger;
 
@@ -49,6 +50,12 @@ public class AnnouncementPresenter implements AnnouncementContract.Presenter {
     @Override
     public LiveRoomRouterListener getRouter() {
         return routerListener;
+    }
+
+    @Override
+    public boolean canOperateNoite() {
+        return !(routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
+                routerListener.getLiveRoom().getAdminAuth() != null && !routerListener.getLiveRoom().getAdminAuth().notice);
     }
 
     @Override

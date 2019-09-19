@@ -2,6 +2,7 @@ package com.baijiayun.live.ui.more;
 
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.context.LPConstants;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -42,6 +43,8 @@ public class MoreMenuPresenter implements MoreMenuContract.Presenter {
             view.showCloudRecordOn();
         else
             view.showCloudRecordOff();
+        if (routerListener.getLiveRoom().isAudition())
+            view.setAudition();
     }
 
     @Override
@@ -60,9 +63,18 @@ public class MoreMenuPresenter implements MoreMenuContract.Presenter {
     public void navigateToAnnouncement() {
         routerListener.navigateToAnnouncement();
     }
+    @Override
+    public boolean canOperateCloudRecord() {
+        return !(routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
+                routerListener.getLiveRoom().getAdminAuth()!=null && !routerListener.getLiveRoom().getAdminAuth().cloudRecord);
+    }
 
     @Override
     public void switchCloudRecord() {
+        if (!canOperateCloudRecord()) {
+            view.showCloudRecordNotAllowed("云端录制权限已被禁用");
+            return;
+        }
         if (!recordStatus) {
             subscriptionOfIsCloudRecordAllowed = routerListener.getLiveRoom().requestIsCloudRecordAllowed()
                     .subscribe(lpCheckRecordStatusModel -> {

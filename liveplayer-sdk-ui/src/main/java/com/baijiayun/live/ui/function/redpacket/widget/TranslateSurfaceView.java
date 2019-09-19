@@ -91,16 +91,7 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
         mPaintContext.setAntiAlias(true);
         mPaintContext.setColor(Color.parseColor("#FFDBDB"));
         mPaintContext.setTextSize(DisplayUtils.dip2px(context, 14));
-    }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        width = getMeasuredWidth();
-        height = getMeasuredHeight();
-    }
-
-    public void prepare() {
         DrawThread drawThread = new DrawThread();
         drawThread.start();
 
@@ -135,6 +126,13 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
         bitmapHeightOpen = bitmapWidthOpen;
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        width = getMeasuredWidth();
+        height = getMeasuredHeight();
+    }
+
     public void addMoveModel(MoveModel moveModel) {
         moveList.add(moveModel);
     }
@@ -149,32 +147,8 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
         drawHandler.sendEmptyMessage(DrawHandler.START_DRAW_KEY);
     }
 
-    public void resume() {
-        drawHandler.sendEmptyMessage(DrawHandler.START_DRAW_KEY);
-    }
-
     public void pause() {
         drawHandler.sendEmptyMessage(DrawHandler.STOP_DRAW_KEY);
-    }
-
-    public void quit() {
-        if (null != drawHandler) {
-            drawHandler.removeCallbacksAndMessages(null);
-            drawHandler.getLooper().quit();
-        }
-
-        moveList.clear();
-        if (bitmap != null) {
-            bitmap.recycle();
-            bitmap = null;
-        }
-        if (bitmapOpen != null) {
-            for (int i = 0; i < bitmapOpen.length; i++) {
-                bitmapOpen[i].recycle();
-                bitmapOpen[i] = null;
-            }
-            bitmapOpen = null;
-        }
     }
 
     public void setOnClickRedPacketListenert(OnClickRedPacketListener listener) {
@@ -233,7 +207,6 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
                     canvas.drawText("+" + moveModel.scoreAmount,
                             x + (rectf.right - rectf.left) / 8 * 3,
                             moveY, mPaintContext);
-
                 } else if ((time - moveModel.openTime) >= OPEN_SHOW_TIME) {
                     resetMoveModel(moveModel);
                 }
@@ -285,7 +258,6 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
             return;
         }
 
-
         int length = moveList.size();
         for (int i = 0; i < length; i++) {
             MoveModel moveModel = moveList.get(i);
@@ -299,24 +271,23 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
 
     private void openMoveModel(MoveModel moveModel) {
 
-//        moveModel.isOpen = true;
         moveModel.isRob = true;
-        long time = System.currentTimeMillis();
+//        long time = System.currentTimeMillis();
 
         if (onClickRedPacketListener == null)
             return;
+        onClickRedPacketListener.onClick(moveModel);
 
-        if (callbackTime == 0) {
-            callbackTime = time;
-            onClickRedPacketListener.onClick(moveModel);
-        } else if ((time - callbackTime) >= OPEN_CALLBACK_TIME) {
-            callbackTime = time;
-            onClickRedPacketListener.onClick(moveModel);
-        } else {
-            moveModel.isOpen = true;
-            moveModel.scoreAmount = 0;
-        }
-
+//        if (callbackTime == 0) {
+//            callbackTime = time;
+//            onClickRedPacketListener.onClick(moveModel);
+//        } else if ((time - callbackTime) >= OPEN_CALLBACK_TIME) {
+//            callbackTime = time;
+//            onClickRedPacketListener.onClick(moveModel);
+//        } else {
+//            moveModel.isOpen = true;
+//            moveModel.scoreAmount = 0;
+//        }
     }
 
     private void resetMoveModel(MoveModel moveModel) {
@@ -348,5 +319,25 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
     public interface OnClickRedPacketListener {
 
         void onClick(MoveModel moveModel);
+    }
+
+    public void destory() {
+        if (null != drawHandler) {
+            drawHandler.removeCallbacksAndMessages(null);
+            drawHandler.getLooper().quit();
+        }
+
+        moveList.clear();
+        if (bitmap != null) {
+            bitmap.recycle();
+            bitmap = null;
+        }
+        if (bitmapOpen != null) {
+            for (int i = 0; i < bitmapOpen.length; i++) {
+                bitmapOpen[i].recycle();
+                bitmapOpen[i] = null;
+            }
+            bitmapOpen = null;
+        }
     }
 }

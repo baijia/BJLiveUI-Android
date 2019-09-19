@@ -37,5 +37,7 @@ class SwitchPPTContract {
         LiveRoomRouterListener getRoute();
 
         void changePage(int page);
+
+        boolean canOperateDocumentControl();
     }
 }

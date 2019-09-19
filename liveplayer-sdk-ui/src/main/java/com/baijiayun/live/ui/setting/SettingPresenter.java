@@ -6,6 +6,8 @@ import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
+import com.baijiayun.livecore.models.LPRoomForbidChatResult;
+import com.baijiayun.livecore.utils.LPLogger;
 import com.baijiayun.livecore.wrapper.LPPlayer;
 import com.baijiayun.livecore.wrapper.LPRecorder;
 
@@ -107,7 +109,7 @@ public class SettingPresenter implements SettingContract.Presenter {
             view.showCameraBack();
         }
 
-        if (liveRoom.getForbidStatus()) {
+        if (liveRoom.getForbidStatus(LPConstants.LPForbidChatType.TYPE_GROUP)) {
             view.showForbidden();
         } else {
             view.showNotForbidden();
@@ -130,10 +132,12 @@ public class SettingPresenter implements SettingContract.Presenter {
         }
 
         subscriptionOfForbidAllChat = liveRoom.getObservableOfForbidAllChatStatus().observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Boolean>() {
+                .subscribe(new Consumer<LPRoomForbidChatResult>() {
                     @Override
-                    public void accept(Boolean aBoolean) {
-                        if (aBoolean) view.showForbidden();
+                    public void accept(LPRoomForbidChatResult result) {
+                        if (result.type == LPConstants.LPForbidChatType.TYPE_ALL && liveRoom.getGroupId() != 0)
+                            return;
+                        if (result.isForbid) view.showForbidden();
                         else view.showNotForbidden();
                     }
                 });
@@ -424,7 +428,11 @@ public class SettingPresenter implements SettingContract.Presenter {
 
     @Override
     public void switchForbidStatus() {
-        if (liveRoom.getForbidStatus()) {
+        if (!canSwitchForbid()) {
+            view.showSwitchForbid();
+            return;
+        }
+        if (liveRoom.getForbidStatus(LPConstants.LPForbidChatType.TYPE_GROUP)) {
             liveRoom.requestForbidAllChat(false);
         } else {
             liveRoom.requestForbidAllChat(true);
@@ -433,7 +441,13 @@ public class SettingPresenter implements SettingContract.Presenter {
 
     @Override
     public boolean isTeacherOrAssistant() {
-        return routerListener.isTeacherOrAssistant();
+        return routerListener.isTeacherOrAssistant() || routerListener.isGroupTeacherOrAssistant();
+    }
+
+    @Override
+    public boolean canSwitchForbid() {
+        return !(liveRoom.getCurrentUser().getType() == LPConstants.LPUserType.Assistant && liveRoom.getAdminAuth() != null
+                && !liveRoom.getAdminAuth().forbidAndKick);
     }
 
     @Override

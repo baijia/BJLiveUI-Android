@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.live.ui.utils.DisplayUtils;
+import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPAnswerSheetOptionModel;
 
@@ -104,6 +105,7 @@ public class QuestionShowFragment extends BaseFragment implements QuestionShowCo
             }
             layoutParams.setMargins(DisplayUtils.dip2px(getContext(), 8), 0, DisplayUtils.dip2px(getContext(), 8), 0);
             if (newLayout != null) {
+                layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
                 newLayout.addView(buttonOption, layoutParams);
             }
         }

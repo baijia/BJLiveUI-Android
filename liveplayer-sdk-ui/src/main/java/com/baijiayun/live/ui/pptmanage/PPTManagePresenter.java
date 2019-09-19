@@ -5,6 +5,7 @@ import com.baijiahulian.common.networkv2.BJResponse;
 import com.baijiahulian.common.networkv2.HttpException;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPDocumentModel;
 import com.baijiayun.livecore.models.LPShortResult;
 import com.baijiayun.livecore.models.LPUploadDocModel;
@@ -56,6 +57,13 @@ public class PPTManagePresenter implements PPTManageContract.Presenter {
             view.showPPTEmpty();
         }
     }
+
+    @Override
+    public boolean canOperateDocument() {
+        return !(routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
+                routerListener.getLiveRoom().getAdminAuth() != null && !routerListener.getLiveRoom().getAdminAuth().documentUpload);
+    }
+
 
     @Override
     public void detachView() {

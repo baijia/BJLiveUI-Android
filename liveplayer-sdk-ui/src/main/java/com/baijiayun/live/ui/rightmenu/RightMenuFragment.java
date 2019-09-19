@@ -68,13 +68,15 @@ public class RightMenuFragment extends BaseFragment implements RightMenuContract
     private static final int REQUEST_CODE_PERMISSION_CAMERA = 10;
 
     public boolean checkCameraPermission() {
-        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)) {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                && PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO)) {
             return true;
         } else {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_PERMISSION_CAMERA);
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, REQUEST_CODE_PERMISSION_CAMERA);
         }
         return false;
     }
+
     private void showSystemSettingDialog() {
         if (isDetached()) return;
         new MaterialDialog.Builder(getContext())
@@ -288,5 +290,17 @@ public class RightMenuFragment extends BaseFragment implements RightMenuContract
                 showSystemSettingDialog();
             }
         }
+    }
+
+    @Override
+    public void setAudition() {
+        $.id(R.id.fragment_right_pen).visibility(View.INVISIBLE);
+        $.id(R.id.fragment_right_ppt).visibility(View.INVISIBLE);
+        $.id(R.id.fragment_right_speak_wrapper).visibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showDrawDeny() {
+        showToast(getString(R.string.live_room_paint_permission_forbid));
     }
 }

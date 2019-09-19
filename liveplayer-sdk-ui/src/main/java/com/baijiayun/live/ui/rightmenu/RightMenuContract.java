@@ -63,6 +63,9 @@ public interface RightMenuContract {
 
         void showHandUpTimeout();
 
+        void setAudition();
+
+        void showDrawDeny();
     }
 
     interface Presenter extends BasePresenter {

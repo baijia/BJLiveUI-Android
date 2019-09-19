@@ -1,4 +1,4 @@
-package com.baijiayun.live.ui.speakerspanel;
+package com.baijiayun.live.ui.speakerlist;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

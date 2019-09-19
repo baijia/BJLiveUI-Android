@@ -81,6 +81,8 @@ interface SettingContract {
         void hidePPTShownType();
 
         void showSwitchPPTFail();
+
+        void showSwitchForbid();
     }
 
     interface Presenter extends BasePresenter {
@@ -119,6 +121,8 @@ interface SettingContract {
         void switchForbidStatus();
 
         boolean isTeacherOrAssistant();
+
+        boolean canSwitchForbid();
 
         void switchForbidRaiseHand();
 

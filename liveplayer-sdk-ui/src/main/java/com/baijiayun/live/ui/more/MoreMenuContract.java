@@ -15,6 +15,8 @@ interface MoreMenuContract {
         void showCloudRecordOff();
 
         void showCloudRecordNotAllowed(String reason);
+
+        void setAudition();
     }
 
     interface Presenter extends BasePresenter {
@@ -27,5 +29,7 @@ interface MoreMenuContract {
         void navigateToSetting();
 
         boolean isTeacher();
+
+        boolean canOperateCloudRecord();
     }
 }

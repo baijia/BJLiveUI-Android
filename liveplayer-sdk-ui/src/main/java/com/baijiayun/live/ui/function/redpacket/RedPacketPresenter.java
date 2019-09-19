@@ -10,12 +10,14 @@ import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPShortResult;
 import com.baijiayun.livecore.utils.LPJsonUtils;
 import com.baijiayun.livecore.utils.LPLogger;
+import com.baijiayun.livecore.utils.LPRxUtils;
 import com.google.gson.JsonObject;
 
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
@@ -29,7 +31,6 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
     private final String TAG = RedPacketPresenter.class.getName();
 
     private final long TIME_RED_PACKET_START = 3;//红包启动倒计时时间/s
-    private final int TIME_ROB_RED_PACKET_INTERVAL = 1000;//抢红包时间间隔/ms
 
     private LiveRoomRouterListener mRouter;
     private RedPacketContract.View mView;
@@ -44,8 +45,9 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
     private LPRedPacketModel mLPRedPacketModel;
     private long mTimeRob = 0;
 
-    private Disposable mRobDisposable, mListDisposable, mRedPacketPHB;
-    private int mScoreAmount = 0;
+    private Disposable mListDisposable, mRedPacketPHB;
+    private CompositeDisposable mCompositeDisposable;
+    private volatile int mScoreAmount = 0;
 
     private RedPacketTopList mTopList;
     long mSleepTime;
@@ -78,48 +80,41 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
     @Override
     public void robRedPacket(MoveModel model) {
 
-        long time = System.currentTimeMillis();
-        if (mTimeRob == 0) {
-            mTimeRob = time;
-        } else if (time - mTimeRob < TIME_ROB_RED_PACKET_INTERVAL) {
-            return;
-        }
-
         if (mLPRedPacketModel == null)
             return;
 
+        if (mCompositeDisposable == null) {
+            mCompositeDisposable = new CompositeDisposable();
+        }
+
         //请求
-        RxUtils.dispose(mRobDisposable);
-        mRobDisposable = mRouter.getLiveRoom().requestCloudRobRedPacket(Integer.valueOf(mLPRedPacketModel.id))
+        Disposable robDisposable = mRouter.getLiveRoom().requestCloudRobRedPacket(Integer.valueOf(mLPRedPacketModel.id))
                 .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new Consumer<LPShortResult>() {
-                @Override
-                public void accept(LPShortResult lpShortResult) throws Exception {
+            .subscribe(lpShortResult -> {
+                if (model == null)
+                    return;
 
-                    if (model == null)
-                        return;
+                if (!model.isRob)
+                    return;
 
-                    if (!model.isRob)
-                        return;
+                RobRedPacketModel robModel = LPJsonUtils.parseJsonObject((JsonObject) lpShortResult.data, RobRedPacketModel.class);
+                if (robModel.status != 0)
+                    return;
 
-                    RobRedPacketModel robModel = LPJsonUtils.parseJsonObject((JsonObject) lpShortResult.data, RobRedPacketModel.class);
-                    if (robModel.status != 0)
-                        return;
-
-                    if (robModel != null && robModel.status == 0) {
-                        //抢成功
-                        mScoreAmount += robModel.score_amount;
-
-                        model.scoreAmount = robModel.score_amount;
-                        model.isOpen = true;
-//                        mView.showRedPacketScoreAmount(model);
-                    } else {
-                        //抢失败
-                        model.scoreAmount = -1;
-                        model.isOpen = true;
-                    }
+                if (robModel != null && robModel.status == 0) {
+                    //抢成功
+                    mScoreAmount += robModel.score_amount;
+                    model.scoreAmount = robModel.score_amount;
+                    model.isOpen = true;
+                } else {
+                    //抢失败
+                    model.scoreAmount = -1;
+                    model.isOpen = true;
                 }
+            }, throwable -> {
+                LPLogger.d(TAG, "requestCloudRobRedPacket : error");
             });
+        mCompositeDisposable.add(robDisposable);
     }
 
 
@@ -154,11 +149,6 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
 
                             startRedPacketRain(lpRedPacketModel);
                         } else {
-
-//                            long showText = timeStart - 2;
-//                            //倒计时完成后，多增加2S等待时间
-//                            if (showText <= 0)
-//                                return;
                             mView.upDateRedPacketTime(timeStart);
                         }
 
@@ -187,19 +177,6 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
      * 获取红包排名列表
      */
     private void getRedPacketList(String id) {
-
-        //切换到排行榜
-//        RxUtils.dispose(mRedPacketRain);
-//        mListDisposable = mRouter.getLiveRoom().requestCloudRedPacketRankList(Integer.valueOf(id))
-//                .subscribe(new Consumer<LPShortResult>() {
-//                    @Override
-//                    public void accept(LPShortResult lpShortResult) throws Exception {
-//
-//                        RedPacketTopList topList = LPJsonUtils.parseJsonObject((JsonObject) lpShortResult.data, RedPacketTopList.class);
-//                        showTopList(topList);
-//                    }
-//                });
-
         //切换到排行榜
         RxUtils.dispose(mRedPacketRain);
         mListDisposable = Observable.interval(0, 1, TimeUnit.SECONDS)
@@ -223,6 +200,11 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
                     public void accept(Long aLong) throws Exception {
 
                         LPLogger.d(TAG, "showTopList : mRedResultDisposable" );
+                        if (aLong >= 2) {
+                            LPRxUtils.dispose(mListDisposable);
+                            LPRxUtils.dispose(mRedResultDisposable);
+                            return;
+                        }
 
                         if (mTopList == null) {
                             mSleepTime = aLong;
@@ -255,26 +237,6 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
                 });
     }
 
-
-    private void showTopList(RedPacketTopList topList) {
-
-        mRedResultDisposable = Observable.interval(0, 1, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Long>() {
-                    @Override
-                    public void accept(Long aLong) throws Exception {
-
-                        mTopList = topList;
-
-//                        else if (aLong >= 9){
-//                            RxUtils.dispose(mRedResultDisposable);
-//                            mView.switchRedPacketStart(RedPacketContract.TYPE_REDPACKET_EXIT);
-//                            updateRedPacket();
-//                        }
-                    }
-                });
-    }
-
     @Override
     public void unSubscribe() {
 
@@ -282,16 +244,13 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
         RxUtils.dispose(mTimeDisposable);
         RxUtils.dispose(mRedPacketRain);
         RxUtils.dispose(mRedResultDisposable);
-        RxUtils.dispose(mRobDisposable);
         RxUtils.dispose(mRedPacketPHB);
         RxUtils.dispose(mListDisposable);
-
 
         mRedPacketDisposable = null;
         mTimeDisposable = null;
         mRedPacketRain = null;
         mRedResultDisposable = null;
-        mRobDisposable = null;
         mRedPacketPHB = null;
         mListDisposable = null;
     }
@@ -308,16 +267,19 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
         RxUtils.dispose(mTimeDisposable);
         RxUtils.dispose(mRedPacketRain);
         RxUtils.dispose(mRedResultDisposable);
-        RxUtils.dispose(mRobDisposable);
         RxUtils.dispose(mRedPacketPHB);
         RxUtils.dispose(mListDisposable);
+
+        if (mCompositeDisposable != null) {
+            mCompositeDisposable.dispose();
+            mCompositeDisposable = null;
+        }
 
 
         mRedPacketDisposable = null;
         mTimeDisposable = null;
         mRedPacketRain = null;
         mRedResultDisposable = null;
-        mRobDisposable = null;
         mRedPacketPHB = null;
         mListDisposable = null;
 

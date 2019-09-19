@@ -27,7 +27,6 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
     private RedPacketTopAdapter mTopAdapter;
     private int mCurrStateType;
 
-    //TODO
     private int count = 0;
 
     private LPRedPacketModel mLPRedPacketModel;
@@ -172,12 +171,10 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
                 }
             });
             mTsf.setVisibility(View.VISIBLE);
-            mTsf.prepare();
             mTsf.start();
         } else if (type == RedPacketContract.TYPE_REDPACKET_RANKING_LIST) {
 
             mTsf.pause();
-//            mTsf.quit();
             mTsf.setVisibility(View.INVISIBLE);
 
             $.id(R.id.rl_not_red).visibility(View.INVISIBLE);
@@ -193,8 +190,6 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
 
             $.id(R.id.rl_red_packet).visibility(View.INVISIBLE);
             $.id(R.id.rl_red_rob).visibility(View.INVISIBLE);
-            mTsf.quit();
-
         } else if (type == RedPacketContract.TYE_REDPACKET_NOT_ROB) {
             //一个没抢到
             $.id(R.id.rl_fragment_redpacket_time).visibility(View.INVISIBLE);
@@ -251,5 +246,15 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
         if (mTsf == null)
             return;
         mTsf.setRobEnable(robEnable);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mTsf != null) {
+            mTsf.pause();
+            mTsf.destory();
+            mTsf = null;
+        }
     }
 }

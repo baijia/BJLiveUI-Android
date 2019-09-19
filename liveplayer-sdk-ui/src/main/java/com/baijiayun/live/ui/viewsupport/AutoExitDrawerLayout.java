@@ -1,11 +1,20 @@
 package com.baijiayun.live.ui.viewsupport;
 
+import android.app.usage.UsageEvents;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.ScrollerCompat;
+import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.widget.Scroller;
 
 /**
  * Created by wangkangfei on 17/4/26.

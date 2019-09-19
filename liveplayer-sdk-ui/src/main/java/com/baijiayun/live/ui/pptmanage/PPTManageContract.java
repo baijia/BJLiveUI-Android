@@ -48,6 +48,8 @@ interface PPTManageContract {
 
         void attachView(View view);
 
+        boolean canOperateDocument();
+
         void detachView();
     }
 }

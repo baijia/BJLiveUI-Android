@@ -17,6 +17,13 @@ public class EditAnnContract {
         NoticeInfo getNoticeInfo();
 
         void initInfo(IAnnouncementModel iAnnModel);
+
+        /**
+         * 设置标题
+         * @param titleType     1   公告
+         *                      2   通知
+         */
+        void setTitle(int titleType);
     }
 
     interface Presenter extends BasePresenter{

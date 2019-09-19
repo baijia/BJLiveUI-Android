@@ -33,6 +33,11 @@ interface RightBottomMenuContract {
         void hideZoom();
 
         void showAudioRoomError();
+
+        /**
+         * 设置试听
+         */
+        void setAudition();
     }
 
     interface Presenter extends BasePresenter {

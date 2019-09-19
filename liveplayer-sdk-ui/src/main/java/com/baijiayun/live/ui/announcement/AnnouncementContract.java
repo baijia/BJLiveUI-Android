@@ -46,5 +46,7 @@ public interface AnnouncementContract {
         boolean isGrouping();
 
         LiveRoomRouterListener getRouter();
+
+        boolean canOperateNoite();
     }
 }

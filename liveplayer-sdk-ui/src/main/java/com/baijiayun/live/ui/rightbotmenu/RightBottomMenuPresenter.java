@@ -193,6 +193,9 @@ public class RightBottomMenuPresenter implements RightBottomMenuContract.Present
                 view.disableSpeakerMode();
             }
         }
+
+        if (liveRoomRouterListener.getLiveRoom().isAudition())
+            view.setAudition();
     }
 
     @Override

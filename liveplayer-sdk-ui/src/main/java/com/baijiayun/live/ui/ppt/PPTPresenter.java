@@ -1,7 +1,5 @@
 package com.baijiayun.live.ui.ppt;
 
-import android.widget.RelativeLayout;
-
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 
 /**
@@ -37,28 +35,13 @@ public class PPTPresenter implements PPTContract.Presenter {
     }
 
     @Override
-    public RelativeLayout getBackgroundContainer() {
-        return routerListener.getBackgroundContainer();
-    }
-
-    @Override
-    public void notifyPPTResumeInSpeakers() {
-        routerListener.notifyPPTResumeInSpeakers();
-    }
-
-    @Override
-    public boolean isPPTInSpeakerList() {
-        return routerListener.isPPTInSpeakersList();
-    }
-
-    @Override
-    public void showOptionDialog() {
-        routerListener.showOptionDialog();
-    }
-
-    @Override
     public void showPPTLoadError(int errorCode, String description) {
         routerListener.showPPTLoadErrorDialog(errorCode, description);
+    }
+
+    @Override
+    public LiveRoomRouterListener getRouter() {
+        return routerListener;
     }
 
     @Override
@@ -79,6 +62,5 @@ public class PPTPresenter implements PPTContract.Presenter {
     @Override
     public void destroy() {
         view = null;
-        routerListener = null;
     }
 }

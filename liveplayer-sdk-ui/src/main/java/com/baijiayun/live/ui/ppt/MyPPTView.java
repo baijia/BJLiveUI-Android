@@ -4,17 +4,23 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.widget.TextView;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.baijiayun.live.ui.R;
+import com.baijiayun.live.ui.speakerlist.item.SpeakItemType;
+import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.livecore.ppt.PPTView;
-import com.baijiayun.livecore.ppt.photoview.OnViewTapListener;
-import com.baijiayun.livecore.ppt.whiteboard.Whiteboard;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Shubo on 2017/2/18.
  */
 
-public class MyPPTView extends PPTView implements PPTContract.View {
+public class MyPPTView extends PPTView implements PPTContract.View, Switchable {
 
     public MyPPTView(@NonNull Context context) {
         super(context);
@@ -22,9 +28,7 @@ public class MyPPTView extends PPTView implements PPTContract.View {
 
     private PPTContract.Presenter presenter;
 
-    private boolean mRemarksEnable = true;
-
-    private TextView mTextView;
+    private boolean isInFullScreen = true;
 
     @Override
     public void setPresenter(PPTContract.Presenter presenter) {
@@ -32,46 +36,58 @@ public class MyPPTView extends PPTView implements PPTContract.View {
     }
 
     public void onStart() {
-        super.setOnViewTapListener(new OnViewTapListener() {
-            @Override
-            public void onViewTap(View view, float x, float y) {
-                try {
-                    // Fragment MyPPTFragment not attached to Activity
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
-                            && presenter != null) {
-                        presenter.clearScreen();
+        super.setOnViewTapListener((view, x, y) -> {
+            if (!isInFullScreen) {
+                showOptionDialog();
+                return;
+            }
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                    && presenter != null) {
+                presenter.clearScreen();
+            }
+        });
+
+        super.setOnDoubleTapListener(() -> {
+            if (isInFullScreen)
+                setDoubleTapScaleEnable(true);
+            else {
+                setDoubleTapScaleEnable(false);
+                presenter.getRouter().getFullScreenItem().switchBackToList();
+                switchToFullScreen();
+            }
+        });
+
+        super.setPPTErrorListener((errorCode, description) -> presenter.showPPTLoadError(errorCode, description));
+
+        mPageTv.setOnClickListener(v -> {
+            if (isInFullScreen) {
+                presenter.showQuickSwitchPPTView(getCurrentPageIndex(), getMaxPage());
+            }
+        });
+
+        super.setOnPageSelectedListener((position, remarksInfo) -> {
+            //大班课在initDocList之后设置animPPTAuth为true，使得学生可翻页
+            MyPPTView.super.setAnimPPTAuth(true);
+        });
+
+    }
+
+    private void showOptionDialog() {
+        List<String> options = new ArrayList<>();
+        options.add(getContext().getString(R.string.live_full_screen));
+
+        if (getContext() == null) return;
+        new MaterialDialog.Builder(getContext())
+                .items(options)
+                .itemsCallback((materialDialog, view, i, charSequence) -> {
+                    if (getContext() == null) return;
+                    if (getContext().getString(R.string.live_full_screen).equals(charSequence.toString())) {
+                        presenter.getRouter().getFullScreenItem().switchBackToList();
+                        switchToFullScreen();
                     }
-                } catch (IllegalStateException ignore) {
-                }
-            }
-        });
-
-        super.setPPTErrorListener(new OnPPTErrorListener() {
-            @Override
-            public void onAnimPPTLoadError(int errorCode, String description) {
-                presenter.showPPTLoadError(errorCode, description);
-            }
-        });
-
-        mPageTv.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!presenter.isPPTInSpeakerList()) {
-                    presenter.showQuickSwitchPPTView(getCurrentPageIndex(), getMaxPage());
-                } else {
-                    presenter.showOptionDialog();
-                }
-            }
-        });
-
-        super.setOnPageSelectedListener(new Whiteboard.OnPageSelectedListener() {
-            @Override
-            public void onPageSelected(int position, String remarksInfo) {
-                //大班课在initDocList之后设置animPPTAuth为true，使得学生可翻页
-                MyPPTView.super.setAnimPPTAuth(true);
-            }
-        });
-
+                    materialDialog.dismiss();
+                })
+                .show();
     }
 
     @Override
@@ -80,15 +96,60 @@ public class MyPPTView extends PPTView implements PPTContract.View {
         presenter.updateQuickSwitchPPTView(maxIndex);
     }
 
-    //    @Override
     public void onDestroy() {
         super.destroy();
         if (presenter != null)
             presenter.destroy();
-        presenter = null;
     }
 
     public void onSizeChange() {
         super.onSizeChange();
+    }
+
+    @Override
+    public int getPositionInParent() {
+        return 0;
+    }
+
+    @Override
+    public boolean isInFullScreen() {
+        return isInFullScreen;
+    }
+
+    @Override
+    public void switchToFullScreen() {
+        removeSwitchableFromParent(this);
+        presenter.getRouter().setFullScreenItem(this);
+        isInFullScreen = true;
+    }
+
+    @Override
+    public void switchBackToList() {
+        removeSwitchableFromParent(this);
+        presenter.getRouter().switchBackToList(this);
+        isInFullScreen = false;
+    }
+
+    @Override
+    public String getIdentity() {
+        return "PPT";
+    }
+
+    @Override
+    public SpeakItemType getItemType() {
+        return SpeakItemType.PPT;
+    }
+
+    @Override
+    public View getView() {
+        return this;
+    }
+
+    private void removeSwitchableFromParent(Switchable switchable) {
+        View view = switchable.getView();
+        if (view == null) return;
+        ViewParent viewParent = view.getParent();
+        if (viewParent == null) return;
+        ((ViewGroup) viewParent).removeView(view);
     }
 }

@@ -4,7 +4,10 @@ import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.models.LPGroupItem;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.models.roomresponse.LPResRoomGroupInfoModel;
+import com.baijiayun.livecore.utils.LPLogger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;

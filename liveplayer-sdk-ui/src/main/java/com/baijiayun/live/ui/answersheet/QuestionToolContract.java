@@ -12,11 +12,11 @@ import java.util.List;
  */
 
 public interface QuestionToolContract {
-    interface View extends BaseView<Presenter> {
+    interface View extends BaseView<Presenter>{
         void timeDown(String down);
     }
 
-    interface Presenter extends BasePresenter {
+    interface Presenter extends BasePresenter{
 
         List<LPAnswerSheetOptionModel> getOptions();
 

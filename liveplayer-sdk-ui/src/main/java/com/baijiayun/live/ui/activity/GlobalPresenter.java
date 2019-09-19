@@ -80,15 +80,12 @@ public class GlobalPresenter implements BasePresenter {
 
         subscriptionOfForbidAllStatus = routerListener.getLiveRoom().getObservableOfForbidAllChatStatus()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(aBoolean -> {
+                .subscribe(lpRoomForbidChatResult -> {
                     if (counter == 0) {
-                        isForbidChatChanged = aBoolean;
                         counter++;
                         return;
                     }
-                    if (isForbidChatChanged == aBoolean) return;
-                    isForbidChatChanged = aBoolean;
-                    routerListener.showMessageForbidAllChat(aBoolean);
+                    routerListener.showMessageForbidAllChat(lpRoomForbidChatResult);
                 });
 
         if (!routerListener.isCurrentUserTeacher()) {
@@ -165,7 +162,7 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfQuizStart = routerListener.getLiveRoom().getQuizVM().getObservableOfQuizStart()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(jsonModel -> {
-                        if (!routerListener.isTeacherOrAssistant()) {
+                        if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant()) {
                             routerListener.onQuizStartArrived(jsonModel);
                         }
                     });
@@ -173,7 +170,7 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfQuizRes = routerListener.getLiveRoom().getQuizVM().getObservableOfQuizRes()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(jsonModel -> {
-                        if (!routerListener.isTeacherOrAssistant()) {
+                        if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant()) {
                             if (jsonModel != null && jsonModel.data != null) {
                                 String quizId = JsonObjectUtil.getAsString(jsonModel.data, "quiz_id");
                                 boolean solutionStatus = false;
@@ -202,7 +199,7 @@ public class GlobalPresenter implements BasePresenter {
                     .subscribe(new Consumer<LPJsonModel>() {
                         @Override
                         public void accept(LPJsonModel jsonModel) {
-                            if (!routerListener.isTeacherOrAssistant()) {
+                            if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant()) {
                                 routerListener.onQuizEndArrived(jsonModel);
                             }
                         }
@@ -212,14 +209,14 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfQuizSolution = routerListener.getLiveRoom().getQuizVM().getObservableOfQuizSolution()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(jsonModel -> {
-                        if (!routerListener.isTeacherOrAssistant()) {
+                        if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant()) {
                             routerListener.onQuizSolutionArrived(jsonModel);
                         }
                     });
             //debug信息
             subscriptionOfDebug = routerListener.getLiveRoom().getObservableOfDebug()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(lpResRoomDebugModel -> {
+                    .subscribe((lpResRoomDebugModel) -> {
                         if (lpResRoomDebugModel != null && lpResRoomDebugModel.data != null) {
                             String commandType = "";
                             if (JsonObjectUtil.isJsonNull(lpResRoomDebugModel.data, "command_type")) {
@@ -227,7 +224,18 @@ public class GlobalPresenter implements BasePresenter {
                             }
                             commandType = lpResRoomDebugModel.data.get("command_type").getAsString();
                             if ("logout".equals(commandType)) {
-                                routerListener.showError(LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT, "您已被踢出房间"));
+                                if (lpResRoomDebugModel.data.has("code")) {
+                                    int code = lpResRoomDebugModel.data.get("code").getAsInt();
+                                    if (code == 2){
+                                        String[] tip = routerListener.getLiveRoom().getAuditionTip();
+                                        routerListener.showError(LPError.getNewError(LPError.CODE_ERROR_LOGIN_AUDITION, tip[0], tip[1]));
+                                    } else {
+                                        routerListener.showError(LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT, "用户被请出房间"));
+                                    }
+
+                                } else {
+                                    routerListener.showError(LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT, "用户被请出房间"));
+                                }
                             }
                         }
                     });
@@ -235,14 +243,14 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfAnswerStart = routerListener.getLiveRoom().getToolBoxVM().getObservableOfAnswerStart()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(lpAnswerModel -> {
-                        if (!routerListener.isTeacherOrAssistant())
+                        if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant())
                             routerListener.answerStart(lpAnswerModel);
                     });
 
             subscriptionOfAnswerEnd = routerListener.getLiveRoom().getToolBoxVM().getObservableOfAnswerEnd()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(lpAnswerEndModel -> {
-                        if (!routerListener.isTeacherOrAssistant())
+                        if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant())
                             routerListener.answerEnd(!lpAnswerEndModel.isRevoke);
                     });
         }

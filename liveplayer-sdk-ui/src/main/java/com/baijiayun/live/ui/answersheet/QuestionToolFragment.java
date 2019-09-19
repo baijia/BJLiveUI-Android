@@ -108,6 +108,7 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
                 }
                 layoutParams.setMargins(DisplayUtils.dip2px(getContext(), 8), 0, DisplayUtils.dip2px(getContext(), 8), 0);
                 if (newLayout != null) {
+                    layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
                     newLayout.addView(buttonOption, layoutParams);
                 }
             }

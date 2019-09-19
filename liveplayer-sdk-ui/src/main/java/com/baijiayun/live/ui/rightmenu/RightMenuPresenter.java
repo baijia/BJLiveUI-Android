@@ -28,7 +28,8 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
     private RightMenuContract.View view;
     private LPConstants.LPUserType currentUserType;
     private Disposable subscriptionOfMediaControl, subscriptionOfMediaPublishDeny, subscriptionOfSpeakApplyDeny, subscriptionOfClassEnd, subscriptionOfSpeakApplyResponse,
-            subscriptionOfSpeakInvite, subscriptionOfClassStart, subscriptionOfStudentDrawingAuth, subscriptionOfSpeakApplyResResult;
+            subscriptionOfSpeakInvite, subscriptionOfClassStart, subscriptionOfStudentDrawingAuth, subscriptionOfSpeakApplyResResult,subscriptionOfAssistantPaint;
+
     private int speakApplyStatus = RightMenuContract.STUDENT_SPEAK_APPLY_NONE;
     private boolean isDrawing = false;
     private boolean isGetDrawingAuth = false;
@@ -48,6 +49,11 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
     public void changeDrawing() {
         if (!isDrawing && !liveRoomRouterListener.canStudentDraw()) {
             view.showCantDraw();
+            return;
+        }
+        if (currentUserType == LPConstants.LPUserType.Assistant && liveRoomRouterListener.getLiveRoom().getAdminAuth() != null &&
+                !liveRoomRouterListener.getLiveRoom().getAdminAuth().painter) {
+            view.showDrawDeny();
             return;
         }
         if (!liveRoomRouterListener.isTeacherOrAssistant() && !liveRoomRouterListener.getLiveRoom().isClassStarted()) {
@@ -288,7 +294,6 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
                         if (iMediaControlModel.isApplyAgreed()) {
                             // 进入发言模式
                             liveRoomRouterListener.getLiveRoom().getRecorder().publish();
-//                                liveRoomRouterListener.getLiveRoom().getRecorder().attachVideo();
                             liveRoomRouterListener.attachLocalAudio();
                             view.showSpeakApplyAgreed(isEnableDrawing());
                             speakApplyStatus = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING;
@@ -436,6 +441,17 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
                         liveRoomRouterListener.showSpeakInviteDlg(lpSpeakInviteModel.invite);
                     }
                 });
+
+        if (liveRoomRouterListener.getLiveRoom().isAudition())
+            view.setAudition();
+        subscriptionOfAssistantPaint = liveRoomRouterListener.getLiveRoom().getObservableOfAdminAuth()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(lpAdminAuthModel -> {
+                    if (!lpAdminAuthModel.painter) {
+                        view.showDrawingStatus(false);
+                        liveRoomRouterListener.navigateToPPTDrawing(false);
+                    }
+                });
     }
 
     @Override
@@ -449,6 +465,7 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
         RxUtils.dispose(subscriptionOfMediaPublishDeny);
         RxUtils.dispose(subscriptionOfStudentDrawingAuth);
         RxUtils.dispose(subscriptionOfSpeakApplyResResult);
+        RxUtils.dispose(subscriptionOfAssistantPaint);
         timerList.clear();
     }
 

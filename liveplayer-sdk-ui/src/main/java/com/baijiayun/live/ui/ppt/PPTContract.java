@@ -1,7 +1,6 @@
 package com.baijiayun.live.ui.ppt;
 
-import android.widget.RelativeLayout;
-
+import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
 
@@ -22,14 +21,8 @@ interface PPTContract {
 
         void updateQuickSwitchPPTView(int maxIndex);
 
-        RelativeLayout getBackgroundContainer();
-
-        void notifyPPTResumeInSpeakers();
-
-        boolean isPPTInSpeakerList();
-
-        void showOptionDialog();
-
         void showPPTLoadError(int errorCode, String description);
+
+        LiveRoomRouterListener getRouter();
     }
 }

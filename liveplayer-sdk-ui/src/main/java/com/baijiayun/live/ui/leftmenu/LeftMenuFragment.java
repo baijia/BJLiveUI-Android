@@ -28,14 +28,14 @@ public class LeftMenuFragment extends BaseFragment implements LeftMenuContract.V
         super.init(savedInstanceState);
         $.id(R.id.fragment_left_menu_clear_screen).clicked(v -> presenter.clearScreen());
         $.id(R.id.fragment_left_menu_send_message).clicked(v -> {
-            if (presenter.isForbiddenByTeacher()) {
+            if (presenter.isAllForbidden()) {
                 showToast(getString(R.string.live_forbid_send_message));
                 return;
             }
             presenter.showMessageInput();
         });
 
-        if (presenter.isEnableLiveQuestionAnswer() && presenter.getCurrentUser().getType() == LPConstants.LPUserType.Student) {
+        if (presenter.isEnableLiveQuestionAnswer()) {
             $.id(R.id.fragment_left_menu_question_answer).view().setVisibility(View.VISIBLE);
             $.id(R.id.fragment_left_menu_question_answer).clicked(v -> {
                 presenter.showQuestionAnswer();
@@ -145,6 +145,12 @@ public class LeftMenuFragment extends BaseFragment implements LeftMenuContract.V
 //        } else {
 //            $.id(R.id.fragment_left_menu_clear_screen).visible();
 //        }
+    }
+
+    @Override
+    public void setAudition() {
+        $.id(R.id.fragment_left_menu_send_message).visibility(View.GONE);
+        $.id(R.id.fragment_left_menu_question_answer).visibility(View.GONE);
     }
 
     @Override

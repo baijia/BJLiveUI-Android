@@ -7,6 +7,8 @@ import android.graphics.RectF;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.View;
+import android.widget.TextView;
 
 import com.baijiayun.live.ui.R;
 

@@ -227,7 +227,6 @@ public class RightBottomMenuFragment extends BaseFragment implements RightBottom
 
     @Override
     public void onRotationSettingChanged() {
-        //TODO:主动获取自动旋转设置
         presenter.setSysRotationSetting();
     }
 
@@ -244,5 +243,11 @@ public class RightBottomMenuFragment extends BaseFragment implements RightBottom
             }
         });
         return true;
+    }
+
+    @Override
+    public void setAudition() {
+        $.id(R.id.fragment_right_bottom_audio).visibility(View.GONE);
+        $.id(R.id.fragment_right_bottom_video).visibility(View.GONE);
     }
 }

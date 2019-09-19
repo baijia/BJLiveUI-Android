@@ -2,6 +2,8 @@ package com.baijiayun.live.ui.ppt.quickswitchppt;
 
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.context.LPConstants;
+import com.baijiayun.livecore.ppt.listener.OnPPTStateListener;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -75,5 +77,11 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
     @Override
     public void changePage(int page) {
         listener.changePage("0", page);
+    }
+
+    @Override
+    public boolean canOperateDocumentControl() {
+        return !(listener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
+                listener.getLiveRoom().getAdminAuth() != null && !listener.getLiveRoom().getAdminAuth().documentControl);
     }
 }

@@ -87,7 +87,7 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
         View view;
         View linkTipsView;
         String link;
-        if ("0".equals(iAnnouncementModel.getGroup())) {
+        if ("0".equals(iAnnouncementModel.getGroup()) || TextUtils.isEmpty(iAnnouncementModel.getGroup())) {
             //大班老师公告
             view = $.id(R.id.tv_announcement_notice_info).view();
             linkTipsView = $.id(R.id.tv_announcement_notice_info_tips).view();

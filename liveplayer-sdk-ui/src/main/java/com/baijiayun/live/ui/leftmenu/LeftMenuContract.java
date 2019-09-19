@@ -16,6 +16,8 @@ interface LeftMenuContract {
         void showDebugBtn(int type);
 
         void showQuestionAnswerInfo(boolean showRed);
+
+        void setAudition();
     }
 
     interface Presenter extends BasePresenter {
@@ -29,11 +31,6 @@ interface LeftMenuContract {
          * 全体禁言状态
          */
         boolean isAllForbidden();
-
-        /**
-         * 自己是否被禁言（student）
-         */
-        boolean isForbiddenByTeacher();
 
         void showHuiyinDebugPanel();
 

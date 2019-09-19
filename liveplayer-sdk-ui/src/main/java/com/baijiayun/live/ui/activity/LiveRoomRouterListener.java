@@ -1,9 +1,9 @@
 package com.baijiayun.live.ui.activity;
 
 import android.support.annotation.StringRes;
-import android.widget.RelativeLayout;
 
 import com.baijiayun.live.ui.ppt.MyPPTView;
+import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
@@ -11,6 +11,7 @@ import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
+import com.baijiayun.livecore.models.LPRoomForbidChatResult;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
@@ -30,6 +31,8 @@ public interface LiveRoomRouterListener {
     void clearScreen();
 
     void unClearScreen();
+
+    void switchClearScreen();
 
     void navigateToMessageInput();
 
@@ -61,8 +64,9 @@ public interface LiveRoomRouterListener {
 
     /**
      * 翻页
-     * @param docId         文档docId
-     * @param pageNum       当前docId的页码
+     *
+     * @param docId   文档docId
+     * @param pageNum 当前docId的页码
      */
     void changePage(String docId, int pageNum);
 
@@ -141,7 +145,7 @@ public interface LiveRoomRouterListener {
 
     void showMessageClassStart();
 
-    void showMessageForbidAllChat(boolean isOn);
+    void showMessageForbidAllChat(LPRoomForbidChatResult lpRoomForbidChatResult);
 
     void showMessageTeacherOpenAudio();
 
@@ -163,11 +167,26 @@ public interface LiveRoomRouterListener {
 
     void changeBackgroundContainerSize(boolean isShrink);
 
-    android.view.View removeFullScreenView();
+    /**
+     * 获得全屏的Item
+     *
+     * @return 全屏的item
+     */
+    Switchable getFullScreenItem();
 
-    RelativeLayout getBackgroundContainer();
+    /**
+     * 设置全屏Item
+     *
+     * @param screenItem 全屏Item
+     */
+    void setFullScreenItem(Switchable screenItem);
 
-    void setFullScreenView(android.view.View view);
+    /**
+     * 移除全屏Item到列表
+     *
+     * @param switchable
+     */
+    void switchBackToList(Switchable switchable);
 
     MyPPTView getPPTView();
 
@@ -191,12 +210,6 @@ public interface LiveRoomRouterListener {
     boolean checkTeacherCameraPermission(LiveRoom liveRoom);
 
     void attachLocalAudio();
-
-    void notifyPPTResumeInSpeakers();
-
-    void setIsStopPublish(boolean b);
-
-    void notifyFullScreenPresenterStatusChange(String id, boolean isPresenter);
 
     void showForceSpeakDlg(IMediaControlModel iMediaControlModel);
 
@@ -227,10 +240,6 @@ public interface LiveRoomRouterListener {
     void showNoSpeakers();
 
     void showHavingSpeakers();
-
-    boolean isPPTInSpeakersList();
-
-    void showOptionDialog();
 
     void showPPTLoadErrorDialog(int errorCode, String description);
 

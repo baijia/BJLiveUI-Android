@@ -214,5 +214,17 @@
     <string name="string_standard_answer">正确答案：%1$s</string>
 
     <string name="string_group">分组</string>
+    <string name="live_room_paint_permission_forbid">画笔权限已被禁用</string>
+    <string name="live_room_document_control_permission_forbid">文档权限已被禁用</string>
+    <string name="live_room_document_upload_permission_forbid">文档权限已被禁用</string>
+    <string name="live_room_forbid_and_kick_permission_forbid">禁言权限已被禁用</string>
+    <string name="live_room_notice_permission_forbid">公告编辑权限已被禁用</string>
+    <string name="live_room_cloud_record_permission_forbid">云端录制权限已被禁用</string>
+
+    <string name="string_live_uisdk_forbid_all_true">已全体禁言</string>
+    <string name="string_live_uisdk_forbid_all_false">已解除全体禁言</string>
+
+    <string name="string_live_uisdk_forbid_group_true">本组已全体禁言</string>
+    <string name="string_live_uisdk_forbid_group_false">本组已取消全体禁言</string>
 </resources>
 

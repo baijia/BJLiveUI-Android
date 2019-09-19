@@ -7,7 +7,8 @@
     <com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView
         android:id="@+id/fragment_speakers_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/live_text_color_light">
 
         <LinearLayout
             android:id="@+id/fragment_speakers_container"

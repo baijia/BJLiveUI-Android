@@ -150,7 +150,7 @@
         android:clickable="true"
         android:visibility="gone"/>
 
-    <com.baijiayun.live.ui.speakerspanel.AwardView
+    <com.baijiayun.live.ui.speakerlist.AwardView
         android:id="@+id/award_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
