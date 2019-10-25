@@ -36,7 +36,8 @@ public class GlobalPresenter implements BasePresenter {
     private Disposable subscriptionOfClassStart, subscriptionOfClassEnd, subscriptionOfForbidAllStatus,
             subscriptionOfTeacherMedia, subscriptionOfUserIn, subscriptionOfUserOut, subscriptionOfQuizStart,
             subscriptionOfQuizRes, subscriptionOfQuizEnd, subscriptionOfQuizSolution, subscriptionOfDebug,
-            subscriptionOfAnnouncement, subscriptionOfClassSwitch, subscriptionOfAnswerStart, subscriptionOfAnswerEnd;
+            subscriptionOfAnnouncement, subscriptionOfClassSwitch, subscriptionOfAnswerStart, subscriptionOfAnswerEnd,
+            subscriptionOfTimerStart,subscriptionOfTimerEnd;
 
     //红包
     private Disposable mSubscriptionRedPacket;
@@ -253,6 +254,23 @@ public class GlobalPresenter implements BasePresenter {
                         if (!routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant())
                             routerListener.answerEnd(!lpAnswerEndModel.isRevoke);
                     });
+            subscriptionOfTimerStart = routerListener.getLiveRoom().getToolBoxVM().getObservableOfBJTimerStart()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(lpbjTimerModel -> {
+                        /**
+                         *  TODO app-7.3.1
+                        if (!routerListener.isCurrentUserTeacher()) {
+                            routerListener.showTimer(lpbjTimerModel);
+                        }
+                         **/
+                    });
+            subscriptionOfTimerEnd = routerListener.getLiveRoom().getToolBoxVM().getObservableOfBJTimerEnd()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(b -> {
+                        if (!routerListener.isCurrentUserTeacher()) {
+                            routerListener.closeTimer();
+                        }
+                    });
         }
         if (!routerListener.isTeacherOrAssistant()) {
             // 公告变了
@@ -318,6 +336,8 @@ public class GlobalPresenter implements BasePresenter {
         RxUtils.dispose(subscriptionOfAnswerStart);
         RxUtils.dispose(subscriptionOfAnswerEnd);
         RxUtils.dispose(mSubscriptionRedPacket);
+        RxUtils.dispose(subscriptionOfTimerStart);
+        RxUtils.dispose(subscriptionOfTimerEnd);
 
     }
 

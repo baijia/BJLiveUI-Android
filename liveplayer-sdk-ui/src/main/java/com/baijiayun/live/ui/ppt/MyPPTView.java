@@ -12,6 +12,7 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.speakerlist.item.SpeakItemType;
 import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.livecore.ppt.PPTView;
+import com.baijiayun.livecore.ppt.whiteboard.Whiteboard;
 
 import java.util.ArrayList;
 import java.util.List;

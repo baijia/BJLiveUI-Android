@@ -103,6 +103,12 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
             item = positionHelper.getSpeakItemByIdentity(iMediaModel.getUser().getUserId());
         }
 
+        //防止信令丢失后助教出现奔溃问题（一般获取不到ApplyItem）
+        if (item instanceof ApplyItem) {
+            removeSpeakApply(item.getIdentity());
+            item = null;
+        }
+
         if (item == null) {
             item = createRemotePlayableItem(iMediaModel);
         }

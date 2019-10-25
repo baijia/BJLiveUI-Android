@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_question_tool_container"
+    android:layout_width="224dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_question"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/dialog_base_title_container"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@drawable/bg_dialog_question_title"
+        android:paddingLeft="12dp">
+
+        <TextView
+            android:id="@+id/dialog_base_title"
+            style="@style/LiveTextTitle"
+            android:layout_centerVertical="true"
+            android:text="计时器"
+            android:textColor="@color/live_white" />
+
+        <LinearLayout
+            android:id="@+id/dialog_close"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:src="@drawable/ic_fork" />
+        </LinearLayout>
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_marginTop="16dp"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <EditText
+            android:id="@+id/et_min_high"
+            android:layout_marginRight="12dp"
+            style="@style/TimerEditTextStyle"
+            android:text="0"
+            />
+        <EditText
+            android:id="@+id/et_min_low"
+            style="@style/TimerEditTextStyle"
+            android:layout_marginRight="12dp"
+            android:text="0"
+            />
+        <TextView
+            android:id="@+id/tv_risk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="28sp"
+            android:gravity="center"
+            android:textColor="@drawable/sel_btn_textcolor_timer_ui"
+            android:enabled="true"
+            android:text=":"
+            />
+        <EditText
+            android:id="@+id/et_second_high"
+            style="@style/TimerEditTextStyle"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:text="0"
+            />
+        <EditText
+            android:id="@+id/et_second_low"
+            style="@style/TimerEditTextStyle"
+            android:text="0"
+            />
+    </LinearLayout>
+
+    <Space
+        android:id="@+id/space"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+    <LinearLayout
+        android:id="@+id/ll_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:orientation="horizontal">
+
+        <CheckedTextView
+            android:id="@+id/tv_countdown"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="16dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:checked="true"
+            android:text="@string/timer_countdown"
+            android:textColor="@drawable/sel_btn_timer"
+            android:background="@drawable/sel_btn_timer_tab_ui"
+            />
+        <CheckedTextView
+            android:id="@+id/tv_countup"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/timer_countup"
+            android:textColor="@drawable/sel_btn_timer"
+            android:background="@drawable/sel_btn_timer_tab_ui"
+            />
+
+    </LinearLayout>
+    <CheckedTextView
+        android:id="@+id/tv_publish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@drawable/sel_btn_timer_submit"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:background="@drawable/bg_btn_timer_ui"
+        android:checked="true"
+        android:text="@string/timer_start"
+        />
+</LinearLayout>

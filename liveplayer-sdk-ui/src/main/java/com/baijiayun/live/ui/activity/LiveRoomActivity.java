@@ -51,12 +51,12 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.BuildConfig;
 import com.baijiayun.live.ui.LiveSDKWithUI;
 import com.baijiayun.live.ui.R;
-import com.baijiayun.live.ui.announcement.AnnouncementFragment;
-import com.baijiayun.live.ui.announcement.AnnouncementPresenter;
-import com.baijiayun.live.ui.answersheet.QuestionShowFragment;
-import com.baijiayun.live.ui.answersheet.QuestionShowPresenter;
-import com.baijiayun.live.ui.answersheet.QuestionToolFragment;
-import com.baijiayun.live.ui.answersheet.QuestionToolPresenter;
+import com.baijiayun.live.ui.toolbox.announcement.AnnouncementFragment;
+import com.baijiayun.live.ui.toolbox.announcement.AnnouncementPresenter;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowFragment;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowPresenter;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolFragment;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolPresenter;
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
 import com.baijiayun.live.ui.base.DragFragment;
@@ -71,10 +71,10 @@ import com.baijiayun.live.ui.chat.preview.ChatSavePicDialogPresenter;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordFragment;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordPresenter;
 import com.baijiayun.live.ui.error.ErrorFragment;
-import com.baijiayun.live.ui.function.redpacket.RedPacketFragment;
-import com.baijiayun.live.ui.function.redpacket.RedPacketPresenter;
-import com.baijiayun.live.ui.leftmenu.LeftMenuFragment;
-import com.baijiayun.live.ui.leftmenu.LeftMenuPresenter;
+import com.baijiayun.live.ui.toolbox.redpacket.RedPacketFragment;
+import com.baijiayun.live.ui.toolbox.redpacket.RedPacketPresenter;
+import com.baijiayun.live.ui.menu.leftmenu.LeftMenuFragment;
+import com.baijiayun.live.ui.menu.leftmenu.LeftMenuPresenter;
 import com.baijiayun.live.ui.loading.LoadingFragment;
 import com.baijiayun.live.ui.loading.LoadingPresenter;
 import com.baijiayun.live.ui.more.MoreMenuDialogFragment;
@@ -83,18 +83,18 @@ import com.baijiayun.live.ui.ppt.MyPPTView;
 import com.baijiayun.live.ui.ppt.PPTPresenter;
 import com.baijiayun.live.ui.ppt.quickswitchppt.QuickSwitchPPTFragment;
 import com.baijiayun.live.ui.ppt.quickswitchppt.SwitchPPTFragmentPresenter;
-import com.baijiayun.live.ui.pptleftmenu.PPTLeftFragment;
-import com.baijiayun.live.ui.pptleftmenu.PPTLeftPresenter;
-import com.baijiayun.live.ui.pptmanage.PPTManageFragment;
-import com.baijiayun.live.ui.pptmanage.PPTManagePresenter;
-import com.baijiayun.live.ui.questionanswer.QuestionAnswerFragment;
-import com.baijiayun.live.ui.questionanswer.QuestionAnswerPresenter;
-import com.baijiayun.live.ui.quiz.QuizDialogFragment;
-import com.baijiayun.live.ui.quiz.QuizDialogPresenter;
-import com.baijiayun.live.ui.rightbotmenu.RightBottomMenuFragment;
-import com.baijiayun.live.ui.rightbotmenu.RightBottomMenuPresenter;
-import com.baijiayun.live.ui.rightmenu.RightMenuFragment;
-import com.baijiayun.live.ui.rightmenu.RightMenuPresenter;
+import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftFragment;
+import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftPresenter;
+import com.baijiayun.live.ui.ppt.pptmanage.PPTManageFragment;
+import com.baijiayun.live.ui.ppt.pptmanage.PPTManagePresenter;
+import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerFragment;
+import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerPresenter;
+import com.baijiayun.live.ui.toolbox.quiz.QuizDialogFragment;
+import com.baijiayun.live.ui.toolbox.quiz.QuizDialogPresenter;
+import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuFragment;
+import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuPresenter;
+import com.baijiayun.live.ui.menu.rightmenu.RightMenuFragment;
+import com.baijiayun.live.ui.menu.rightmenu.RightMenuPresenter;
 import com.baijiayun.live.ui.rollcall.RollCallDialogFragment;
 import com.baijiayun.live.ui.rollcall.RollCallDialogPresenter;
 import com.baijiayun.live.ui.setting.SettingDialogFragment;
@@ -104,6 +104,8 @@ import com.baijiayun.live.ui.speakerlist.SpeakersFragment;
 import com.baijiayun.live.ui.speakerlist.SpeakersPresenter;
 import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.live.ui.speakerlist.AwardView;
+import com.baijiayun.live.ui.toolbox.timer.TimerFragment;
+import com.baijiayun.live.ui.toolbox.timer.TimerPresenter;
 import com.baijiayun.live.ui.topbar.TopBarFragment;
 import com.baijiayun.live.ui.topbar.TopBarPresenter;
 import com.baijiayun.live.ui.users.OnlineUserDialogFragment;
@@ -120,6 +122,7 @@ import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.listener.LPLaunchListener;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
+import com.baijiayun.livecore.models.LPBJTimerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPRoomForbidChatResult;
@@ -175,6 +178,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private RightMenuFragment rightMenuFragment;
     private QuestionToolFragment questionToolFragment;
     private QuestionShowFragment questionShowFragment;
+    private TimerFragment timerFragment;
     private WindowManager windowManager;
     private SpeakersFragment speakersFragment;
     private SpeakersPresenter speakersPresenter;
@@ -387,6 +391,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (roomLifeCycleListener != null) {
             roomLifeCycleListener.onResume(this, (code, nickName) -> {
                 //重新进入教室
+                if (speakInviteDlg != null && speakInviteDlg.isShowing()) {
+                    speakInviteDlg.dismiss();
+                    speakInviteDlg = null;
+                }
                 flBackground.removeAllViews();
                 removeFragment(topBarFragment);
                 removeFragment(cloudRecordFragment);
@@ -678,6 +686,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 case LPError.CODE_ERROR_ENTER_ROOM_FORBIDDEN:
                     errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport, false);
                     break;
+                case LPError.CODE_ERROR_HOST_UNKNOW:
+                    errorFragment = ErrorFragment.newInstance(getString(R.string.live_host_unknow), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport, false);
+                    break;
                 default:
                     errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport);
                     break;
@@ -872,10 +883,15 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             }
             return;
         }
+
+        if (speakInviteDlg != null && speakInviteDlg.isShowing())
+            return;
+
         speakInviteDlg = new MaterialDialog.Builder(this)
                 .content(R.string.live_invite_speak_tip)
                 .positiveText(getString(R.string.live_agree))
                 .negativeText(getString(R.string.live_disagree))
+                .cancelable(false)
                 .positiveColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_blue))
                 .negativeColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_blue))
                 .onPositive((materialDialog, dialogAction) -> {
@@ -886,7 +902,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     rightMenuPresenter.onSpeakInvite(0);
                     dialog.dismiss();
                 })
-                .canceledOnTouchOutside(true)
                 .build();
 
         if (!isFinishing())
@@ -1479,6 +1494,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         RxUtils.dispose(subscriptionOfTeacherAbsent);
         RxUtils.dispose(disposableOfMediaPublish);
 
+        if (speakInviteDlg != null && speakInviteDlg.isShowing()) {
+            speakInviteDlg.dismiss();
+            speakInviteDlg = null;
+        }
+
         removeFragment(topBarFragment);
         removeFragment(cloudRecordFragment);
         removeFragment(leftMenuFragment);
@@ -1506,6 +1526,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (questionShowFragment != null && questionShowFragment.isAdded()) {
             removeFragment(questionShowFragment);
             questionShowFragment = null;
+        }
+        if( timerFragment!= null && timerFragment.isAdded()) {
+            removeFragment(timerFragment);
+            timerFragment = null;
         }
 
         removeAllFragment();
@@ -2388,6 +2412,46 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             questionShowFragment = null;
         }
     }
+    @Override
+    public void showTimer(LPBJTimerModel lpbjTimerModel) {
+        TimerPresenter timerPresenter = new TimerPresenter();
+        timerPresenter.setRouter(this);
+        timerPresenter.setTimerModel(lpbjTimerModel);
+        timerFragment = new TimerFragment();
+        timerPresenter.setView(timerFragment);
+        bindVP(timerFragment, timerPresenter);
+        flQuestionTool.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        flQuestionTool.setLayoutParams(layoutParams);
+        addFragment(R.id.activity_dialog_question_tool, timerFragment);
+        showFragment(timerFragment);
+    }
+    @Override
+    public void showTimer() {
+        if (timerFragment != null) {
+            return;
+        }
+        TimerPresenter timerPresenter = new TimerPresenter();
+        timerPresenter.setRouter(this);
+        timerFragment = new TimerFragment();
+        timerPresenter.setView(timerFragment);
+        bindVP(timerFragment, timerPresenter);
+        flQuestionTool.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        flQuestionTool.setLayoutParams(layoutParams);
+        addFragment(R.id.activity_dialog_question_tool, timerFragment);
+        showFragment(timerFragment);
+    }
+    @Override
+    public void closeTimer() {
+        if (timerFragment != null && timerFragment.isAdded()) {
+            removeFragment(timerFragment);
+            flQuestionTool.setVisibility(View.GONE);
+            timerFragment = null;
+        }
+    }
 
     @Override
     public void showAwardAnimation(String userName) {
@@ -2581,5 +2645,4 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         }
         mRedPacketPresenter = null;
     }
-
 }

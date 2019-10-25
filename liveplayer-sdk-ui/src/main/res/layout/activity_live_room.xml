@@ -117,7 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/activity_live_room_bottom_right"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginRight="@dimen/activity_live_room_margin" />
 
     <FrameLayout

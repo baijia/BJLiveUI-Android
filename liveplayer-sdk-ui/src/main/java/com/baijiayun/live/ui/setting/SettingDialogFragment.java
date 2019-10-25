@@ -141,6 +141,8 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                                     dialog.dismiss();
                                 })
                                 .show();
+                    } else if (presenter.getCDNCount() == 1) {
+                        presenter.setUpCDNLink(0);
                     } else {
                         presenter.setUpLinkTCP();
                     }
@@ -171,6 +173,8 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                                     dialog.dismiss();
                                 })
                                 .show();
+                    } else if (presenter.getCDNCount() == 1) {
+                        presenter.setDownCDNLink(0);
                     } else {
                         presenter.setDownLinkTCP();
                     }

@@ -112,6 +112,7 @@
     <string name="live_mic_on">麦克风已打开</string>
     <string name="live_mic_off">麦克风已关闭</string>
     <string name="live_override_error">哎呀出错了</string>
+    <string name="live_host_unknow">连接超时</string>
     <string name="live_teacher_not_in">老师未在教室</string>
     <string name="live_teacher_in">已有老师</string>
     <string name="live_chat_filtered">已开启只看老师/助教</string>
@@ -226,5 +227,14 @@
 
     <string name="string_live_uisdk_forbid_group_true">本组已全体禁言</string>
     <string name="string_live_uisdk_forbid_group_false">本组已取消全体禁言</string>
+    <string name="timer_start">开始</string>
+    <string name="timer_error_tip">请输入正确时间</string>
+    <string name="timer_restart">重新开始</string>
+    <string name="timer_pause">暂停</string>
+    <string name="timer_continue">继续</string>
+    <string name="timer_countdown">倒计时</string>
+    <string name="timer_countup">正计时</string>
+    <string name="timer_pause_tip">计时器(已暂停)</string>
+    <string name="timer">计时器</string>
 </resources>
 

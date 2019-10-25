@@ -44,7 +44,7 @@ dependencies {
     }
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.7'
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.8'
 }
 android {
     lintOptions {

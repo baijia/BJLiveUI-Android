@@ -9,6 +9,7 @@ import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
+import com.baijiayun.livecore.models.LPBJTimerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPRoomForbidChatResult;
@@ -264,4 +265,10 @@ public interface LiveRoomRouterListener {
     void switchRedPacketUI(boolean isShow, LPRedPacketModel lpRedPacketModel);
 
     void updateRedPacket();
+
+    void showTimer(LPBJTimerModel lpbjTimerModel);
+
+    void showTimer();
+
+    void closeTimer();
 }

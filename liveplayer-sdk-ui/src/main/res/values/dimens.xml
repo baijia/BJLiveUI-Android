@@ -11,4 +11,6 @@
     <dimen name="distance_left_right">12dp</dimen>
     <dimen name="distance_top_bottom">4dp</dimen>
     <dimen name="distance_setting_big_margin">40dp</dimen>
+    <dimen name="timer_edit_width">35dp</dimen>
+    <dimen name="timer_edit_height">45dp</dimen>
 </resources>

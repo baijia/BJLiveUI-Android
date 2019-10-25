@@ -41,7 +41,7 @@
 
     </RelativeLayout>
 
-    <com.baijiayun.live.ui.function.redpacket.widget.TranslateSurfaceView
+    <com.baijiayun.live.ui.toolbox.redpacket.widget.TranslateSurfaceView
         android:id="@+id/tsf_red_packet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

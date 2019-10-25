@@ -1,13 +1,12 @@
 package com.baijiayun.live.ui.setting;
 
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
-import com.baijiayun.live.ui.rightmenu.RightMenuContract;
+import com.baijiayun.live.ui.menu.rightmenu.RightMenuContract;
 import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.models.LPRoomForbidChatResult;
-import com.baijiayun.livecore.utils.LPLogger;
 import com.baijiayun.livecore.wrapper.LPPlayer;
 import com.baijiayun.livecore.wrapper.LPRecorder;
 
