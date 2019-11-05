@@ -103,7 +103,7 @@ public class ChatPresenter implements ChatContract.Presenter {
                     IUserModel currentPrivateChatUser = routerListener.getPrivateChatUser();
                     if (currentPrivateChatUser == null) return true;
                     return iMessageModel.getToUser().getNumber().equals(currentPrivateChatUser.getNumber())
-                            || iMessageModel.getFrom().getNumber().equals(currentPrivateChatUser.getName());
+                            || iMessageModel.getFrom().getNumber().equals(currentPrivateChatUser.getNumber());
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(iMessageModel -> {

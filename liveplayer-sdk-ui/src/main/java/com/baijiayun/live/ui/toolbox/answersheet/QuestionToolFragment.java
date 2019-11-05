@@ -15,6 +15,8 @@ import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.models.LPAnswerSheetOptionModel;
 
+import org.w3c.dom.Text;
+
 /**
  * Created by yangjingming on 2018/6/5.
  */
@@ -81,16 +83,38 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
                     @Override
                     public void onClick(View v) {
                         if (isSubmit) return;
-                        if ((Boolean) buttonOption.getTag()) {
-                            buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_checked);
-                            buttonOption.setTextColor(getResources().getColor(R.color.live_white));
-                            buttonOption.setTag(false);
-                            presenter.addCheckedOption(currentIndex);
-                        } else {
-                            buttonOption.setTextColor(getResources().getColor(R.color.live_blue));
-                            buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_unchecked);
-                            buttonOption.setTag(true);
-                            presenter.deleteCheckedOption(currentIndex);
+                        if (presenter.isJudgement()) {
+                            int otherIndex = (currentIndex & 0x01) == 0 ? 1 : 2;
+                            if ((Boolean) buttonOption.getTag()) {
+                                buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_checked);
+                                buttonOption.setTextColor(getResources().getColor(R.color.live_white));
+                                buttonOption.setTag(false);
+                                presenter.addCheckedOption(currentIndex);
+                                if (presenter.isItemChecked(otherIndex)) {
+                                    TextView tv = (TextView) newLayout.getChildAt(otherIndex - 1);
+                                    tv.setTextColor(getResources().getColor(R.color.live_blue));
+                                    tv.setBackgroundResource(R.drawable.live_question_tool_roundoption_unchecked);
+                                    tv.setTag(true);
+                                    presenter.deleteCheckedOption(otherIndex);
+                                }
+                            } else {
+                                buttonOption.setTextColor(getResources().getColor(R.color.live_blue));
+                                buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_unchecked);
+                                buttonOption.setTag(true);
+                                presenter.deleteCheckedOption(currentIndex);
+                            }
+                        }else {
+                            if ((Boolean) buttonOption.getTag()) {
+                                buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_checked);
+                                buttonOption.setTextColor(getResources().getColor(R.color.live_white));
+                                buttonOption.setTag(false);
+                                presenter.addCheckedOption(currentIndex);
+                            } else {
+                                buttonOption.setTextColor(getResources().getColor(R.color.live_blue));
+                                buttonOption.setBackgroundResource(R.drawable.live_question_tool_roundoption_unchecked);
+                                buttonOption.setTag(true);
+                                presenter.deleteCheckedOption(currentIndex);
+                            }
                         }
                     }
                 });

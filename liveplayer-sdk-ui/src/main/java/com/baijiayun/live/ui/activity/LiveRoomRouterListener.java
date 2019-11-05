@@ -271,4 +271,8 @@ public interface LiveRoomRouterListener {
     void showTimer();
 
     void closeTimer();
+
+    void showEvaluation();
+
+    void dismissEvaDialog();
 }

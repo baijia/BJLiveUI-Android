@@ -1,6 +1,7 @@
 package com.baijiayun.live.ui.activity;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.utils.JsonObjectUtil;
@@ -68,6 +69,10 @@ public class GlobalPresenter implements BasePresenter {
         subscriptionOfClassEnd = routerListener.getLiveRoom().getObservableOfClassEnd()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aVoid -> {
+                    if (routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Student &&
+                            routerListener.getLiveRoom().isShowEvaluation()) {
+                        routerListener.showEvaluation();
+                    }
                     routerListener.showMessageClassEnd();
                     teacherVideoOn = false;
                     teacherAudioOn = false;
@@ -257,12 +262,9 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfTimerStart = routerListener.getLiveRoom().getToolBoxVM().getObservableOfBJTimerStart()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(lpbjTimerModel -> {
-                        /**
-                         *  TODO app-7.3.1
                         if (!routerListener.isCurrentUserTeacher()) {
                             routerListener.showTimer(lpbjTimerModel);
                         }
-                         **/
                     });
             subscriptionOfTimerEnd = routerListener.getLiveRoom().getToolBoxVM().getObservableOfBJTimerEnd()
                     .observeOn(AndroidSchedulers.mainThread())

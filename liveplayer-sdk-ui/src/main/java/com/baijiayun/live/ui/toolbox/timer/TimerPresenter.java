@@ -37,7 +37,9 @@ public class TimerPresenter implements TimerContract.Presenter {
 
     @Override
     public void requestTimerEnd() {
-        routerListener.getLiveRoom().getToolBoxVM().requestBJTimerEnd();
+        if (routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Teacher) {
+            routerListener.getLiveRoom().getToolBoxVM().requestBJTimerEnd();
+        }
     }
 
     @Override
@@ -62,7 +64,10 @@ public class TimerPresenter implements TimerContract.Presenter {
         }
         if (lpbjTimerModel != null) {
             isPause = false;
-            long time = lpbjTimerModel.startTimer + lpbjTimerModel.current - System.currentTimeMillis() / 1000;
+            long time = lpbjTimerModel.current;
+            if (lpbjTimerModel.isCache) {
+                time = lpbjTimerModel.startTimer + lpbjTimerModel.current - System.currentTimeMillis() / 1000;
+            }
             if (time > 0) {
                 isCountDown = lpbjTimerModel.isCountDown();
                 timeDuration = lpbjTimerModel.total;
@@ -75,7 +80,10 @@ public class TimerPresenter implements TimerContract.Presenter {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(lpbjTimerModel -> {
                         isPause = false;
-                        long time = lpbjTimerModel.startTimer + lpbjTimerModel.current - System.currentTimeMillis() / 1000;
+                        long time = lpbjTimerModel.current;
+                        if (lpbjTimerModel.isCache) {
+                            time = lpbjTimerModel.startTimer + lpbjTimerModel.current - System.currentTimeMillis() / 1000;
+                        }
                         if (time > 0) {
                             isCountDown = lpbjTimerModel.isCountDown();
                             timeDuration = lpbjTimerModel.total;

@@ -64,6 +64,11 @@ public interface SpeakersContract {
 
         // 结束其他人发言
         void closeSpeaking(String userId);
+
+        /**
+         * 是否本地显示点赞动画
+         */
+        void localShowAwardAnimation(String userNumber);
     }
 
 }

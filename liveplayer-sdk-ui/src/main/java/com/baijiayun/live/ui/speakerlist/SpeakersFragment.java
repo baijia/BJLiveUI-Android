@@ -254,7 +254,10 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
             }
         } else {
             Playable playable = positionHelper.getPlayableItemByUserNumber(awardModel.value.to);
-            if (playable == null) return;
+            if (playable == null) {
+                presenter.localShowAwardAnimation(awardModel.value.to);
+                return;
+            };
             //noinspection ConstantConditions
             playable.notifyAwardChange(awardModel.value.record.get(awardModel.value.to));
             routerListener.showAwardAnimation(playable.getUser().getName());
@@ -290,10 +293,7 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
 
     private SpeakItem createLocalPlayableItem() {
         LocalItem localItem = new LocalItem(container, presenter);
-        FragmentActivity activity = getActivity();
-        if (activity != null) {
-            activity.getLifecycle().addObserver(localItem);
-        }
+        getLifecycle().addObserver(localItem);
         return localItem;
     }
 

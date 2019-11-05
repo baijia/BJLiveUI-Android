@@ -141,7 +141,13 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
-
+    <com.baijiayun.live.ui.base.DragFragment
+        android:id="@+id/activity_dialog_timer"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:visibility="gone"/>
     <com.baijiayun.live.ui.base.DragFragment
         android:id="@+id/activity_dialog_question_tool"
         android:layout_centerInParent="true"
@@ -149,7 +155,6 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:visibility="gone"/>
-
     <com.baijiayun.live.ui.speakerlist.AwardView
         android:id="@+id/award_view"
         android:layout_width="wrap_content"

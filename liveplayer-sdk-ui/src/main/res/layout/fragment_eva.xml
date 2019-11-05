@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shape_bg_radius_6dp"
+    android:orientation="vertical">
+
+    <ProgressBar
+        android:id="@+id/pb_web_view_eva"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:max="100"
+        android:progress="10"
+        android:progressDrawable="@drawable/pb_layer_webview"
+        android:visibility="gone" />
+
+    <WebView
+        android:id="@+id/wv_eva_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="6dp"
+        android:background="@android:color/transparent" />
+</LinearLayout>

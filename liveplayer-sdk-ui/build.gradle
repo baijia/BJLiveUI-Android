@@ -44,7 +44,15 @@ dependencies {
     }
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.8'
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.9'
+//    api (project(path: ':liveplayer-sdk-core')){
+//        exclude group:"com.android.support"
+//    }
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.8.9'
+    testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+    testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
 }
 android {
     lintOptions {
@@ -53,6 +61,9 @@ android {
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 

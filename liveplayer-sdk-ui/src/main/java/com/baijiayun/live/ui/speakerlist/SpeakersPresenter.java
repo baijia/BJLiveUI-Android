@@ -252,4 +252,11 @@ public class SpeakersPresenter implements SpeakersContract.Presenter {
     public void detachVideo() {
         view.notifyLocalPlayableChanged(false, liveRoom.getRecorder().isAudioAttached());
     }
+
+    @Override
+    public void localShowAwardAnimation(String userNumber) {
+        if (roomRouterListener.getLiveRoom().getCurrentUser().getNumber().equals(userNumber)) {
+            roomRouterListener.showAwardAnimation(roomRouterListener.getLiveRoom().getCurrentUser().getName());
+        }
+    }
 }

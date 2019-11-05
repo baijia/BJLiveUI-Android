@@ -17,12 +17,15 @@ public interface QuestionToolContract {
     }
 
     interface Presenter extends BasePresenter{
+        boolean isJudgement();
 
         List<LPAnswerSheetOptionModel> getOptions();
 
         void addCheckedOption(int index);
 
         void deleteCheckedOption(int index);
+
+        boolean isItemChecked(int index);
 
         boolean submitAnswers();
 

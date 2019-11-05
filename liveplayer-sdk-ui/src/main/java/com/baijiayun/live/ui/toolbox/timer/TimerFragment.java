@@ -61,14 +61,10 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
             if (isEnd) {
                 reset();
             } else {
-                showEditable(false);
-                canEditable = false;
                 if (!isPublish) {
                     publish(getTimerSeconds());
-                    isPublish = true;
                 } else {
-                    paunse();
-                    isPublish = false;
+                    pause();
                 }
             }
             setTabClickable(canEditable);
@@ -109,7 +105,7 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
 
     private void publish(long duration) {
         if (!isLegal()) {
-            Toast.makeText(context,getString(R.string.timer_error_tip),Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,getString(R.string.timer_error_tip,isCountDown()?getString(R.string.timer_countdown):getString(R.string.timer_countup)),Toast.LENGTH_SHORT).show();
             return;
         }
         if (getString(R.string.timer_start).equals(tvPublish.getText().toString())) {
@@ -120,13 +116,19 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
             current = this.duration;
         }
         presenter.requestTimerStart(current,this.duration,isCountDown());
+        isPublish = true;
         tvPublish.setText(getString(R.string.timer_pause));
+        showEditable(false);
+        canEditable = false;
     }
 
-    private void paunse() {
+    private void pause() {
         tvPublish.setText(getString(R.string.timer_continue));
         long current = isCountDown() ? getTimerSeconds() : duration - getTimerSeconds();
         presenter.requestTimerPause(current, duration, isCountDown());
+        isPublish = false;
+        showEditable(false);
+        canEditable = false;
     }
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -212,11 +214,11 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
 
     @Override
     public void hideButton() {
-        canEditable = false;
         $.id(R.id.dialog_close).visibility(View.GONE);
         $.id(R.id.ll_tab).visibility(View.GONE);
         $.id(R.id.tv_publish).visibility(View.GONE);
         $.id(R.id.space).visible();
+        showEditable(false);
     }
 
     @Override
@@ -232,11 +234,14 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        if (presenter != null) {
+            presenter.requestTimerEnd();
+        }
         etMinHigh.removeTextChangedListener(textWatcher);
         etMinLow.removeTextChangedListener(textWatcher);
         etSecondHigh.removeTextChangedListener(textWatcher);
         etSecondLow.removeTextChangedListener(textWatcher);
+        super.onDestroyView();
     }
 
     @Override

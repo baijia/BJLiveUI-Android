@@ -93,6 +93,11 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
     }
 
     @Override
+    public boolean isJudgement() {
+        return lpAnswerModel.isJudgement();
+    }
+
+    @Override
     public List<LPAnswerSheetOptionModel> getOptions() {
         return options;
     }
@@ -107,6 +112,11 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
     public void deleteCheckedOption(int index) {
         if (checkedOptions.contains(String.valueOf(index)))
             checkedOptions.remove(String.valueOf(index));
+    }
+
+    @Override
+    public boolean isItemChecked(int index) {
+        return checkedOptions.contains(String.valueOf(index));
     }
 
     private void checkOptions() {
@@ -124,7 +134,9 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
 
     @Override
     public boolean submitAnswers() {
-//        return roomRouterListener.getLiveRoom().submitAnswerSheet(checkedOptions);
+        if (checkedOptions.isEmpty()) {
+            return false;
+        }
         checkOptions();
         roomRouterListener.setQuestionAnswerCahce(lpAnswerModel);
         return roomRouterListener.getLiveRoom().getToolBoxVM().submitAnswers(lpAnswerModel);

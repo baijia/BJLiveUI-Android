@@ -71,6 +71,8 @@ import com.baijiayun.live.ui.chat.preview.ChatSavePicDialogPresenter;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordFragment;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordPresenter;
 import com.baijiayun.live.ui.error.ErrorFragment;
+import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogFragment;
+import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogPresenter;
 import com.baijiayun.live.ui.toolbox.redpacket.RedPacketFragment;
 import com.baijiayun.live.ui.toolbox.redpacket.RedPacketPresenter;
 import com.baijiayun.live.ui.menu.leftmenu.LeftMenuFragment;
@@ -133,6 +135,7 @@ import com.baijiayun.livecore.models.roomresponse.LPResRoomMediaControlModel;
 import com.baijiayun.livecore.ppt.listener.OnPPTStateListener;
 import com.baijiayun.livecore.utils.LPSdkVersionUtils;
 import com.baijiayun.livecore.wrapper.model.LPAVMediaModel;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -166,6 +169,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private FrameLayout flSpeakers;
     private FrameLayout flCloudRecord;
     private DragFragment flQuestionTool;
+    private DragFragment flTimer;
     private LiveRoom liveRoom;
     private LoadingFragment loadingFragment;
     private TopBarFragment topBarFragment;
@@ -242,6 +246,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     private Handler mHandler = new Handler();
     private LPAnswerModel lpAnswerModel;
+    private EvaDialogFragment evaDialogFragment;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -352,6 +357,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         flCloudRecord = findViewById(R.id.activity_live_room_cloud_record);
         rlContainer = findViewById(R.id.activity_live_room_container);
         flQuestionTool = findViewById(R.id.activity_dialog_question_tool);
+        flTimer = findViewById(R.id.activity_dialog_timer);
 
         dlChat.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -447,6 +453,12 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
                 flQuestionTool.setLayoutParams(layoutParams);
             }
+            if (flTimer.getVisibility() == View.VISIBLE) {
+                flTimer.configurationChanged();
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+                flTimer.setLayoutParams(layoutParams);
+            }
             if (flSpeakers.getVisibility() == View.GONE) {
                 RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) dlChat.getLayoutParams();
                 lp.addRule(RelativeLayout.BELOW, 0);
@@ -459,6 +471,12 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
                 flQuestionTool.setLayoutParams(layoutParams);
+            }
+            if (flTimer.getVisibility() == View.VISIBLE) {
+                flTimer.configurationChanged();
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+                flTimer.setLayoutParams(layoutParams);
             }
             if (isClearScreen)
                 unClearScreen();
@@ -2360,6 +2378,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         questionToolFragment = new QuestionToolFragment();
         questionToolPresenter.setView(questionToolFragment);
         bindVP(questionToolFragment, questionToolPresenter);
+        flQuestionTool.configurationChanged();
         flQuestionTool.setVisibility(View.VISIBLE);
 //        flQuestionTool.setVisibility(View.GONE);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -2380,6 +2399,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         questionShowFragment = new QuestionShowFragment();
         questionShowPresenter.setView(questionShowFragment);
         bindVP(questionShowFragment, questionShowPresenter);
+        flQuestionTool.configurationChanged();
         flQuestionTool.setVisibility(View.VISIBLE);
 //        flQuestionTool.setVisibility(View.GONE);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -2420,11 +2440,12 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         timerFragment = new TimerFragment();
         timerPresenter.setView(timerFragment);
         bindVP(timerFragment, timerPresenter);
-        flQuestionTool.setVisibility(View.VISIBLE);
+        flTimer.configurationChanged();
+        flTimer.setVisibility(View.VISIBLE);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        flQuestionTool.setLayoutParams(layoutParams);
-        addFragment(R.id.activity_dialog_question_tool, timerFragment);
+        flTimer.setLayoutParams(layoutParams);
+        addFragment(R.id.activity_dialog_timer, timerFragment);
         showFragment(timerFragment);
     }
     @Override
@@ -2437,19 +2458,46 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         timerFragment = new TimerFragment();
         timerPresenter.setView(timerFragment);
         bindVP(timerFragment, timerPresenter);
-        flQuestionTool.setVisibility(View.VISIBLE);
+        flTimer.configurationChanged();
+        flTimer.setVisibility(View.VISIBLE);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        flQuestionTool.setLayoutParams(layoutParams);
-        addFragment(R.id.activity_dialog_question_tool, timerFragment);
+        flTimer.setLayoutParams(layoutParams);
+        addFragment(R.id.activity_dialog_timer, timerFragment);
         showFragment(timerFragment);
     }
     @Override
     public void closeTimer() {
         if (timerFragment != null && timerFragment.isAdded()) {
             removeFragment(timerFragment);
-            flQuestionTool.setVisibility(View.GONE);
+            flTimer.setVisibility(View.GONE);
             timerFragment = null;
+        }
+    }
+
+    /**
+     * 显示课后评价
+     */
+    @Override
+    public void showEvaluation() {
+        if (evaDialogFragment != null) {
+            dismissEvaDialog();
+        }
+        evaDialogFragment = new EvaDialogFragment();
+        EvaDialogPresenter evaDialogPresenter = new EvaDialogPresenter(evaDialogFragment);
+        LPJsonModel lpJsonModel = new LPJsonModel();
+        JsonObject data = new JsonObject();
+        data.addProperty("message_type","class_end");
+        lpJsonModel.data = data;
+        evaDialogFragment.onClassEnd(lpJsonModel);
+        bindVP(evaDialogFragment,evaDialogPresenter);
+        showDialogFragment(evaDialogFragment);
+    }
+
+    @Override
+    public void dismissEvaDialog() {
+        if (evaDialogFragment != null && evaDialogFragment.isAdded() && evaDialogFragment.isVisible()) {
+            evaDialogFragment.dismissAllowingStateLoss();
         }
     }
 

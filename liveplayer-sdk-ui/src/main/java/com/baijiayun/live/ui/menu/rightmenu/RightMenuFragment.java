@@ -45,8 +45,6 @@ public class RightMenuFragment extends BaseFragment implements RightMenuContract
         $.id(R.id.fragment_right_timer).clicked(v -> {
             presenter.showTimer();
         });
-        //TODO app-7.3.1
-        $.id(R.id.fragment_right_timer).gone();
         $.id(R.id.fragment_right_speak_apply).clicked().throttleFirst(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> {

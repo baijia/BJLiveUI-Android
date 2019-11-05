@@ -185,7 +185,10 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
                     @Override
                     public void accept(Long aLong) throws Exception {
                         mRedPacketPHB = mRouter.getLiveRoom().requestCloudRedPacketRankList(Integer.valueOf(id))
-                                .subscribe(new ExConsumer());
+                                .subscribe(new ExConsumer(), throwable -> {
+                                    LPLogger.e(TAG, "requestCloudRedPacketRankList : " + throwable.getMessage());
+                                    switchState(RedPacketContract.TYPE_REDPACKET_RANKING_LIST);
+                                });
                     }
                 });
         showTopList();
@@ -312,13 +315,9 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
 
     @Override
     public void switchState(int type) {
-
         if (type == RedPacketContract.TYPE_REDPACKET_RANKING_LIST) {
-            //显示排行榜
-            if (mTopList == null)
-                return;
             mView.switchRedPacketStart(RedPacketContract.TYPE_REDPACKET_RANKING_LIST);
-            mView.switchRedPacketRankingList(mTopList.list);
+            mView.switchRedPacketRankingList(mTopList == null ? null : mTopList.list);
             mScoreAmount = 0;
         }
     }

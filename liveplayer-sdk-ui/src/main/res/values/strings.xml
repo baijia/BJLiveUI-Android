@@ -228,7 +228,7 @@
     <string name="string_live_uisdk_forbid_group_true">本组已全体禁言</string>
     <string name="string_live_uisdk_forbid_group_false">本组已取消全体禁言</string>
     <string name="timer_start">开始</string>
-    <string name="timer_error_tip">请输入正确时间</string>
+    <string name="timer_error_tip">请先设置%1$s时间</string>
     <string name="timer_restart">重新开始</string>
     <string name="timer_pause">暂停</string>
     <string name="timer_continue">继续</string>

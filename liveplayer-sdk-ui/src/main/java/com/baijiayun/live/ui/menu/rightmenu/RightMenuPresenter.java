@@ -132,7 +132,7 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
     @Override
     public void onSpeakInvite(int confirm) {
         liveRoomRouterListener.getLiveRoom().sendSpeakInvite(confirm);
-        if (confirm == 1) {
+        if (confirm == 1 && liveRoomRouterListener.checkCameraPermission()) {
             //接受
             speakApplyStatus = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING;
             liveRoomRouterListener.getLiveRoom().getRecorder().publish();
