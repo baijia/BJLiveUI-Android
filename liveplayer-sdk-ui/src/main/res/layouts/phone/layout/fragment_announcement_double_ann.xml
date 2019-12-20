@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_announcement_double_title"
+        android:drawableLeft="@drawable/iv_lp_ui_notice"
+        android:text="@string/live_announcement"
+        android:textSize="14sp"
+        android:drawablePadding="7dp"
+        android:textColor="@color/color_7F7F88"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+
+
+    <LinearLayout
+        android:id="@+id/ll_announcement_notice"
+        android:padding="3dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_announcement_notice_info"
+            android:background="@drawable/layer_notice_bg"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_announcement_notice_info_tips"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/ll_announcement_double_group"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_announcement_double_group_title"
+            android:drawableLeft="@drawable/iv_lp_ui_notice_group"
+            android:text="@string/string_notice_group_title"
+            android:textSize="14sp"
+            android:drawablePadding="7dp"
+            android:textColor="@color/color_7F7F88"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="25dp" />
+
+        <TextView
+            android:id="@+id/tv_announcement_notice_group_info"
+            android:background="@drawable/layer_notice_bg"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_announcement_double_info_tips"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_weight="1"
+        android:gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <TextView
+            android:id="@+id/tv_double_ann_info"
+            android:text="@string/string_button_tips"
+            android:layout_marginBottom="3dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/color_C6C6CF"
+            android:textSize="10sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:layout_below="@+id/tv_double_ann_info"
+            android:id="@+id/iv_double_ann_down"
+            android:src="@drawable/iv_lp_ui_down"
+            android:visibility="invisible"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="14dp"
+            android:layout_height="14dp" />
+    </RelativeLayout>
+
+</LinearLayout>

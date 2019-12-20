@@ -1,7 +1,9 @@
 package com.baijiayun.live.ui.chat;
 
+import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
+import com.baijiayun.live.ui.base.RouterListener;
 import com.baijiayun.livecore.models.imodels.IUserModel;
 
 /**
@@ -45,6 +47,15 @@ public interface MessageSendContract {
 
         boolean isLiveCanWhisper();
 
+        /**
+         * 全体禁言状态
+         */
+        boolean isAllForbidden();
+
+        boolean canWisperTeacherInForbidAllMode();
+
         IUserModel getPrivateChatUser();
+
+        LiveRoomRouterListener getLiveRouterListener();
     }
 }

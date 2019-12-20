@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_announcement_edit_title"
+        android:drawableLeft="@drawable/iv_lp_ui_notice"
+        android:text="@string/live_announcement"
+        android:textSize="14sp"
+        android:drawablePadding="7dp"
+        android:textColor="@color/color_7F7F88"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+
+    <RelativeLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/shape_announcement_edit_etbg">
+        <EditText
+            android:id="@+id/et_announcement_edit_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:background="@null"
+            android:gravity="top"
+            android:maxLength="140"
+            android:minLines="6"
+            android:padding="10dp"
+            android:textColor="@color/color_00000000"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/tv_announcement_edit_info_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:paddingBottom="5dp"
+            android:paddingRight="15dp"
+            android:text="0/140"
+            android:textColor="@color/color_C6C6CF"
+            android:textSize="12sp"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/shape_announcement_edit_etbg"
+        android:layout_height="26dp">
+
+        <EditText
+            android:id="@+id/et_announcement_edit_url"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:background="@null"
+            android:lines="1"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:inputType="text"
+            android:paddingLeft="5dp"
+            android:hint="@string/string_notice_url_hint"
+            android:textColor="@color/color_9C9C9C"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:textColor="@color/color_9C9C9C"
+            android:textSize="12sp"
+            android:gravity="center_vertical"
+            android:text="@string/live_optional_input"
+            android:paddingRight="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="60dp"/>
+
+    <TextView
+        android:id="@+id/tv_announcement_edit_cancel"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:text="@string/string_notice_cancel_edit"
+        android:textColor="@color/color_9C9C9C"
+        android:background="@drawable/layer_ffffff_5"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginBottom="8dp"/>
+
+</LinearLayout>

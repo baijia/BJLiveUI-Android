@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="aec mode" />
+
+    <RadioGroup
+        android:id="@+id/rg_lp_debug_mode_aec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/aec_unchanged"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="kEcUnchanged" />
+
+        <RadioButton
+            android:id="@+id/aec_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kEcDefault" />
+
+        <RadioButton
+            android:id="@+id/aec_conference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kEcConference" />
+
+        <RadioButton
+            android:id="@+id/aec_aec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kEcAec" />
+
+        <RadioButton
+            android:id="@+id/aec_aecm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kEcAecm" />
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="aecm mode" />
+
+    <RadioGroup
+        android:id="@+id/rg_lp_debug_mode_aecm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/aecm_quiet_or_headset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="kAecmQuietEarpieceOrHeadset" />
+
+        <RadioButton
+            android:id="@+id/aecm_ear_piece"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kAecmEarpiece" />
+
+        <RadioButton
+            android:id="@+id/aecm_loud_ear_piece"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kAecmLoudEarpiece" />
+
+        <RadioButton
+            android:id="@+id/aecm_speaker_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kAecmSpeakerphone" />
+
+        <RadioButton
+            android:id="@+id/aecm_loud_speaker_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kAecmLoudSpeakerphone" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/et_debug_aec_delay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="delay" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="audio source" />
+
+    <RadioGroup
+        android:id="@+id/rg_lp_debug_mode_audio_source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/audio_source_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="DEFAULT" />
+
+        <RadioButton
+            android:id="@+id/audio_source_mic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MIC" />
+
+        <RadioButton
+            android:id="@+id/audio_source_uplink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOICE_UPLINK" />
+
+        <RadioButton
+            android:id="@+id/audio_source_downlink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOICE_DOWNLINK" />
+
+        <RadioButton
+            android:id="@+id/audio_source_voice_call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOICE_CALL" />
+
+        <RadioButton
+            android:id="@+id/audio_source_camcorder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CAMCORDER" />
+
+        <RadioButton
+            android:id="@+id/audio_source_recognition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOICE_RECOGNITION" />
+
+        <RadioButton
+            android:id="@+id/audio_source_communication"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOICE_COMMUNICATION" />
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="是否开启通话模式" />
+
+    <RadioGroup
+        android:id="@+id/rg_lp_debug_mode_is_communication"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/communication_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="开启" />
+
+        <RadioButton
+            android:id="@+id/communication_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭" />
+
+    </RadioGroup>
+
+</LinearLayout>

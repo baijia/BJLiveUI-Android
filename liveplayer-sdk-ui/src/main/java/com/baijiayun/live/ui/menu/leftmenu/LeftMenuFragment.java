@@ -28,10 +28,6 @@ public class LeftMenuFragment extends BaseFragment implements LeftMenuContract.V
         super.init(savedInstanceState);
         $.id(R.id.fragment_left_menu_clear_screen).clicked(v -> presenter.clearScreen());
         $.id(R.id.fragment_left_menu_send_message).clicked(v -> {
-            if (presenter.isAllForbidden()) {
-                showToast(getString(R.string.live_forbid_send_message));
-                return;
-            }
             presenter.showMessageInput();
         });
 

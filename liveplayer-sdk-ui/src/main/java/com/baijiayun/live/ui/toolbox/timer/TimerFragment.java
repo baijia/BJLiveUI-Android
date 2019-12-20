@@ -246,6 +246,6 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_timer;
+        return R.layout.bjy_fragment_timer;
     }
 }

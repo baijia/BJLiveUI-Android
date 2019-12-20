@@ -4,9 +4,11 @@ import com.baijiahulian.common.networkv2.BJProgressCallback;
 import com.baijiahulian.common.networkv2.BJResponse;
 import com.baijiahulian.common.networkv2.HttpException;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
-import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.live.ui.chat.widget.ChatMessageView;
 import com.baijiayun.live.ui.utils.Precondition;
+import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.context.LPConstants;
+import com.baijiayun.livecore.models.LPExpressionModel;
 import com.baijiayun.livecore.models.LPMessageTranslateModel;
 import com.baijiayun.livecore.models.LPShortResult;
 import com.baijiayun.livecore.models.LPUploadDocModel;
@@ -18,17 +20,16 @@ import com.baijiayun.livecore.utils.LPLogger;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Queue;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-
-import static com.baijiayun.live.ui.utils.Precondition.checkNotNull;
 
 /**
  * Created by Shubo on 2017/2/23.
@@ -38,7 +39,8 @@ public class ChatPresenter implements ChatContract.Presenter {
 
     private LiveRoomRouterListener routerListener;
     private ChatContract.View view;
-    private Disposable subscriptionOfDataChange, subscriptionOfMessageReceived, subscribeOfTranslateMessage,subscribeOfIsSelfChatForbid;
+    private Disposable subscriptionOfDataChange, subscriptionOfMessageReceived,
+            subscribeOfTranslateMessage,subscribeOfIsSelfChatForbid,subscribeOfMessageRevoke;
     private LinkedBlockingQueue<UploadingImageModel> imageMessageUploadingQueue;
     private ConcurrentHashMap<String, List<IMessageModel>> privateChatMessagePool;
     private ConcurrentHashMap<String, LPMessageTranslateModel> translateMessageModels;
@@ -47,6 +49,7 @@ public class ChatPresenter implements ChatContract.Presenter {
     private List<IMessageModel> privateChatMessageFilterList;
     private List<IMessageModel> chatMessageFilterList;
     private boolean isSelfForbidden;
+    private Map<String,String> pressions;
 
     public ChatPresenter(ChatContract.View view) {
         this.view = view;
@@ -55,6 +58,7 @@ public class ChatPresenter implements ChatContract.Presenter {
         translateMessageModels = new ConcurrentHashMap<>();
         privateChatMessageFilterList = new ArrayList<>();
         chatMessageFilterList = new ArrayList<>();
+        pressions = new HashMap<>();
     }
 
     @Override
@@ -65,6 +69,9 @@ public class ChatPresenter implements ChatContract.Presenter {
     @Override
     public void subscribe() {
         Precondition.checkNotNull(routerListener);
+        for (LPExpressionModel lpExpressionModel : routerListener.getLiveRoom().getExpressions()) {
+            pressions.put("[" + lpExpressionModel.name + "]", lpExpressionModel.url);
+        }
         chatMessageFilterList = getFilterMessageList(routerListener.getLiveRoom().getChatVM().getMessageList());
         view.notifyDataChanged();
         subscriptionOfDataChange = routerListener.getLiveRoom().getChatVM().getObservableOfNotifyDataChange()
@@ -122,6 +129,46 @@ public class ChatPresenter implements ChatContract.Presenter {
         subscribeOfIsSelfChatForbid = routerListener.getLiveRoom().getObservableOfIsSelfChatForbid()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aBoolean -> isSelfForbidden = aBoolean);
+        subscribeOfMessageRevoke = routerListener.getLiveRoom().getChatVM().getObservableOfMsgRevoke()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(lpMessageRevoke -> {
+                    if (lpMessageRevoke.messageId == null) {
+                        return;
+                    }
+                    if (!lpMessageRevoke.fromId.equals(routerListener.getLiveRoom().getCurrentUser().getUserId())) {
+                        receivedNewMessageNumber--;
+                    }
+                    for (IMessageModel iMessageModel : imageMessageUploadingQueue) {
+                        if (lpMessageRevoke.messageId.equals(iMessageModel.getId())) {
+                            imageMessageUploadingQueue.remove(iMessageModel);
+                            break;
+                        }
+                    }
+                    for (IMessageModel iMessageModel : privateChatMessageFilterList) {
+                        if (lpMessageRevoke.messageId.equals(iMessageModel.getId())) {
+                            privateChatMessageFilterList.remove(iMessageModel);
+                            break;
+                        }
+                    }
+                    for (IMessageModel iMessageModel : chatMessageFilterList) {
+                        if (lpMessageRevoke.messageId.equals(iMessageModel.getId())) {
+                            chatMessageFilterList.remove(iMessageModel);
+                            break;
+                        }
+                    }
+                    if (routerListener.isPrivateChat()) {
+                        final List<IMessageModel> iMessageModels = privateChatMessagePool.get(routerListener.getPrivateChatUser().getNumber());
+                        if (iMessageModels != null) {
+                            for (IMessageModel iMessageModel : iMessageModels) {
+                                if (lpMessageRevoke.messageId.equals(iMessageModel.getId())) {
+                                    iMessageModels.remove(iMessageModel);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    view.notifyDataChanged();
+                });
     }
 
     @Override
@@ -130,6 +177,7 @@ public class ChatPresenter implements ChatContract.Presenter {
         RxUtils.dispose(subscriptionOfMessageReceived);
         RxUtils.dispose(subscribeOfTranslateMessage);
         RxUtils.dispose(subscribeOfIsSelfChatForbid);
+        RxUtils.dispose(subscribeOfMessageRevoke);
     }
 
     /**
@@ -249,6 +297,12 @@ public class ChatPresenter implements ChatContract.Presenter {
     }
 
     @Override
+    public Map<String,String> getExpressions(){
+        return pressions;
+    }
+
+
+    @Override
     public IUserModel getCurrentUser() {
         return routerListener.getLiveRoom().getCurrentUser();
     }
@@ -287,6 +341,23 @@ public class ChatPresenter implements ChatContract.Presenter {
     @Override
     public boolean isEnableTranslate() {
         return routerListener.getLiveRoom().getPartnerConfig().isEnableChatTranslation();
+    }
+
+    @Override
+    public int getRecallStatus(IMessageModel message) {
+        if (routerListener.getLiveRoom().getCurrentUser().getNumber().equals(message.getFrom().getNumber())) {
+            return ChatMessageView.RECALL;
+        }
+        if (routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant ||
+                routerListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Teacher) {
+            return ChatMessageView.DELETE;
+        }
+        return ChatMessageView.NONE;
+    }
+
+    @Override
+    public void reCallMessage(IMessageModel message) {
+        routerListener.getLiveRoom().getChatVM().requestMsgRevoke(message.getId(),message.getFrom().getUserId());
     }
 
     /**

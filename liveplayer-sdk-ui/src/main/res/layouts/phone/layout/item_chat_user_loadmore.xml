@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <ProgressBar
+        android:id="@+id/item_chat_user_progress"
+        android:layout_width="26dp"
+        android:layout_height="26dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="52dp"
+        android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+        android:gravity="center"
+        android:text="@string/live_loading_more" />
+</LinearLayout>

@@ -10,9 +10,9 @@ import java.util.List;
 /**
  * Created by bjhl on 17/7/4.
  */
-class SwitchPPTContract {
+interface SwitchPPTContract {
     interface View extends BaseView<Presenter> {
-        void setIndex();
+        void setIndex(int index);
 
         void setMaxIndex(int maxIndex);
 
@@ -39,5 +39,7 @@ class SwitchPPTContract {
         void changePage(int page);
 
         boolean canOperateDocumentControl();
+
+        void changeDocList();
     }
 }

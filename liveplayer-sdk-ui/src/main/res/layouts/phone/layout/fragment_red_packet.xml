@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_red_packet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#99000000">
+
+    <RelativeLayout
+        android:id="@+id/rl_fragment_redpacket_time"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        android:layout_width="440dp"
+        android:layout_height="220dp">
+
+        <ImageView
+            android:id="@+id/iv_red_packet_bg_start"
+            android:src="@drawable/iv_lp_ui_red_packet_start"
+            android:layout_width="440dp"
+            android:layout_height="220dp" />
+
+        <TextView
+            android:id="@+id/tv_red_packet_title_start"
+            android:layout_marginBottom="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignBottom="@+id/iv_red_packet_bg_start"
+            android:textSize="22sp"
+            android:textColor="@color/live_white"
+            android:text="@string/string_red_ms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_red_packet_time_start"
+            android:text="3"
+            android:textSize="60sp"
+            android:layout_marginTop="48dp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/live_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+    <com.baijiayun.live.ui.toolbox.redpacket.widget.TranslateSurfaceView
+        android:id="@+id/tsf_red_packet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
+
+    <RelativeLayout
+        android:id="@+id/rl_fragment_redpacket_phb"
+        android:layout_marginTop="28dp"
+        android:layout_marginBottom="12dp"
+        android:visibility="visible"
+        android:layout_width="297dp"
+        android:layout_height="337dp"
+        android:layout_centerInParent="true">
+
+        <ImageView
+            android:id="@+id/iv_phb_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:src="@drawable/iv_lp_ui_red_phb" />
+
+        <ImageView
+            android:id="@+id/btn_reb_phb_close"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignRight="@+id/iv_phb_bg"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/iv_lp_ui_phb_close"
+            android:text="X"
+            android:textColor="#ffffff" />
+
+        <LinearLayout
+            android:id="@+id/ll_fragment_red_title"
+            android:layout_width="match_parent"
+            android:layout_height="18dp"
+            android:layout_alignTop="@+id/iv_phb_bg"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginTop="106dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/string_red_ranking"
+                android:textColor="@color/live_white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/live_white"
+                android:text="@string/string_red_name"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/live_white"
+                android:text="@string/string_red_jb"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/lv_fragment_top"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ll_fragment_red_title"
+            android:dividerHeight="0dp"
+            android:background="@drawable/layer_red_list_bg"
+            android:divider="#ffffff"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="47dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="45dp">
+
+        </ListView>
+
+        <RelativeLayout
+            android:id="@+id/rl_lp_ui_redpack_none"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:background="@drawable/layer_red_list_bg"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ll_fragment_red_title"
+            android:gravity="center"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="47dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="45dp">
+
+            <ImageView
+                android:id="@+id/iv_red_none_icon"
+                android:src="@drawable/iv_lp_ui_red_packet_not_icon"
+                android:layout_centerHorizontal="true"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:contentDescription="TODO" />
+
+            <TextView
+                android:textSize="14sp"
+                android:text="@string/string_red_none"
+                android:textColor="@color/color_00000000"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/iv_red_none_icon"
+                android:layout_marginTop="11dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+    
+    <RelativeLayout
+        android:id="@+id/rl_not_red"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:visibility="invisible"
+        android:layout_width="210dp"
+        android:layout_height="279dp">
+
+        <ImageView
+            android:layout_weight="1"
+            android:src="@drawable/iv_lp_ui_red_packet_bg_none"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        
+        <ImageView
+            android:id="@+id/iv_red_not_icon"
+            android:src="@drawable/iv_lp_ui_red_packet_not_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="46dp"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:contentDescription="TODO" />
+
+        <TextView
+            android:textSize="14sp"
+            android:text="@string/string_red_not"
+            android:textColor="@color/live_white"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/iv_red_not_icon"
+            android:layout_marginTop="11dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_red_not_next"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:text="@string/string_red_not_bottom"
+            android:textColor="@color/live_white"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/layer_lp_ui_red_button"
+            android:layout_marginBottom="20dp"
+            android:layout_width="144dp"
+            android:layout_height="27dp" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_red_rob"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        android:layout_width="210dp"
+        android:layout_height="279dp">
+
+        <ImageView
+            android:id="@+id/iv_red_bg"
+            android:src="@drawable/iv_lp_ui_red_packet_bg_tips"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:id="@+id/ll_red_credit"
+            android:layout_marginTop="46dp"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_red_rob_credit"
+                android:text=" "
+                android:textColor="@color/live_white"
+                android:textSize="50sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_marginLeft="3dp"
+                android:text="@string/string_red_credit"
+                android:textColor="@color/live_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            android:textSize="14sp"
+            android:text="@string/string_red_have"
+            android:textColor="@color/live_white"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/ll_red_credit"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_red_have_button"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:text="@string/string_complete"
+            android:textColor="@color/live_white"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/layer_lp_ui_red_button"
+            android:layout_marginBottom="20dp"
+            android:layout_width="144dp"
+            android:layout_height="27dp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

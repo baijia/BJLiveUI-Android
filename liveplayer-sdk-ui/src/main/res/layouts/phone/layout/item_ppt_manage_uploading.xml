@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="45dp">
+
+    <View
+        android:id="@+id/item_ppt_manage_uploading_progress"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/live_fail" />
+
+    <ImageView
+        android:id="@+id/item_ppt_manage_uploading_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/activity_live_room_dialog_margin" />
+
+    <TextView
+        android:id="@+id/item_ppt_manage_uploading_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:layout_toRightOf="@+id/item_ppt_manage_uploading_icon"
+        android:layout_toLeftOf="@+id/item_ppt_manage_uploading_status"
+        android:lines="1" />
+
+    <TextView
+        android:id="@+id/item_ppt_manage_uploading_status"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/activity_live_room_dialog_margin"
+        android:gravity="center" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/live_fail_dark" />
+
+</RelativeLayout>

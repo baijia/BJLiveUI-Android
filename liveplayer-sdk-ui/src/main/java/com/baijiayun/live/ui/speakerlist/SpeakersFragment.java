@@ -4,7 +4,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
@@ -53,7 +52,7 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_speakers;
+        return R.layout.bjy_fragment_speakers;
     }
 
     @Override
@@ -257,7 +256,7 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
             if (playable == null) {
                 presenter.localShowAwardAnimation(awardModel.value.to);
                 return;
-            };
+            }
             //noinspection ConstantConditions
             playable.notifyAwardChange(awardModel.value.record.get(awardModel.value.to));
             routerListener.showAwardAnimation(playable.getUser().getName());

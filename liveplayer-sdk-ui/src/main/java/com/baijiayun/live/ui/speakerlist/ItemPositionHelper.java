@@ -43,7 +43,7 @@ public class ItemPositionHelper {
     }
 
     public void setRouterListener(LiveRoomRouterListener routerListener) {
-        pptItem = routerListener.getPPTView();
+        pptItem = (Switchable) routerListener.getPPTView();
         speakItems.add(0, pptItem);
 //        currentUser = routerListener.getLiveRoom().getCurrentUser();
     }
@@ -145,7 +145,7 @@ public class ItemPositionHelper {
     }
 
     // 本地未上麦用户被设为主讲了
-    List<ItemAction> processUnActiveLocalPresenterItemActions() {
+    public List<ItemAction> processUnActiveLocalPresenterItemActions() {
         itemActions.clear();
         SpeakItem oldPresenter = null;
         for (SpeakItem item : speakItems) {
@@ -256,7 +256,7 @@ public class ItemPositionHelper {
         }
     }
 
-    List<ItemAction> processUserCloseAction(RemoteItem remoteItem) {
+    public List<ItemAction> processUserCloseAction(RemoteItem remoteItem) {
         itemActions.clear();
         SpeakItemType preItemType = remoteItem.getItemType();
         remoteItem.refreshItemType();
@@ -271,7 +271,7 @@ public class ItemPositionHelper {
         return itemActions;
     }
 
-    SpeakItem getSpeakItemByIdentity(String identity) {
+    public SpeakItem getSpeakItemByIdentity(String identity) {
         for (SpeakItem item : speakItems) {
             if (item.getIdentity().equals(identity))
                 return item;
@@ -288,7 +288,7 @@ public class ItemPositionHelper {
         return count;
     }
 
-    Playable getPlayableItemByUserNumber(String userNumber) {
+    public Playable getPlayableItemByUserNumber(String userNumber) {
         for (SpeakItem item : speakItems) {
             if (item instanceof Playable)
                 if (userNumber.equals(((Playable) item).getUser().getNumber())) {
@@ -322,7 +322,7 @@ public class ItemPositionHelper {
         return speakItems.size();
     }
 
-    int getItemSwitchBackPosition(SpeakItem speakItem) {
+    public int getItemSwitchBackPosition(SpeakItem speakItem) {
         return speakItems.indexOf(speakItem);
     }
 
@@ -339,9 +339,9 @@ public class ItemPositionHelper {
             this.action = action;
         }
 
-        SpeakItem speakItem;
-        ActionType action;
-        int value;
+        public SpeakItem speakItem;
+        public ActionType action;
+        public int value;
 
         @VisibleForTesting
         public ActionType getAction() {

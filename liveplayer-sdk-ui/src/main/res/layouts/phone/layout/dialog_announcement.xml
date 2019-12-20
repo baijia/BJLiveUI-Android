@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:orientation="vertical">
+
+    <!--公告-->
+    <FrameLayout
+        android:id="@+id/fl_announcement"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_announcement_edit_button"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:text="@string/live_edit"
+        android:textColor="@color/live_white"
+        android:background="@drawable/layer_1795ff_5"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+
+</LinearLayout>

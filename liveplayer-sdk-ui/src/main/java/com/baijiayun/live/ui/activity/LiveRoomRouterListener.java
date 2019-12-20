@@ -2,7 +2,6 @@ package com.baijiayun.live.ui.activity;
 
 import android.support.annotation.StringRes;
 
-import com.baijiayun.live.ui.ppt.MyPPTView;
 import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
@@ -16,6 +15,7 @@ import com.baijiayun.livecore.models.LPRoomForbidChatResult;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.ppt.PPTView;
 
 /**
  * Created by Shubo on 2017/2/15.
@@ -148,17 +148,9 @@ public interface LiveRoomRouterListener {
 
     void showMessageForbidAllChat(LPRoomForbidChatResult lpRoomForbidChatResult);
 
-    void showMessageTeacherOpenAudio();
+    void showMessageTeacherOpenAV(boolean notifyVideoOn, boolean notifyAudioOn, LPConstants.MediaSourceType mediaSourceType);
 
-    void showMessageTeacherOpenVideo();
-
-    void showMessageTeacherOpenAV();
-
-    void showMessageTeacherCloseAV();
-
-    void showMessageTeacherCloseAudio();
-
-    void showMessageTeacherCloseVideo();
+    void showMessageTeacherCloseAV(boolean notifyVideoClose, boolean notifyAudioClose, LPConstants.MediaSourceType mediaSourceType);
 
     void showMessageTeacherEnterRoom();
 
@@ -189,7 +181,7 @@ public interface LiveRoomRouterListener {
      */
     void switchBackToList(Switchable switchable);
 
-    MyPPTView getPPTView();
+    PPTView getPPTView();
 
     void showRollCallDlg(int time, OnPhoneRollCallListener.RollCall rollCallListener);
 

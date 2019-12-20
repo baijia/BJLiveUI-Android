@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/live_question_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/live_white"
+        >
+
+        <ImageView
+            android:id="@+id/fragment_question_answer_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_close_question"
+            android:layout_marginRight="4dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/live_room_question_answer_text"
+            android:textSize="16sp"
+            android:layout_centerInParent="true"
+            />
+    </RelativeLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:visibility="gone"
+        android:id="@+id/fragment_question_answer_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        >
+
+    </android.support.v7.widget.RecyclerView>
+
+    <ImageView
+        android:id="@+id/fragment_question_answer_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:src="@drawable/live_question_empty"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/fragment_question_answer_input"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_live_item_question_message"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:paddingLeft="@dimen/activity_live_room_margin"
+        android:paddingRight="@dimen/activity_live_room_margin"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_live_item_question_inner_message"
+            >
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_live_question"
+                android:padding="6dp"
+                />
+
+            <TextView
+                android:id="@+id/fragment_question_answer_input_listener"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:hint="请输入提问内容"
+                android:background="@null"
+                android:padding="5dp"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fragment_question_answer_input_forbid"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_live_item_question_inner_message"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:paddingLeft="@dimen/activity_live_room_margin"
+        android:paddingRight="@dimen/activity_live_room_margin"
+        >
+        <TextView
+            android:id="@+id/fragment_question_answer_input_forbid_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:hint="已被老师禁止提问"
+            android:background="@drawable/bg_live_item_question_forbid"
+            android:padding="5dp"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+    
+    <RelativeLayout
+        android:id="@+id/fragment_question_answer_input_window"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="120dp"
+        android:background="@color/live_white"
+        android:visibility="gone"
+        >
+        <EditText
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_question_answer_input_edit"
+            android:hint="请输入提问内容"
+            android:maxLines="4"
+            android:background="@null"
+            android:layout_alignParentTop="true"
+            android:imeOptions="flagNoExtractUi"
+            android:textSize="14sp" />
+
+        <RelativeLayout
+            android:id="@+id/fragment_question_answer_message_layout"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:id="@+id/fragment_question_answer_input_text_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/fragment_question_answer_send"
+                android:layout_marginRight="13dp"
+                android:textSize="14sp"
+                android:text="0/140"
+                android:textColor="#9B9B9B" />
+            <ImageView
+                android:id="@+id/fragment_question_answer_send"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/ic_question_answer_send"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

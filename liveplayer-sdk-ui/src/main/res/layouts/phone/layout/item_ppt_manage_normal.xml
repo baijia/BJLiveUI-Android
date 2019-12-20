@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="45dp">
+
+    <CheckBox
+        android:id="@+id/item_ppt_manage_normal_check_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+        android:theme="@style/LiveCheckBox"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/item_ppt_manage_normal_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+        android:layout_toRightOf="@+id/item_ppt_manage_normal_check_box"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/item_ppt_manage_normal_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:layout_toRightOf="@+id/item_ppt_manage_normal_icon" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+        android:background="@color/live_fail_dark" />
+
+</RelativeLayout>

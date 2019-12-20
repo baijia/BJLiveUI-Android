@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:paddingLeft="15dp">
+
+        <ImageView
+            android:id="@+id/item_speaker_applying_avatar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/item_speaker_applying_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/activity_live_room_margin"
+            android:layout_toRightOf="@+id/item_speaker_applying_avatar"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:maxWidth="100dp" />
+
+        <Button
+            android:id="@+id/item_speaker_applying_disagree"
+            android:layout_width="64dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="4dp"
+            android:layout_toLeftOf="@+id/item_speaker_applying_agree"
+            android:background="@drawable/btn_dialog_disagree"
+            android:text="@string/live_disagree"
+            android:textColor="@color/live_text_color_light" />
+
+        <Button
+            android:id="@+id/item_speaker_applying_agree"
+            android:layout_width="64dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/activity_live_room_margin"
+            android:background="@drawable/btn_dialog_agree"
+            android:text="@string/live_agree"
+            android:textColor="@color/live_white" />
+
+    </RelativeLayout>
+</LinearLayout>

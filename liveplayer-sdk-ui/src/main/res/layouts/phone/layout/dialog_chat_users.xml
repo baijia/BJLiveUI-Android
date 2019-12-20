@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/dialog_private_chat_container"
+        android:layout_width="match_parent"
+        android:background="@color/live_blue"
+        android:layout_height="36dp"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_centerVertical="true"
+            android:id="@+id/dialog_private_chat_status_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test"
+            android:textColor="@color/lp_ppt_white"
+            android:layout_marginLeft="15dp"/>
+
+        <TextView
+            android:id="@+id/end_private_chat_btn"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:text="@string/live_cancel_private_chat"
+            android:textColor="@color/lp_ppt_white"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="15dp"
+            />
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/dialog_chat_user_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/no_online_chat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="@dimen/common_crop_size_text_normal"
+            android:text="@string/live_no_online_chat"/>
+    </LinearLayout>
+
+
+</LinearLayout>

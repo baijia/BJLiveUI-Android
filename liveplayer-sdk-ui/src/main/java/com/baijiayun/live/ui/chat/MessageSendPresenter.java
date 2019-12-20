@@ -17,6 +17,7 @@ public class MessageSendPresenter implements MessageSendContract.Presenter {
 
     private MessageSendContract.View view;
     private LiveRoomRouterListener routerListener;
+    private boolean forbidPrivateChat;
 
     public MessageSendPresenter(MessageSendContract.View view) {
         this.view = view;
@@ -93,13 +94,31 @@ public class MessageSendPresenter implements MessageSendContract.Presenter {
     }
 
     @Override
+    public LiveRoomRouterListener getLiveRouterListener() {
+        return routerListener;
+    }
+
+    @Override
     public boolean isPrivateChat() {
         return routerListener.isPrivateChat();
     }
 
     @Override
     public boolean isLiveCanWhisper() {
-        return routerListener.getLiveRoom().getChatVM().isLiveCanWhisper();
+        return !forbidPrivateChat && routerListener.getLiveRoom().getChatVM().isLiveCanWhisper();
+    }
+
+    @Override
+    public boolean isAllForbidden() {
+        return !routerListener.isTeacherOrAssistant() && !routerListener.isGroupTeacherOrAssistant() && routerListener.getLiveRoom().getForbidStatus(LPConstants.LPForbidChatType.TYPE_ALL);
+    }
+
+    @Override
+    public boolean canWisperTeacherInForbidAllMode() {
+        if (routerListener.isTeacherOrAssistant() || routerListener.isGroupTeacherOrAssistant()) {
+            return true;
+        }
+        return routerListener.getLiveRoom().getPartnerConfig().canWisperTeacherInForbidAllMode == 1;
     }
 
     @Override
@@ -134,5 +153,12 @@ public class MessageSendPresenter implements MessageSendContract.Presenter {
         if (view != null) {
             view.showPrivateChatChange();
         }
+    }
+
+    /**
+     * 禁止私聊
+     */
+    public void forbidPrivateChange(){
+        forbidPrivateChat = true;
     }
 }

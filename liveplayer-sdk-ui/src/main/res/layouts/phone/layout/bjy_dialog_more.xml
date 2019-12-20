@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/live_ic_menubg"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/dialog_more_announcement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/activity_live_room_margin"
+        android:drawableTop="@drawable/live_ic_announcement"
+        android:gravity="center"
+        android:padding="@dimen/activity_live_room_margin"
+        android:text="@string/live_announcement"
+        android:textColor="@color/live_text_color_mid_light" />
+
+    <TextView
+        android:id="@+id/dialog_more_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/activity_live_room_margin"
+        android:drawableTop="@drawable/live_ic_luxiang"
+        android:gravity="center"
+        android:padding="@dimen/activity_live_room_margin"
+        android:text="@string/live_cloud_record"
+        android:textColor="@color/live_text_color_mid_light" />
+
+    <TextView
+        android:id="@+id/dialog_more_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/activity_live_room_margin"
+        android:drawableTop="@drawable/live_ic_help"
+        android:gravity="center"
+        android:padding="@dimen/activity_live_room_margin"
+        android:text="@string/live_help"
+        android:textColor="@color/live_text_color_mid_light"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/dialog_more_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/activity_live_room_margin"
+        android:drawableTop="@drawable/live_ic_setting"
+        android:gravity="center"
+        android:padding="@dimen/activity_live_room_margin"
+        android:text="@string/live_setting"
+        android:textColor="@color/live_text_color_mid_light" />
+
+</LinearLayout>

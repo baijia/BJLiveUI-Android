@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -9,6 +12,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+    }
+    dataBinding{
+        enabled true
     }
     buildTypes {
         release {
@@ -21,14 +27,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    dataBinding {
+        enabled true
+    }
 }
 
 dependencies {
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
 
-    implementation 'com.baijia.common:common-networkv2:1.8.2'
-    implementation 'com.baijia.common:common-networkv2-ws:1.8.4'
+    implementation 'com.baijia.common:common-networkv2:1.9.0'
+    implementation 'com.baijia.common:common-networkv2-ws:1.9.0'
 
     //    testCompile 'junit:junit:4.12'
     api 'com.squareup.picasso:picasso:2.5.2'
@@ -39,20 +50,28 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
     // image crop
-    implementation ('com.afollestad.material-dialogs:commons:0.9.4.5'){
+    implementation('com.afollestad.material-dialogs:commons:0.9.4.5') {
         exclude group: 'com.android.support'
     }
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.0.9'
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.1.3'
+
 //    api (project(path: ':liveplayer-sdk-core')){
 //        exclude group:"com.android.support"
 //    }
 
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.anko:anko-commons:$anko_version"
+
 }
 android {
     lintOptions {
@@ -65,6 +84,11 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        main.res.srcDirs += 'src/main/res/layouts/phone'
+        main.res.srcDirs += 'src/main/res/layouts/pad'
+    }
 }
 
 //repositories {
@@ -74,3 +98,4 @@ android {
 //}
 
 apply from: 'http://git.baijiashilian.com/open-android/maven/raw/master/gradle-mvn-push.gradle'
+

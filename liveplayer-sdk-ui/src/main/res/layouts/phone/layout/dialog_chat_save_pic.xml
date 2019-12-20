@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical"
+    android:overScrollMode="always">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_live_room_dialog_margin"
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/dialog_save_pic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_dialog_radius_6dp"
+            android:gravity="center"
+            android:paddingBottom="@dimen/activity_live_room_margin_big"
+            android:paddingTop="@dimen/activity_live_room_margin_big"
+            android:text="@string/live_image_save"
+            android:textColor="@color/live_blue" />
+
+        <!--取消-->
+        <TextView
+            android:id="@+id/dialog_save_pic_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_live_room_margin"
+            android:background="@drawable/selector_dialog_radius_6dp"
+            android:gravity="center"
+            android:paddingBottom="@dimen/activity_live_room_margin_big"
+            android:paddingTop="@dimen/activity_live_room_margin_big"
+            android:text="@string/live_cancel"
+            android:textColor="@color/live_blue" />
+
+    </LinearLayout>
+
+</ScrollView>

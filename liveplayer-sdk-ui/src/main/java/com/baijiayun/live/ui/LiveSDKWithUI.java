@@ -2,11 +2,13 @@ package com.baijiayun.live.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.baijiayun.live.ui.activity.LiveRoomActivity;
+import com.baijiayun.live.ui.activity.LiveRoomBaseActivity;
 import com.baijiayun.live.ui.utils.LPShareModel;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.imodels.IUserModel;
@@ -80,7 +82,6 @@ public class LiveSDKWithUI {
             listener.onError("sign =" + sign);
             return;
         }
-
         Intent intent = new Intent(context, LiveRoomActivity.class);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sign", sign);
@@ -88,43 +89,49 @@ public class LiveSDKWithUI {
         context.startActivity(intent);
     }
 
+    private static boolean isPad(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
     public interface LiveSDKEnterRoomListener {
         void onError(String msg);
     }
 
     public static void setRoomExitListener(LPRoomExitListener listener) {
-        LiveRoomActivity.setRoomExitListener(listener);
+        LiveRoomBaseActivity.setRoomExitListener(listener);
     }
 
     public static void setShareListener(LPShareListener listener) {
-        LiveRoomActivity.setShareListener(listener);
+        LiveRoomBaseActivity.setShareListener(listener);
     }
 
     public static void setEnterRoomConflictListener(RoomEnterConflictListener listener) {
-        LiveRoomActivity.setEnterRoomConflictListener(listener);
+        LiveRoomBaseActivity.setEnterRoomConflictListener(listener);
     }
 
     public static void setRoomLifeCycleListener(LPRoomResumeListener listener) {
-        LiveRoomActivity.setRoomLifeCycleListener(listener);
+        LiveRoomBaseActivity.setRoomLifeCycleListener(listener);
     }
 
     public static void setShouldShowTechSupport(boolean shouldShowTechSupport) {
-        LiveRoomActivity.setShouldShowTechSupport(shouldShowTechSupport);
+        LiveRoomBaseActivity.setShouldShowTechSupport(shouldShowTechSupport);
     }
 
     public static void disableSpeakQueuePlaceholder() {
-        LiveRoomActivity.disableSpeakQueuePlaceholder();
+        LiveRoomBaseActivity.disableSpeakQueuePlaceholder();
     }
 
     /**
      * 跑马灯字段
      */
-    public static void setLiveRoomMarqueeTape(String str){
-        LiveRoomActivity.setLiveRoomMarqueeTape(str);
+    public static void setLiveRoomMarqueeTape(String str) {
+        LiveRoomBaseActivity.setLiveRoomMarqueeTape(str);
     }
 
-    public static void setLiveRoomMarqueeTape(String str, int interval){
-        LiveRoomActivity.setLiveRoomMarqueeTape(str, interval);
+    public static void setLiveRoomMarqueeTape(String str, int interval) {
+        LiveRoomBaseActivity.setLiveRoomMarqueeTape(str, interval);
     }
 
     public interface LPRoomResumeListener {

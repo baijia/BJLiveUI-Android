@@ -39,7 +39,7 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_setting;
+        return R.layout.bjy_dialog_setting;
     }
 
     @Override

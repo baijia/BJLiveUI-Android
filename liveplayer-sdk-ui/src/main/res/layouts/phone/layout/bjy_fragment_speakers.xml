@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView
+        android:id="@+id/fragment_speakers_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/live_text_color_light">
+
+        <LinearLayout
+            android:id="@+id/fragment_speakers_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+
+    </com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView>
+
+
+    <TextView
+        android:id="@+id/fragment_speakers_new_request_toast"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/live_speaker_request_bg"
+        android:drawableRight="@drawable/ic_live_speaker_request"
+        android:gravity="center"
+        android:text="新请求"
+        android:textColor="@color/live_white"
+        android:visibility="gone" />
+
+</RelativeLayout>

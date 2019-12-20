@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewmodel"
+            type="com.baijiayun.live.ui.pptpanel.handsuplist.HandsUpViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv"
+            style="@style/CommPaddingStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text='@{@string/handsup_user_list(viewmodel.handsupList.size())}'
+            android:textSize="16sp" />
+
+        <View
+            android:id="@+id/view_div"
+            style="@style/LiveDividerPad"
+            android:layout_below="@id/tv" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:text="@string/seat_full"
+            android:visibility="gone"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/view_div" />
+    </RelativeLayout>
+</layout>

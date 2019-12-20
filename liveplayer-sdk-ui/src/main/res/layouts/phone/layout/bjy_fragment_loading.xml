@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/live_half_transparent">
+
+    <ImageView
+        android:id="@+id/fragment_loading_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:layout_marginTop="2.5dp"
+        android:padding="10dp"
+        android:src="@drawable/live_ic_back" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/live_bg_w_c4"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <ProgressBar
+            android:id="@+id/fragment_loading_pb"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:indeterminateOnly="false"
+            android:max="100"
+            android:progressDrawable="@drawable/pb_circular_reveal"
+            android:rotation="-90" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_live_room_margin"
+            android:layout_marginRight="@dimen/activity_live_room_margin"
+            android:text="@string/live_loading"
+            android:textColor="@color/live_text_color_mid_light" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tv_fragment_loading_tech_support"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/activity_live_room_dialog_margin_big"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.3"
+            android:src="@drawable/ic_baijiayun_logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:alpha="0.3"
+            android:text="@string/live_loading_support"
+            android:textColor="@color/live_grey_tech_support"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+</RelativeLayout>

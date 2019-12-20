@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:paddingLeft="15dp">
+
+    <ImageView
+        android:id="@+id/item_speaker_speaking_avatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_centerVertical="true" />
+
+    <LinearLayout
+        android:id="@+id/item_speak_speaking_name_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:layout_toRightOf="@+id/item_speaker_speaking_avatar"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/item_speaker_speaking_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:maxWidth="90dp" />
+
+        <TextView
+            android:id="@+id/item_speaker_speaking_video_teacher_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:background="@drawable/live_teacher_tag"
+            android:padding="2dp"
+            android:text="@string/live_teacher"
+            android:textColor="@color/live_blue"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/item_speaker_speaking_video_ic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="2dp"
+        android:layout_toRightOf="@+id/item_speak_speaking_name_container"
+        android:src="@drawable/ic_videoopen" />
+
+    <TextView
+        android:id="@+id/item_speaker_speaking_video_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="1dp"
+        android:layout_toRightOf="@+id/item_speaker_speaking_video_ic"
+        android:text="@string/live_video_on"
+        android:textColor="@color/live_text_color_light"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/activity_live_room_margin"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/item_speaker_speaking_open_video"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/activity_live_room_margin"
+            android:gravity="center_vertical"
+            android:text="@string/live_open_video"
+            android:textColor="@color/live_blue" />
+
+        <TextView
+            android:id="@+id/item_speaker_speaking_close_speak"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/activity_live_room_margin"
+            android:gravity="center_vertical"
+            android:text="@string/live_close_speaking"
+            android:textColor="@color/live_blue" />
+
+    </LinearLayout>
+
+</RelativeLayout>

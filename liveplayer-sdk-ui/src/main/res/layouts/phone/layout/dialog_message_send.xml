@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/activity_live_room_margin"
+        android:paddingTop="@dimen/activity_live_room_margin">
+
+
+        <ImageView
+            android:id="@+id/dialog_message_send_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_live_room_margin"
+            android:src="@drawable/live_ic_send_img" />
+
+        <ImageView
+            android:id="@+id/dialog_message_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_live_room_margin"
+            android:layout_marginRight="@dimen/activity_live_room_margin"
+            android:src="@drawable/live_ic_emotion" />
+
+        <LinearLayout
+            android:id="@+id/dialog_linearLayout"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/live_item_chat_linearlayout"
+            android:layout_marginRight="11dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/dialog_private_chat_btn_container"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                >
+
+            <TextView
+                android:id="@+id/dialog_private_chat_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_btn_private_chat"
+                android:text="私聊"
+                android:textColor="@color/live_text_color_mid_light"
+                android:textSize="12sp" />
+
+              </LinearLayout>
+
+            <View
+                android:id="@+id/dialog_interval_line"
+                android:layout_width="1px"
+                android:layout_height="20dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/divider" />
+
+            <EditText
+                android:id="@+id/dialog_message_send_et"
+                android:imeOptions="flagNoExtractUi|actionSend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="输入聊天内容"
+                android:layout_weight="1"
+                android:textSize="16dp"
+                android:background="@null"
+                android:inputType="text"
+                android:maxLines="4"
+                android:padding="4dp" />
+
+            <LinearLayout
+                android:id="@+id/dialog_message_send_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                >
+                <ImageView
+                    android:src="@drawable/send_btn"
+                    android:layout_height="20dp"
+                    android:layout_width="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="5dp"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/dialog_message_send_emoji"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"/>
+
+    <FrameLayout
+        android:id="@+id/dialog_private_chat_users"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:visibility="gone"/>
+
+</LinearLayout>

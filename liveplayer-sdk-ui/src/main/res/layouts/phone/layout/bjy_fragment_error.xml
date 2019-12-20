@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/live_half_transparent">
+
+    <ImageView
+        android:id="@+id/fragment_error_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:layout_marginTop="2.5dp"
+        android:padding="10dp"
+        android:src="@drawable/live_ic_back" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_error_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/live_white"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/fragment_error_reason"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_live_room_margin"
+            android:gravity="center"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:textColor="@color/live_white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/fragment_error_retry"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_live_room_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="@drawable/btn_retry"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="@string/live_retry"
+            android:gravity="center"
+            android:textColor="@color/live_blue" />
+
+        <TextView
+            android:id="@+id/fragment_error_suggestion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_live_room_margin"
+            android:gravity="center"
+            android:text="@string/live_retry_suggestion"
+            android:textColor="@color/live_white"
+            android:textSize="12sp" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tv_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_baijiayun_logo"
+        android:drawablePadding="8dp"
+        android:text="百家云提供直播服务"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:padding="4dp"
+        android:textColor="#ffcdcdce"
+        />
+</RelativeLayout>

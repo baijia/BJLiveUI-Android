@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_live_room_pad_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LiveRoomTripleActivity">
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_pad_room_top_container"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="@color/live_white" />
+
+    <LinearLayout
+        android:id="@+id/activity_live_room_pad_room_right_container"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/activity_live_room_pad_room_top_container"
+        android:layout_alignParentEnd="true"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/activity_live_room_pad_room_main_video_container"
+            android:layout_width="match_parent"
+            android:layout_height="135dp" />
+
+        <FrameLayout
+            android:id="@+id/activity_live_room_pad_room_interaction_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/live_white"
+            />
+
+    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/activity_live_room_pad_room_left_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/activity_live_room_pad_room_top_container"
+        android:layout_toStartOf="@+id/activity_live_room_pad_room_right_container"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/activity_live_room_pad_room_videos_container"
+            android:layout_width="match_parent"
+            android:background="@color/live_pad_ppt_background"
+            android:layout_height="135dp" />
+
+        <FrameLayout
+            android:id="@+id/activity_live_room_pad_room_ppt_container"
+            android:layout_below="@+id/activity_live_room_pad_room_videos_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:src="@drawable/shape_shadow_h"/>
+        <ImageView
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/shape_shadow_v"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_pad_room_full_screen_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <FrameLayout
+        android:id="@+id/activity_live_room_pad_room_error_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.baijiayun.live.ui.base.DragFrameLayout
+        android:id="@+id/activity_dialog_timer_pad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <com.baijiayun.live.ui.base.DragFrameLayout
+        android:id="@+id/activity_dialog_question_tool_pad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+    <com.baijiayun.live.ui.speakerlist.AwardView
+        android:id="@+id/award_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+    <FrameLayout
+        android:id="@+id/activity_live_room_red_packet_pad"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
+</RelativeLayout>

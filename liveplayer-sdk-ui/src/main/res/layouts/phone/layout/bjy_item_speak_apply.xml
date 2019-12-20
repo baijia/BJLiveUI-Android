@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layout_height="76dp">
+
+    <ImageView
+        android:id="@+id/item_speak_apply_avatar"
+        android:layout_width="100dp"
+        android:layout_height="76dp"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:id="@+id/item_speak_apply_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/live_half_transparent" />
+
+    <TextView
+        android:id="@+id/item_speak_apply_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:lines="1"
+        android:ellipsize="start"
+        android:textColor="@color/live_white"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/item_speak_apply_disagree"
+        android:layout_width="50dp"
+        android:layout_height="36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:gravity="center"
+        android:text="@string/live_disagree"
+        android:textColor="@color/live_white"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/item_speak_apply_agree"
+        android:layout_width="50dp"
+        android:layout_height="36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:text="@string/live_agree"
+        android:textColor="@color/live_blue"
+        android:textSize="14sp" />
+
+</RelativeLayout>

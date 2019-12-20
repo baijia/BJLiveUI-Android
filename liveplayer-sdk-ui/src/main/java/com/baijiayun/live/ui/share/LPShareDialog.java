@@ -83,7 +83,7 @@ public class LPShareDialog extends BaseDialogFragment {
 
         @Override
         public LPShareViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_share, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_share, parent, false);
             return new LPShareViewHolder(view);
         }
 

@@ -34,7 +34,6 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
     protected RecyclerView mRecyclerView;
     private QuestionAnswerContract.Presenter presenter;
     private QuestionAdapter adapter;
-    private boolean isFullBlank = false;
 
     private TextView inputTextNumber;
 
@@ -45,56 +44,44 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
     @Override
     protected void init(Bundle savedInstanceState) {
         view.setClickable(true);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.fragment_question_answer_list);
+        mRecyclerView = view.findViewById(R.id.fragment_question_answer_list);
         adapter = new QuestionAdapter();
         mRecyclerView.setLayoutManager(getLayoutManager());
         mRecyclerView.setAdapter(adapter);
 
         inputTextNumber = view.findViewById(R.id.fragment_question_answer_input_text_number);
 
-        view.findViewById(R.id.fragment_question_answer_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.closeFragment();
-            }
-        });
+        view.findViewById(R.id.fragment_question_answer_close).setOnClickListener(v -> presenter.closeFragment());
 
         EditText mEditText = view.findViewById(R.id.fragment_question_answer_input_edit);
         mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(140)});
 
-        view.findViewById(R.id.fragment_question_answer_input_listener).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                view.findViewById(R.id.fragment_question_answer_input).setVisibility(View.GONE);
-                view.findViewById(R.id.fragment_question_answer_input_window).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.fragment_question_answer_input_listener).setOnClickListener(v -> {
+            view.findViewById(R.id.fragment_question_answer_input).setVisibility(View.GONE);
+            view.findViewById(R.id.fragment_question_answer_input_window).setVisibility(View.VISIBLE);
 
-                mEditText.setFocusable(true);
-                mEditText.setFocusableInTouchMode(true);
-                mEditText.requestFocus();
-                mEditText.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getActivity() == null) return;
-                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-                        if (imm == null) return;
-                        imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                }, 100);
-
-            }
+            mEditText.setFocusable(true);
+            mEditText.setFocusableInTouchMode(true);
+            mEditText.requestFocus();
+            mEditText.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (getActivity() == null) return;
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+                    if (imm == null) return;
+                    imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }, 100);
         });
 
-        view.findViewById(R.id.fragment_question_answer_send).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                view.findViewById(R.id.fragment_question_answer_input).setVisibility(View.VISIBLE);
-                view.findViewById(R.id.fragment_question_answer_input_window).setVisibility(View.GONE);
-                presenter.sendQuestion(mEditText.getEditableText().toString());
+        view.findViewById(R.id.fragment_question_answer_send).setOnClickListener(v -> {
+            view.findViewById(R.id.fragment_question_answer_input).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.fragment_question_answer_input_window).setVisibility(View.GONE);
+            presenter.sendQuestion(mEditText.getEditableText().toString());
 
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-                if (imm == null) return;
-                imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
-            }
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+            if (imm == null) return;
+            imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
         });
 
         mEditText.addTextChangedListener(new TextWatcher() {

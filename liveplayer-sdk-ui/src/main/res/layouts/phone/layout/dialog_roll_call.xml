@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_live_room_dialog_margin"
+        android:background="@drawable/shape_bg_radius_6dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_roll_call_tip"
+            style="@style/LiveTextNormal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_live_room_dialog_margin_big"
+            android:layout_marginTop="@dimen/activity_live_room_dialog_margin_big"
+            android:gravity="center"
+            tools:text="aldjflks" />
+
+        <View style="@style/LiveDivider" />
+
+        <TextView
+            android:id="@+id/tv_roll_call_answer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_dialog_radius_bottom_6dp"
+            android:gravity="center"
+            android:paddingBottom="@dimen/activity_live_room_margin"
+            android:paddingTop="@dimen/activity_live_room_margin"
+            android:text="@string/live_roll_call_answer"
+            android:textColor="@color/live_blue"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+
+</LinearLayout>

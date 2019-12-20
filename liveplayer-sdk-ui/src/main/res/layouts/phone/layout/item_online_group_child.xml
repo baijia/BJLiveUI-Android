@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingLeft="30dp"
+    android:paddingRight="15dp"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/civ_item_online_child_icon"
+        android:layout_centerVertical="true"
+        android:layout_width="32dp"
+        android:layout_height="32dp" />
+
+    <TextView
+        android:id="@+id/tv_item_online_child_title"
+        android:layout_toRightOf="@+id/civ_item_online_child_icon"
+        android:layout_centerVertical="true"
+        android:text="child_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    
+    <ImageView
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp" />
+
+
+</RelativeLayout>

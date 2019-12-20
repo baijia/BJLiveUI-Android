@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="right|top"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_oval_recording"
+        android:paddingBottom="@dimen/distance_top_bottom"
+        android:paddingLeft="@dimen/distance_left_right"
+        android:paddingRight="@dimen/distance_left_right"
+        android:paddingTop="@dimen/distance_top_bottom">
+
+        <ImageView
+            android:id="@+id/fragment_record_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_luxianging_without_bg" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="3dp"
+            android:layout_toRightOf="@id/fragment_record_on"
+            android:text="@string/live_cloud_recording"
+            android:textColor="@color/live_white"
+            android:textSize="14sp" />
+    </RelativeLayout>
+
+</LinearLayout>

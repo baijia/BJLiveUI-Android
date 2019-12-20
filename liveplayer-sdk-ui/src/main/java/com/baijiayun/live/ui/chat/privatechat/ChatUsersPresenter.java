@@ -21,7 +21,7 @@ public class ChatUsersPresenter implements ChatUsersContract.Presenter {
 
     private ChatUsersContract.View view;
     private LiveRoomRouterListener routerListener;
-    private Disposable subscriptionOfUserCountChange, subscriptionOfUserDataChange;
+    private Disposable subscriptionOfUserDataChange;
     private boolean isLoading = false;
     private List<IUserModel> iChatUserModels;
 
@@ -36,11 +36,6 @@ public class ChatUsersPresenter implements ChatUsersContract.Presenter {
 
     @Override
     public void subscribe() {
-        subscriptionOfUserCountChange = routerListener.getLiveRoom()
-                .getObservableOfUserNumberChange()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(integer -> {
-                });
         subscriptionOfUserDataChange = routerListener.getLiveRoom()
                 .getOnlineUserVM()
                 .getObservableOfOnlineUser()
@@ -61,7 +56,6 @@ public class ChatUsersPresenter implements ChatUsersContract.Presenter {
 
     @Override
     public void unSubscribe() {
-        RxUtils.dispose(subscriptionOfUserCountChange);
         RxUtils.dispose(subscriptionOfUserDataChange);
     }
 
