@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.support.annotation.ColorInt;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,11 +40,11 @@ import java.util.List;
 public class RemoteItem extends BaseSwitchItem implements Playable {
 
     private QueryPlus $;
-    protected Activity context;
-    protected LPPlayer player;
-    protected LiveRoom liveRoom;
+    private Activity context;
+    private LPPlayer player;
+    private LiveRoom liveRoom;
     private LPVideoView videoView;
-    protected IMediaModel mediaModel;
+    private IMediaModel mediaModel;
     private SpeakItemType itemType;
     private ViewGroup itemContainer;
     private RelativeLayout container;
@@ -55,7 +54,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
     private LoadingListener loadingListener;
 
     private boolean isVideoPlaying, isAudioPlaying, isVideoClosedByUser;
-    protected static FrameLayout.LayoutParams layoutParams =
+    private static FrameLayout.LayoutParams layoutParams =
             new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
     public RemoteItem(ViewGroup itemContainer, IMediaModel mediaModel, SpeakersContract.Presenter presenter) {
@@ -81,7 +80,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
         }
     }
 
-    protected void initView() {
+    private void initView() {
         container = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.item_view_speaker_remote, itemContainer, false);
         $ = QueryPlus.with(container);
         videoContainer = (FrameLayout) $.id(R.id.item_speak_speaker_avatar_container).view();
@@ -200,7 +199,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
         $.id(R.id.item_speak_speaker_loading_img).view().startAnimation(loadingViewAnimation);
     }
 
-    protected void hideLoading() {
+    private void hideLoading() {
         $.id(R.id.item_speak_speaker_loading_container).gone();
         if (loadingViewAnimation != null) {
             loadingViewAnimation.cancel();
@@ -264,10 +263,6 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
 
     public boolean isVideoClosedByUser() {
         return isVideoClosedByUser;
-    }
-
-    public void setVideoCloseByUser(boolean isVideoClosedByUser) {
-        this.isVideoClosedByUser = isVideoClosedByUser;
     }
 
     @Override
@@ -368,7 +363,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
                 .show();
     }
 
-    protected void showVideoDefinitionSwitchDialog() {
+    private void showVideoDefinitionSwitchDialog() {
         if (mediaModel.getVideoDefinitions().size() <= 1) return;
         List<String> options = new ArrayList<>();
         for (LPConstants.VideoDefinition definition : mediaModel.getVideoDefinitions()) {
@@ -387,11 +382,11 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
                 .show();
     }
 
-    protected String getString(@StringRes int resId) {
+    private String getString(@StringRes int resId) {
         return context.getString(resId);
     }
 
-    protected boolean canCurrentUserSetPresenter() {
+    private boolean canCurrentUserSetPresenter() {
         return liveRoom.getPartnerConfig().isEnableSwitchPresenter == 1 && liveRoom.getCurrentUser().getType() == LPConstants.LPUserType.Teacher;
     }
 
@@ -399,7 +394,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
         return mediaModel.getMediaSourceType();
     }
 
-    protected boolean isThisTeacherOrAssistant() {
+    private boolean isThisTeacherOrAssistant() {
         return mediaModel.getUser().getType() == LPConstants.LPUserType.Teacher || mediaModel.getUser().getType() == LPConstants.LPUserType.Assistant;
     }
 
@@ -414,11 +409,11 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
         }
     }
 
-    public static class LoadingListener implements LPPlayerListener {
+    private static class LoadingListener implements LPPlayerListener {
 
         private WeakReference<RemoteItem> remoteItemWeakReference;
 
-        public LoadingListener(RemoteItem remoteItem) {
+        LoadingListener(RemoteItem remoteItem) {
             remoteItemWeakReference = new WeakReference<>(remoteItem);
         }
 

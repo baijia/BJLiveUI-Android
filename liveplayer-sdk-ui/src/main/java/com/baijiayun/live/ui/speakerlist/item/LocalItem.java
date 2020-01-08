@@ -31,11 +31,11 @@ import java.util.List;
 public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObserver {
 
     private QueryPlus $;
-    protected Activity context;
-    protected LiveRoom liveRoom;
+    private Activity context;
+    private LiveRoom liveRoom;
     private ViewGroup rootView;
-    protected LPRecorder recorder;
-    protected LPCameraView cameraView;
+    private LPRecorder recorder;
+    private LPCameraView cameraView;
     private RelativeLayout container;
     private FrameLayout videoContainer;
     private boolean shouldStreamVideo, shouldStreamAudio;
@@ -49,7 +49,7 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
         initView();
     }
 
-    protected void initView() {
+    private void initView() {
         container = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.item_view_speaker_local, rootView, false);
         $ = QueryPlus.with(container);
         videoContainer = (FrameLayout) $.id(R.id.item_local_speaker_avatar_container).view();

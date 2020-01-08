@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="76dp"
+    android:layout_width="89dp"
+    >
+
+    <RelativeLayout
+        android:id="@+id/item_ppt_rl"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/btn_dialog_disagree">
+
+        <View
+            android:background="#fff7f7f8"
+            android:layout_margin="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ImageView
+            android:id="@+id/item_ppt_view"
+            android:layout_width="80dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:layout_margin="0.5dp"/>
+
+        <TextView
+            android:id="@+id/item_ppt_order"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:minWidth="20dp"
+            android:text="白板1"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/live_white"
+            android:textSize="9sp"
+            android:gravity="center"
+            android:background="@color/live_transparent_opacity_02"/>
+
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/iv_ppt_delete"
+        android:visibility="invisible"
+        android:layout_marginTop="4dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/iv_board_delete"
+        android:layout_width="18dp"
+        android:layout_height="18dp" />
+</RelativeLayout>

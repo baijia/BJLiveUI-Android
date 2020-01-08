@@ -38,7 +38,7 @@ public class LoadingFragment extends BaseFragment implements LoadingContract.Vie
 
     @Override
     public int getLayoutId() {
-        return R.layout.bjy_fragment_loading;
+        return R.layout.fragment_loading;
     }
 
     @Override

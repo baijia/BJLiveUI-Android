@@ -21,6 +21,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -50,9 +51,15 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.BuildConfig;
 import com.baijiayun.live.ui.LiveSDKWithUI;
 import com.baijiayun.live.ui.R;
+import com.baijiayun.live.ui.toolbox.announcement.AnnouncementFragment;
+import com.baijiayun.live.ui.toolbox.announcement.AnnouncementPresenter;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowFragment;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowPresenter;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolFragment;
+import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolPresenter;
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
-import com.baijiayun.live.ui.base.DragFrameLayout;
+import com.baijiayun.live.ui.base.DragFragment;
 import com.baijiayun.live.ui.chat.ChatFragment;
 import com.baijiayun.live.ui.chat.ChatPresenter;
 import com.baijiayun.live.ui.chat.MessageSendPresenter;
@@ -72,39 +79,33 @@ import com.baijiayun.live.ui.menu.leftmenu.LeftMenuFragment;
 import com.baijiayun.live.ui.menu.leftmenu.LeftMenuPresenter;
 import com.baijiayun.live.ui.loading.LoadingFragment;
 import com.baijiayun.live.ui.loading.LoadingPresenter;
-import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftFragment;
-import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftPresenter;
-import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuFragment;
-import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuPresenter;
-import com.baijiayun.live.ui.menu.rightmenu.RightMenuFragment;
-import com.baijiayun.live.ui.menu.rightmenu.RightMenuPresenter;
 import com.baijiayun.live.ui.more.MoreMenuDialogFragment;
 import com.baijiayun.live.ui.more.MoreMenuPresenter;
 import com.baijiayun.live.ui.ppt.MyPPTView;
 import com.baijiayun.live.ui.ppt.PPTPresenter;
-import com.baijiayun.live.ui.ppt.pptmanage.PPTManageFragment;
-import com.baijiayun.live.ui.ppt.pptmanage.PPTManagePresenter;
 import com.baijiayun.live.ui.ppt.quickswitchppt.QuickSwitchPPTFragment;
 import com.baijiayun.live.ui.ppt.quickswitchppt.SwitchPPTFragmentPresenter;
+import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftFragment;
+import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftPresenter;
+import com.baijiayun.live.ui.ppt.pptmanage.PPTManageFragment;
+import com.baijiayun.live.ui.ppt.pptmanage.PPTManagePresenter;
+import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerFragment;
+import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerPresenter;
+import com.baijiayun.live.ui.toolbox.quiz.QuizDialogFragment;
+import com.baijiayun.live.ui.toolbox.quiz.QuizDialogPresenter;
+import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuFragment;
+import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuPresenter;
+import com.baijiayun.live.ui.menu.rightmenu.RightMenuFragment;
+import com.baijiayun.live.ui.menu.rightmenu.RightMenuPresenter;
 import com.baijiayun.live.ui.rollcall.RollCallDialogFragment;
 import com.baijiayun.live.ui.rollcall.RollCallDialogPresenter;
 import com.baijiayun.live.ui.setting.SettingDialogFragment;
 import com.baijiayun.live.ui.setting.SettingPresenter;
 import com.baijiayun.live.ui.share.LPShareDialog;
-import com.baijiayun.live.ui.speakerlist.AwardView;
 import com.baijiayun.live.ui.speakerlist.SpeakersFragment;
 import com.baijiayun.live.ui.speakerlist.SpeakersPresenter;
 import com.baijiayun.live.ui.speakerlist.item.Switchable;
-import com.baijiayun.live.ui.toolbox.announcement.AnnouncementFragment;
-import com.baijiayun.live.ui.toolbox.announcement.AnnouncementPresenter;
-import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowFragment;
-import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowPresenter;
-import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolFragment;
-import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolPresenter;
-import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerFragment;
-import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerPresenter;
-import com.baijiayun.live.ui.toolbox.quiz.QuizDialogFragment;
-import com.baijiayun.live.ui.toolbox.quiz.QuizDialogPresenter;
+import com.baijiayun.live.ui.speakerlist.AwardView;
 import com.baijiayun.live.ui.toolbox.timer.TimerFragment;
 import com.baijiayun.live.ui.toolbox.timer.TimerPresenter;
 import com.baijiayun.live.ui.topbar.TopBarFragment;
@@ -132,7 +133,6 @@ import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
 import com.baijiayun.livecore.models.roomresponse.LPResRoomMediaControlModel;
 import com.baijiayun.livecore.ppt.listener.OnPPTStateListener;
-import com.baijiayun.livecore.utils.LPRxUtils;
 import com.baijiayun.livecore.utils.LPSdkVersionUtils;
 import com.baijiayun.livecore.wrapper.model.LPAVMediaModel;
 import com.google.gson.JsonObject;
@@ -152,8 +152,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
+import static android.R.attr.path;
 import static com.baijiayun.live.ui.utils.Precondition.checkNotNull;
 
 public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRouterListener {
@@ -168,8 +168,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private FrameLayout flRight;
     private FrameLayout flSpeakers;
     private FrameLayout flCloudRecord;
-    private DragFrameLayout flQuestionTool;
-    private DragFrameLayout flTimer;
+    private DragFragment flQuestionTool;
+    private DragFragment flTimer;
     private LiveRoom liveRoom;
     private LoadingFragment loadingFragment;
     private TopBarFragment topBarFragment;
@@ -215,8 +215,14 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             subscriptionOfMarquee;
 
     private boolean isClearScreen; //是否已经清屏，作用于视频采集和远程视频ui的调整
+    private String code, name, avatar;
     private boolean isBackgroundContainerShrink = false; //缩小背景框
 
+    private long roomId;
+    private String sign;
+    private static String liveHorseLamp; // 跑马灯
+    private static int liveHorseLampInterval = 60; // 跑马灯时间间隔
+    private IUserModel enterUser;
     private boolean mobileNetworkDialogShown = false;
     private MaterialDialog speakInviteDlg;  //取消用
     private EditText etDebugAecDelay;
@@ -230,7 +236,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private IUserModel privateChatUser;
     private LPError lpError;
 
-    private Disposable subscriptionOfTeacherAbsent, savePictureDisposable;
+    private Disposable subscriptionOfTeacherAbsent;
 
     private AwardView awardView;
 
@@ -243,14 +249,59 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private EvaDialogFragment evaDialogFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.bjy_activity_live_room);
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("code", code);
+        outState.putString("name", name);
+        outState.putString("avatar", avatar);
+        outState.putLong("roomId", roomId);
+        outState.putString("sign", sign);
+        outState.putSerializable("user", enterUser);
+    }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // 5.0+ 打开硬件加速
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_live_room);
+
+        LiveSDK.AUTO_PLAY_SHARING_SCREEN_AND_MEDIA = true;
         initViews();
+
+        // x86平台的机器不让进教室
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.SUPPORTED_ABIS[0].contains("x86")) {
+                showMessage(getString(R.string.live_room_x86_not_supported));
+                super.finish();
+            }
+        } else {
+            if (Build.CPU_ABI.contains("x86")) {
+                showMessage(getString(R.string.live_room_x86_not_supported));
+                super.finish();
+            }
+        }
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             onConfigurationChanged(getResources().getConfiguration());
+        }
+        if (savedInstanceState == null) {
+            code = getIntent().getStringExtra("code");
+            name = getIntent().getStringExtra("name");
+            avatar = getIntent().getStringExtra("avatar");
+            roomId = getIntent().getLongExtra("roomId", -1);
+            sign = getIntent().getStringExtra("sign");
+            enterUser = (IUserModel) getIntent().getSerializableExtra("user");
+        } else {
+            code = savedInstanceState.getString("code");
+            name = savedInstanceState.getString("name");
+            avatar = savedInstanceState.getString("avatar");
+            roomId = savedInstanceState.getLong("roomId", -1);
+            sign = savedInstanceState.getString("sign");
+            enterUser = (IUserModel) savedInstanceState.getSerializable("user");
         }
 
         loadingFragment = LoadingFragment.newInstance(true, shouldShowTechSupport);
@@ -578,6 +629,23 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
+    public void showMessage(final String message) {
+        if (TextUtils.isEmpty(message)) return;
+
+        this.runOnUiThread(() -> {
+            if (this.isFinishing()) return;
+            Toast toast = Toast.makeText(LiveRoomActivity.this, message, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        });
+    }
+
+    @Override
+    public void showMessage(@StringRes int strRes) {
+        showMessage(getResources().getString(strRes));
+    }
+
+    @Override
     public void saveTeacherMediaStatus(IMediaModel model) {
         globalPresenter.setTeacherMedia(model);
     }
@@ -588,7 +656,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (error.getCode() == LPError.CODE_ERROR_LOGIN_KICK_OUT) {
             //被踢出房间后的登录
             showKickOutDlg(error);
-        } else if (error.getCode() == LPError.CODE_ERROR_LOGIN_AUDITION) {
+        } else if(error.getCode() == LPError.CODE_ERROR_LOGIN_AUDITION) {
             if (mAuditionEndDialog == null) {
                 mAuditionEndDialog = new SimpleTextDialog(this, error);
                 mAuditionEndDialog.setCancelable(false);
@@ -719,41 +787,33 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
-    public void showMessageTeacherOpenAV(boolean notifyVideoOn, boolean notifyAudioOn, LPConstants.MediaSourceType mediaSourceType) {
-        String tips = "";
-        String mediaType = "摄像头";
-        if(mediaSourceType == LPConstants.MediaSourceType.ExtCamera){
-            mediaType = "辅助摄像头";
-        } else if(mediaSourceType == LPConstants.MediaSourceType.ExtScreenShare || mediaSourceType == LPConstants.MediaSourceType.MainScreenShare){
-            mediaType = "屏幕分享";
-        }
-        if(notifyVideoOn && notifyAudioOn){
-            tips = "打开了麦克风和" + mediaType;
-        } else if(notifyAudioOn){
-            tips = "打开了麦克风";
-        } else if(notifyVideoOn){
-            tips = "打开了" + mediaType;
-        }
-        showMessage(getString(R.string.lp_override_role_teacher) + tips);
+    public void showMessageTeacherOpenAudio() {
+        showMessage(getString(R.string.lp_override_role_teacher) + "打开了麦克风");
     }
 
     @Override
-    public void showMessageTeacherCloseAV(boolean notifyVideoClose, boolean notifyAudioClose, LPConstants.MediaSourceType mediaSourceType) {
-        String tips = "";
-        String mediaType = "摄像头";
-        if(mediaSourceType == LPConstants.MediaSourceType.ExtCamera){
-            mediaType = "辅助摄像头";
-        } else if(mediaSourceType == LPConstants.MediaSourceType.ExtScreenShare || mediaSourceType == LPConstants.MediaSourceType.MainScreenShare){
-            mediaType = "屏幕分享";
-        }
-        if(notifyAudioClose && notifyVideoClose){
-            tips = "关闭了麦克风和" + mediaType;
-        } else if(notifyAudioClose){
-            tips = "关闭了麦克风";
-        } else {
-            tips = "关闭了" + mediaType;
-        }
-        showMessage(getString(R.string.lp_override_role_teacher) + tips);
+    public void showMessageTeacherOpenVideo() {
+        showMessage(getString(R.string.lp_override_role_teacher) + "打开了摄像头");
+    }
+
+    @Override
+    public void showMessageTeacherOpenAV() {
+        showMessage(getString(R.string.lp_override_role_teacher) + "打开了麦克风和摄像头");
+    }
+
+    @Override
+    public void showMessageTeacherCloseAV() {
+        showMessage(getString(R.string.lp_override_role_teacher) + "关闭了麦克风和摄像头");
+    }
+
+    @Override
+    public void showMessageTeacherCloseAudio() {
+        showMessage(getString(R.string.lp_override_role_teacher) + "关闭了麦克风");
+    }
+
+    @Override
+    public void showMessageTeacherCloseVideo() {
+        showMessage(getString(R.string.lp_override_role_teacher) + "关闭了摄像头");
     }
 
     @Override
@@ -1329,7 +1389,12 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 .content(mapType2String(type))
                 .positiveText(getString(R.string.live_quiz_dialog_confirm))
                 .positiveColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_blue))
-                .onPositive((materialDialog, dialogAction) -> materialDialog.dismiss())
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                })
                 .canceledOnTouchOutside(true)
                 .build()
                 .show();
@@ -1353,9 +1418,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (isDestroyed() || isFinishing()) {
-            return;
-        }
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_CAMERA_TEACHER:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -1773,10 +1835,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     public void navigateToQuickSwitchPPT(int currentIndex, int maxIndex) {
         if (lppptView != null && lppptView.isEditable() && rightMenuPresenter != null)
             rightMenuPresenter.changeDrawing();
+        QuickSwitchPPTFragment quickSwitchPPTFragment = QuickSwitchPPTFragment.newInstance();
         Bundle args = new Bundle();
         args.putInt("currentIndex", currentIndex);
         args.putInt("maxIndex", maxIndex);
-        QuickSwitchPPTFragment quickSwitchPPTFragment = QuickSwitchPPTFragment.newInstance(args);
+        quickSwitchPPTFragment.setArguments(args);
         switchPPTFragmentPresenter = new SwitchPPTFragmentPresenter(quickSwitchPPTFragment, lppptView.isMultiWhiteboardEnable());
         bindVP(quickSwitchPPTFragment, switchPPTFragmentPresenter);
         showDialogFragment(quickSwitchPPTFragment);
@@ -1914,9 +1977,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     @Override
     public void navigateToAnnouncement() {
+        globalPresenter.unObserveAnnouncementChange();
         if (announcementFragment != null && announcementFragment.isAdded()) return;
         announcementFragment = AnnouncementFragment.newInstance();
-        AnnouncementPresenter presenter = new AnnouncementPresenter(announcementFragment);
+        AnnouncementPresenter presenter = new AnnouncementPresenter(announcementFragment, globalPresenter);
         bindVP(announcementFragment, presenter);
         showDialogFragment(announcementFragment);
     }
@@ -2029,16 +2093,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         chatPresenter.sendImageMessage(path);
     }
 
-    @Override
-    public void showMessage(String message) {
-        showToastMessage(message);
-    }
-
-    @Override
-    public void showMessage(int strRes) {
-        showToastMessage(strRes);
-    }
-
     public void showSavePicDialog(byte[] bmpArray) {
         ChatSavePicDialogFragment fragment = new ChatSavePicDialogFragment();
         ChatSavePicDialogPresenter presenter = new ChatSavePicDialogPresenter(bmpArray);
@@ -2103,7 +2157,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         RxUtils.dispose(subscriptionOfIsCloudRecordAllowed);
         RxUtils.dispose(subscriptionOfTeacherAbsent);
         RxUtils.dispose(disposableOfMediaPublish);
-        LPRxUtils.dispose(savePictureDisposable);
 
         orientationEventListener = null;
 
@@ -2161,38 +2214,44 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
      * 保存图片
      */
     private void saveImageToGallery(final byte[] bmpArray) {
-        LPRxUtils.dispose(savePictureDisposable);
-        savePictureDisposable = Observable.just(1)
-                .observeOn(Schedulers.io())
-                .map(integer -> {
-                    // 首先保存图片
-                    File appDir = new File(Environment.getExternalStorageDirectory(), "bjhl_lp_image");
-                    if (!appDir.exists()) {
-                        appDir.mkdir();
-                    }
-                    String fileName = System.currentTimeMillis() + ".jpg";
-                    File file = new File(appDir, fileName);
-                    try {
-                        Bitmap bmp = BitmapFactory.decodeByteArray(bmpArray, 0, bmpArray.length);
-                        FileOutputStream fos = new FileOutputStream(file);
-                        bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 首先保存图片
+                File appDir = new File(Environment.getExternalStorageDirectory(), "bjhl_lp_image");
+                if (!appDir.exists()) {
+                    appDir.mkdir();
+                }
+                String fileName = System.currentTimeMillis() + ".jpg";
+                File file = new File(appDir, fileName);
+                final String picPath = file.getAbsolutePath();
+                try {
+                    Bitmap bmp = BitmapFactory.decodeByteArray(bmpArray, 0, bmpArray.length);
+                    FileOutputStream fos = new FileOutputStream(file);
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                    // 其次把文件插入到系统图库
-                    try {
-                        MediaStore.Images.Media.insertImage(getContentResolver(),
-                                file.getAbsolutePath(), fileName, null);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                // 其次把文件插入到系统图库
+                try {
+                    MediaStore.Images.Media.insertImage(getContentResolver(),
+                            file.getAbsolutePath(), fileName, null);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                // 最后通知图库更新
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(LiveRoomActivity.this, "图片保存在" + picPath, Toast.LENGTH_LONG).show();
                     }
-                    return file;
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(file -> Toast.makeText(LiveRoomActivity.this, "图片保存在" + file.getAbsolutePath(), Toast.LENGTH_LONG).show());
+                });
+            }
+        }).start();
     }
 
     @Override
@@ -2355,9 +2414,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     public void answerEnd(boolean ended) {
         if (questionToolFragment != null && questionToolFragment.isAdded()) {
             removeFragment(questionToolFragment);
-            if (ended) {
-                Toast.makeText(this, getString(R.string.pad_class_answer_time_out), Toast.LENGTH_SHORT).show();
-            }
+            if (ended)
+                Toast.makeText(this, "答题时间已到", Toast.LENGTH_SHORT).show();
             flQuestionTool.setVisibility(View.GONE);
             questionToolFragment = null;
         }
@@ -2533,6 +2591,60 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             }
             liveRoom.requestClassEnd();
         }
+    }
+
+    /* 房间外部回调 */
+    private static LiveSDKWithUI.LPShareListener shareListener;
+    private static LiveSDKWithUI.LPRoomExitListener exitListener;
+    private static LiveSDKWithUI.RoomEnterConflictListener enterRoomConflictListener;
+    private static LiveSDKWithUI.LPRoomResumeListener roomLifeCycleListener;
+
+    private static boolean shouldShowTechSupport = true;
+
+    private static boolean disableSpeakQueuePlaceholder = false;
+
+    private void clearStaticCallback() {
+        shareListener = null;
+        exitListener = null;
+        enterRoomConflictListener = null;
+        roomLifeCycleListener = null;
+    }
+
+    public static LiveSDKWithUI.LPRoomExitListener getExitListener() {
+        return exitListener;
+    }
+
+    public static void setRoomLifeCycleListener(LiveSDKWithUI.LPRoomResumeListener roomLifeCycleListener) {
+        LiveRoomActivity.roomLifeCycleListener = roomLifeCycleListener;
+    }
+
+    public static void setShareListener(LiveSDKWithUI.LPShareListener listener) {
+        LiveRoomActivity.shareListener = listener;
+    }
+
+    public static void setRoomExitListener(LiveSDKWithUI.LPRoomExitListener roomExitListener) {
+        LiveRoomActivity.exitListener = roomExitListener;
+    }
+
+    public static void setEnterRoomConflictListener(LiveSDKWithUI.RoomEnterConflictListener enterRoomConflictListener) {
+        LiveRoomActivity.enterRoomConflictListener = enterRoomConflictListener;
+    }
+
+    public static void setShouldShowTechSupport(boolean shouldShow) {
+        shouldShowTechSupport = shouldShow;
+    }
+
+    public static void setLiveRoomMarqueeTape(String liveRoomMarqueeTape) {
+        LiveRoomActivity.liveHorseLamp = liveRoomMarqueeTape;
+    }
+
+    public static void setLiveRoomMarqueeTape(String liveRoomMarqueeTape, int liveRoomMarqueeTapeInterval) {
+        LiveRoomActivity.liveHorseLamp = liveRoomMarqueeTape;
+        LiveRoomActivity.liveHorseLampInterval = liveRoomMarqueeTapeInterval;
+    }
+
+    public static void disableSpeakQueuePlaceholder() {
+        disableSpeakQueuePlaceholder = true;
     }
 
     @Override

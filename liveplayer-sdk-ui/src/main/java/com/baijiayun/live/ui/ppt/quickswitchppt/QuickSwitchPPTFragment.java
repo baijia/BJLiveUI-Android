@@ -2,6 +2,7 @@ package com.baijiayun.live.ui.ppt.quickswitchppt;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,12 +15,16 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.R;
+import com.baijiayun.live.ui.activity.LiveRoomActivity;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.QueryPlus;
+import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.ppt.util.ShapeContent;
 import com.baijiayun.livecore.utils.DisplayUtils;
 import com.baijiayun.livecore.viewmodels.impl.LPDocListViewModel;
@@ -48,11 +53,12 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
     private boolean isStudent = false;
     private boolean enableMultiWhiteboard = false;
     private int maxIndex;//学生可以快速滑动ppt的最大页数
-    private int currentIndex, lastIndex;
+    private int currentIndex;
 
     private boolean isChangePage = false;
 
-    public static QuickSwitchPPTFragment newInstance(Bundle args) {
+    public static QuickSwitchPPTFragment newInstance() {
+        Bundle args = new Bundle();
         QuickSwitchPPTFragment quickSwitchPPTFragment = new QuickSwitchPPTFragment();
         quickSwitchPPTFragment.setArguments(args);
         return quickSwitchPPTFragment;
@@ -85,29 +91,46 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
         ((RecyclerView) $.id(R.id.dialog_switch_ppt).view()).setAdapter(mPPTAdapter);
 
         this.maxIndex = getArguments().getInt("maxIndex");
-        lastIndex = currentIndex = getArguments().getInt("currentIndex");
+        this.currentIndex = getArguments().getInt("currentIndex");
     }
 
     private void initView() {
 
-        $.id(R.id.iv_ppt_switch).clicked(v -> switchPPTState());
-
-        $.id(R.id.iv_board_add).clicked(v -> {
-            if (!presenter.canOperateDocumentControl()) {
-                showToast(getString(R.string.live_room_document_control_permission_forbid));
-                return;
+        $.id(R.id.iv_ppt_switch).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchPPTState();
             }
-            isChangePage = true;
-            //添加白板
-            presenter.addPage();
         });
 
-        $.id(R.id.tv_ppt_ok).clicked(v -> {
-            if (!presenter.canOperateDocumentControl()) {
-                showToast(getString(R.string.live_room_document_control_permission_forbid));
-                return;
+        $.id(R.id.iv_board_add).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!presenter.canOperateDocumentControl()) {
+                    showToast(getString(R.string.live_room_document_control_permission_forbid));
+                    return;
+                }
+//                if (mBoardList.size() >= 10) {
+//                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_add_tips));
+//                    return;
+//                }
+                isChangePage = true;
+                //添加白板
+                presenter.addPage();
+//                if (!result)
+//                    presenter.getRoute().showMessage(getResources().getString(R.string.string_board_error));
             }
-            switchEditStatus(false);
+        });
+
+        $.id(R.id.tv_ppt_ok).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!presenter.canOperateDocumentControl()) {
+                    showToast(getString(R.string.live_room_document_control_permission_forbid));
+                    return;
+                }
+                switchEditStatu(false);
+            }
         });
     }
 
@@ -123,6 +146,7 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
                     new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, DisplayUtils.dip2px(getContext(), 76));
             params.leftMargin = DisplayUtils.dip2px(getContext(), 80);
             drawable = getResources().getDrawable(R.drawable.iv_back_right);
+
         }
         isOpen = !isOpen;
         $.id(R.id.ll_ppt).view().setLayoutParams(params);
@@ -144,29 +168,27 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
     }
 
     @Override
-    public void setIndex(int index) {
-        lastIndex = currentIndex;
-        if(index >= 0 && currentIndex != index) {
-            currentIndex = index;
-        }
-        if (index >= 0 && maxIndex != index) {
-            maxIndex = index;
-            presenter.changeDocList();
-        }
+    public void setIndex() {
         if (currentIndex < mBoardList.size()) {
             //当前页面在白板页面
             ((RecyclerView) $.id(R.id.dialog_switch_ppt_rv).view()).scrollToPosition(currentIndex);
-            notifyOnIndexChange(true);
         } else {
             ((RecyclerView) $.id(R.id.dialog_switch_ppt).view()).scrollToPosition(currentIndex - mBoardList.size());
+
             isOpen = false;
             switchPPTState();
-            notifyOnIndexChange(false);
         }
     }
 
     @Override
     public void setMaxIndex(int updateMaxIndex) {
+        this.maxIndex = updateMaxIndex;
+//        this.quickDocList.clear();
+//        if (isStudent) {
+//            quickDocList.addAll(docModelList.subList(0, maxIndex + 1));
+//        }
+//        ((RecyclerView) $.id(R.id.dialog_switch_ppt_rv).view()).scrollToPosition(maxIndex);
+//        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -204,6 +226,7 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
                 }
             }
         } else {
+            //限制最大
             for (int i = 0; i < docModelList.size(); i++) {
                 LPDocListViewModel.DocModel model = docModelList.get(i);
                 if (ShapeContent.TYPE_WHITEBOARD_DOC_ID.equals(model.docId)) {
@@ -232,9 +255,12 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
         mPPTAdapter.setBoardTag(false);
         adapter.notifyDataSetChanged();
         mPPTAdapter.notifyDataSetChanged();
+
+
     }
 
-    private void switchEditStatus(boolean isEdit) {
+    private void switchEditStatu(boolean isEdit) {
+
         if (isEdit) {
             //显示编辑状态
             $.id(R.id.ll_ppt_ok).visibility(View.VISIBLE);
@@ -285,45 +311,53 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
         @Override
         public void onBindViewHolder(final SwitchHolder holder, int position) {
             Picasso.with(getContext()).load(AliCloudImageUtil.getScaledUrl(list.get(position).url, AliCloudImageUtil.SCALED_MFIT, 200, 200)).into(holder.PPTView);
+
             if (isBoard) {
                 //白板
                 holder.PPTOrder.setText(getResources().getString(R.string.string_board_title) + (position + 1));
-                holder.PPTRL.setSelected(currentIndex == position);
             } else {
                 holder.PPTOrder.setText(String.valueOf(position + 1));
-                holder.PPTRL.setSelected(position == (currentIndex - mBoardList.size()));
             }
 
             if (isEdit) {
                 holder.mIvPptDelete.setVisibility(View.VISIBLE);
                 holder.mIvPptDelete.setTag(list.get(position).pageId);
-                holder.mIvPptDelete.setOnClickListener(v -> deleteBoard(list.get(position).pageId));
+                holder.mIvPptDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteBoard(list.get(position).pageId);
+                    }
+                });
+
             } else {
                 holder.mIvPptDelete.setVisibility(View.INVISIBLE);
             }
 
-            holder.PPTRL.setOnClickListener(v -> {
-                if (!presenter.canOperateDocumentControl()) {
-                    showToast(getString(R.string.live_room_document_control_permission_forbid));
-                    return;
+            holder.PPTRL.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!presenter.canOperateDocumentControl()) {
+                        showToast(getString(R.string.live_room_document_control_permission_forbid));
+                        return;
+                    }
+                    presenter.setSwitchPosition(holder.getAdapterPosition() + (deviation < 0 ? 0 : deviation));
                 }
-                lastIndex = currentIndex;
-                notifyOnIndexChange(isBoard);
-                currentIndex = position + (deviation < 0 ? 0 : deviation);
-                presenter.setSwitchPosition(position + (deviation < 0 ? 0 : deviation));
             });
 
-            holder.PPTRL.setOnLongClickListener(v -> {
-                if (!presenter.canOperateDocumentControl()) {
-                    showToast(getString(R.string.live_room_document_control_permission_forbid));
-                    return false;
-                }
-                //长按进行编辑
-                if (!isBoard || isStudent || enableMultiWhiteboard)
-                    return false;
+            holder.PPTRL.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (!presenter.canOperateDocumentControl()) {
+                        showToast(getString(R.string.live_room_document_control_permission_forbid));
+                        return false;
+                    }
+                    //长按进行编辑
+                    if (!isBoard || isStudent || enableMultiWhiteboard)
+                        return false;
 
-                switchEditStatus(true);
-                return true;
+                    switchEditStatu(true);
+                    return true;
+                }
             });
         }
 
@@ -331,20 +365,8 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
         public int getItemCount() {
             return list.size();
         }
-    }
 
-    private void notifyOnIndexChange(boolean isBoard){
-        if(isBoard){
-            adapter.notifyDataSetChanged();
-            if(lastIndex >= mBoardList.size()){
-                mPPTAdapter.notifyDataSetChanged();
-            }
-        } else{
-            if(lastIndex < mBoardList.size()){
-                adapter.notifyDataSetChanged();
-            }
-            mPPTAdapter.notifyDataSetChanged();
-        }
+
     }
 
     private void deleteBoard(int pageId) {
@@ -360,8 +382,18 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
                 .positiveText(getString(R.string.live_exit_hint_confirm))
                 .negativeColor(ContextCompat.getColor(getActivity(), R.color.live_text_color))
                 .negativeText(getString(R.string.live_cancel))
-                .onPositive((materialDialog, dialogAction) -> presenter.delPage(pageId))
-                .onNegative((materialDialog, dialogAction) -> materialDialog.dismiss())
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        presenter.delPage(pageId);
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                })
                 .build()
                 .show();
 

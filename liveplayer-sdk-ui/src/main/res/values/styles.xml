@@ -84,21 +84,6 @@
         <!--是否模糊-->
         <item name="android:backgroundDimEnabled">false</item>
     </style>
-
-    <style name="AppTheme" parent="Theme.AppCompat.Light" />
-
-    <style name="FullscreenTheme" parent="AppTheme">
-        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
-        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
-        <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
-    </style>
     <style name="TimerEditTextStyle">
         <item name="android:layout_width">@dimen/timer_edit_width</item>
         <item name="android:layout_height">@dimen/timer_edit_height</item>
@@ -109,16 +94,5 @@
         <item name="android:imeOptions">flagNoExtractUi</item>
         <item name="android:background">@drawable/bg_window_timer_count_ui</item>
         <item name="android:gravity">center</item>
-    </style>
-    <style name="CommPaddingStyle">
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-    </style>
-    <style name="LiveDividerPad">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1px</item>
-        <item name="android:background">@color/live_pad_stroke_grey</item>
     </style>
 </resources>

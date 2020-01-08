@@ -62,25 +62,4 @@
     <color name="color_FF6059">#FF6059</color>
     <color name="color_C6C6CF">#C6C6CF</color>
     <color name="color_686F81">#686F81</color>
-
-    <color name="black_overlay">#66000000</color>
-
-    <color name="live_pad_title">#4A4A4A</color>
-    <color name="live_pad_text_grey">#9EADB9</color>
-    <color name="live_pad_videos_background">#BDC6CF</color>
-    <color name="live_pad_ppt_background">#F7F7F7</color>
-    <color name="live_pad_class_end">#FF1F49</color>
-    <color name="live_pad_red">#FF1F49</color>
-    <color name="live_pad_disagree">#FF1F49</color>
-    <color name="live_pad_agree">#1795FF</color>
-    <color name="live_pad_start">#33C7FF</color>
-    <color name="live_pad_stroke_grey">#EDEDEE</color>
-
-    <color name="live_pad_grey">#FF4A4A4A</color>
-    <color name="live_pad_selected_tab_blue">#FF1795FF</color>
-    <color name="live_pad_orange">#F5A623</color>
-    <color name="pad_class_net_good">#88ff00</color>
-    <color name="pad_class_net_normal">#1199ff</color>
-    <color name="pad_class_net_bad">#ffbb33</color>
-    <color name="pad_class_net_terrible">#ff0000</color>
 </resources>

@@ -5,24 +5,17 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.GestureDetectorCompat;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.LineHeightSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -30,15 +23,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.baijiayun.live.ui.R;
-import com.baijiayun.live.ui.chat.utils.TextLineHeightSpan;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.RxUtils;
-import com.baijiayun.livecore.hubble.LPHubbleManager;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -59,10 +46,8 @@ public class ChatMessageView extends LinearLayout {
 
     private OnProgressListener onProgressListener;
     private OnFilterListener onFilterListener;
-    private OnRecallListener onReCallListener;
     private String message;
     private boolean isEnableTranslation;
-    private int recallStatus = NONE;
     private boolean isTranslate;
     private boolean isFailed;
     private boolean enableFilter;//消息是老师/助教的可以显示过滤选项
@@ -70,13 +55,6 @@ public class ChatMessageView extends LinearLayout {
     private Disposable subscribeTimer;
 
     private GestureDetectorCompat gestureDetectorCompat;
-    private TextLineHeightSpan lineHeightSpan;
-    public static final int NONE = 0;
-    public static final int RECALL = 1;
-    public static final int DELETE = 2;
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({NONE,RECALL,DELETE})
-    public @interface RecallStatus{}
 
     public ChatMessageView(Context context) {
         this(context, null);
@@ -115,8 +93,6 @@ public class ChatMessageView extends LinearLayout {
             return false;
         });
         addView(tvMsg);
-        final Paint.FontMetricsInt fontMetricsInt = tvMsg.getPaint().getFontMetricsInt();
-        lineHeightSpan = new TextLineHeightSpan(fontMetricsInt,6);
 
         tvTranslateResult = new TextView(getContext());
         tvTranslateResult.setTextColor(Color.parseColor("#804A4A4A"));
@@ -131,10 +107,6 @@ public class ChatMessageView extends LinearLayout {
         isEnableTranslation = isEnable;
     }
 
-    public void setRecallStatus(@RecallStatus int recallStatus) {
-        this.recallStatus = recallStatus;
-    }
-
     public void enableFilter(boolean enableFilter) {
         this.enableFilter = enableFilter;
     }
@@ -146,34 +118,30 @@ public class ChatMessageView extends LinearLayout {
     private void showMenu(int x, int y) {
         PopupWindow popupWindow = new PopupWindow(getContext());
         popupWindow.setFocusable(true);
-        popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 60));
+        popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 64));
         popupWindow.setBackgroundDrawable(new ColorDrawable(0));
 
-        List<String> items = new ArrayList<>();
-        items.add(getContext().getString(R.string.live_chat_copy));
+        String ITEMS[];
         if (isEnableTranslation && !isTranslate) {
             if (enableFilter && !isFiltered) {
-                items.add(getContext().getString(R.string.live_chat_translate));
-                items.add(getContext().getString(R.string.live_chat_filter));
-                popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 120));
+                ITEMS = new String[]{"复制", "翻译","只看老师/助教"};
+                popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 128));
+                popupWindow.setHeight(DisplayUtils.dip2px(getContext(), 128));
             } else {
-                items.add(getContext().getString(R.string.live_chat_translate));
+                ITEMS = new String[]{"复制", "翻译"};
+                popupWindow.setHeight(DisplayUtils.dip2px(getContext(), 88));
             }
         } else {
             if (enableFilter && !isFiltered) {
-                items.add(getContext().getString(R.string.live_chat_filter));
-                popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 120));
+                ITEMS = new String[]{"复制","只看老师/助教"};
+                popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 128));
+                popupWindow.setHeight(DisplayUtils.dip2px(getContext(), 88));
+            } else {
+                ITEMS = new String[]{"复制"};
+                popupWindow.setHeight(DisplayUtils.dip2px(getContext(), 48));
             }
         }
-        if (recallStatus == RECALL) {
-            items.add(getContext().getString(R.string.live_chat_recall));
-        }
-        if (recallStatus == DELETE) {
-            items.add(getContext().getString(R.string.live_chat_delete));
-        }
-        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        String[] strs = new String[items.size()];
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.menu_chat_message, items.toArray(strs));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.menu_chat_message, ITEMS);
         ListView listView = new ListView(getContext());
 
         GradientDrawable bgDrawable = new GradientDrawable();
@@ -182,31 +150,36 @@ public class ChatMessageView extends LinearLayout {
         listView.setBackground(bgDrawable);
         listView.setAdapter(adapter);
         listView.setDividerHeight(0);
-        listView.setPadding(0, DisplayUtils.dip2px(getContext(), 2), 0, DisplayUtils.dip2px(getContext(), 2));
+        listView.setPadding(0, DisplayUtils.dip2px(getContext(), 4), 0, DisplayUtils.dip2px(getContext(), 4));
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (items.get(position).equals(view.getContext().getString(R.string.live_chat_copy))) {
-                copyMessage(message);
-            } else if (items.get(position).equals(view.getContext().getString(R.string.live_chat_translate))) {
-                if (onProgressListener == null) return;
-                onProgressListener.onProgress();
-                isFailed = false;
-                countDown();
-                Log.d(TAG, "translate =" + message);
-            } else if (items.get(position).equals(view.getContext().getString(R.string.live_chat_filter))) {
-                if (!isFiltered && enableFilter && onFilterListener != null) {
-                    onFilterListener.onFilter();
-                }
-            } else if (items.get(position).equals(view.getContext().getString(R.string.live_chat_recall)) ||
-                    items.get(position).equals(view.getContext().getString(R.string.live_chat_delete))) {
-                if (onReCallListener != null) {
-                    onReCallListener.onRecall();
-                }
-            } else {
-                Log.d(TAG, "onError");
+            switch (position) {
+                case 0:
+                    copyMessage(message);
+                    break;
+                case 1:
+                    if (isEnableTranslation && !isTranslate) {
+                        if (onProgressListener == null) return;
+                        onProgressListener.onProgress();
+                        isFailed = false;
+                        countDown();
+                        Log.d(TAG, "translate =" + message);
+                    } else {
+                        if (!isFiltered && enableFilter && onFilterListener != null) {
+                            onFilterListener.onFilter();
+                        }
+                    }
+                    break;
+                case 2:
+                    if (!isFiltered && enableFilter && onFilterListener != null) {
+                        onFilterListener.onFilter();
+                    }
+                    break;
             }
             popupWindow.dismiss();
         });
         popupWindow.setContentView(listView);
+        int pos[] = new int[2];
+        getLocationOnScreen(pos);
         popupWindow.showAtLocation(this, Gravity.NO_GRAVITY, x - popupWindow.getWidth() / 2, y - popupWindow.getHeight());
     }
 
@@ -244,10 +217,6 @@ public class ChatMessageView extends LinearLayout {
         return tvMsg;
     }
 
-    public LineHeightSpan getLineHeightSpan() {
-        return lineHeightSpan;
-    }
-
     @SuppressLint("CheckResult")
     private void countDown() {
         //翻译时就开始倒计时，如果倒计时自然结束，显示失败，并打上失败的标签。
@@ -256,8 +225,7 @@ public class ChatMessageView extends LinearLayout {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
                     Log.d(TAG, "countDown: 倒计时完成");
-                    String translateFail = Locale.getDefault().getCountry().equalsIgnoreCase("cn") ? "翻译失败" : "Translate Fail!";
-                    tvTranslateResult.setText(translateFail);
+                    tvTranslateResult.setText(Locale.getDefault().getCountry().equalsIgnoreCase("cn") ? "翻译失败" : "Translate Fail!");
                     if (getChildCount() <= 1) {
                         addView(tvTranslateResult);
                     }
@@ -266,14 +234,6 @@ public class ChatMessageView extends LinearLayout {
     }
     public interface OnFilterListener {
         void onFilter();
-    }
-
-    public interface OnRecallListener {
-        void onRecall();
-    }
-
-    public void setOnReCallListener(OnRecallListener onReCallListener) {
-        this.onReCallListener = onReCallListener;
     }
 
     public void setOnFilterListener(OnFilterListener onFilterListener) {

@@ -31,12 +31,14 @@ public class AnnouncementPresenter implements AnnouncementContract.Presenter {
 
     private Pattern pattern;
 
+    private GlobalPresenter globalPresenter;
     private int mType;
 
-    public AnnouncementPresenter(AnnouncementContract.View view) {
+    public AnnouncementPresenter(AnnouncementContract.View view, GlobalPresenter globalPresenter) {
         String mode = "(http|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?";
         pattern = Pattern.compile(mode);
         this.view = view;
+        this.globalPresenter = globalPresenter;
     }
 
     @Override
@@ -114,6 +116,8 @@ public class AnnouncementPresenter implements AnnouncementContract.Presenter {
 
     @Override
     public void destroy() {
+        globalPresenter.observeAnnouncementChange();
+        globalPresenter = null;
         routerListener = null;
         view = null;
     }

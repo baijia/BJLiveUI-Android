@@ -1,10 +1,10 @@
 package com.baijiayun.live.ui.chat.utils;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.text.style.ImageSpan;
 
 import java.lang.ref.WeakReference;
@@ -16,8 +16,8 @@ public class CenterImageSpan extends ImageSpan {
 
     private WeakReference<Drawable> mDrawableRef;
 
-    public CenterImageSpan(@NonNull Drawable drawable, int verticalAlignment) {
-        super(drawable, verticalAlignment);
+    public CenterImageSpan(Context context, int resourceId, int verticalAlignment) {
+        super(context, resourceId, verticalAlignment);
     }
 
     @Override

@@ -44,7 +44,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View baseView = inflater.inflate(R.layout.bjy_dialog_base, container);
+        View baseView = inflater.inflate(R.layout.dialog_base, container);
         contentView = inflater.inflate(getLayoutId(), null);
         $ = QueryPlus.with(baseView);
         ((FrameLayout) $.id(R.id.dialog_base_content).view()).addView(contentView);

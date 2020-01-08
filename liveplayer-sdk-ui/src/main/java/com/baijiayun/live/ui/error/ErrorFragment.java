@@ -49,7 +49,7 @@ public class ErrorFragment extends BaseFragment {
 
     @Override
     public int getLayoutId() {
-        return R.layout.bjy_fragment_error;
+        return R.layout.fragment_error;
     }
 
     @Override

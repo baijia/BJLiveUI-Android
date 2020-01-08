@@ -15,7 +15,7 @@ import io.reactivex.disposables.Disposable;
 public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
     private SwitchPPTContract.View view;
     private LiveRoomRouterListener listener;
-    private Disposable subscriptionOfDocListChange, subscriptionOfPageChange;
+    private Disposable subscriptionOfDocListChange;
     private boolean enableMultiWhiteboard;
 
     public SwitchPPTFragmentPresenter(SwitchPPTContract.View view, boolean enableMultiWhiteboard) {
@@ -35,21 +35,12 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
                 .subscribe(docModels -> view.docListChanged(docModels));
         view.setType(!listener.isTeacherOrAssistant(), !enableMultiWhiteboard);
         view.docListChanged(listener.getLiveRoom().getDocListVM().getDocList());
-        view.setIndex(-1);
-
-        subscriptionOfPageChange = listener.getLiveRoom().getDocListVM().getObservableOfDocPageIndex()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(index -> {
-                    if(view != null){
-                        view.setIndex(index);
-                    }
-                });
+        view.setIndex();
     }
 
     @Override
     public void unSubscribe() {
         RxUtils.dispose(subscriptionOfDocListChange);
-        RxUtils.dispose(subscriptionOfPageChange);
     }
 
     @Override
@@ -92,10 +83,5 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
     public boolean canOperateDocumentControl() {
         return !(listener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
                 listener.getLiveRoom().getAdminAuth() != null && !listener.getLiveRoom().getAdminAuth().documentControl);
-    }
-
-    @Override
-    public void changeDocList() {
-        view.docListChanged(listener.getLiveRoom().getDocListVM().getDocList());
     }
 }

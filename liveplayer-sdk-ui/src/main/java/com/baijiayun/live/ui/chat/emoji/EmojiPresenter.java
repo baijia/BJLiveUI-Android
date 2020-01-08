@@ -17,7 +17,7 @@ public class EmojiPresenter implements EmojiContract.Presenter {
     private List<IExpressionModel> emojiList;
     private int currentPageFirstItem;
 
-    public EmojiPresenter(EmojiContract.View view) {
+    EmojiPresenter(EmojiContract.View view) {
         this.view = view;
         PAGE_SIZE = view.getRowCount() * view.getSpanCount();
     }

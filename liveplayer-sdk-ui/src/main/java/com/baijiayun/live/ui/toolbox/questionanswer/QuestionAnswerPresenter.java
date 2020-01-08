@@ -5,6 +5,7 @@ import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.models.LPQuestionPullResItem;
 import com.baijiayun.livecore.utils.LPRxUtils;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,16 +35,7 @@ public class QuestionAnswerPresenter implements QuestionAnswerContract.Presenter
                 .subscribe(priorityQueue -> {
                     isLoading = false;
                     questionList.clear();
-                    if(liveRoomRouterListener.getLiveRoom().isTeacherOrAssistant()){
-                        questionList.addAll(priorityQueue);
-                    } else{
-                        for(LPQuestionPullResItem pullResItem : priorityQueue){
-                            //学生只返回已发布状态或者自己的
-                            if((pullResItem.status & 1) > 0 || isAskedByCurrentUser(pullResItem)){
-                                questionList.add(pullResItem);
-                            }
-                        }
-                    }
+                    questionList.addAll(priorityQueue);
                     if (questionList.isEmpty()) {
                         view.showEmpty(true);
                     }else {
@@ -121,12 +113,5 @@ public class QuestionAnswerPresenter implements QuestionAnswerContract.Presenter
     @Override
     public void closeFragment() {
         liveRoomRouterListener.showQuestionAnswer(false);
-    }
-
-    private boolean isAskedByCurrentUser(LPQuestionPullResItem questionPullResItem){
-        if(questionPullResItem.itemList == null || questionPullResItem.itemList.size() == 0){
-            return false;
-        }
-        return questionPullResItem.itemList.get(0).from.getNumber().equals(liveRoomRouterListener.getLiveRoom().getCurrentUser().getNumber());
     }
 }

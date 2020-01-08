@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:overScrollMode="always">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!--上层横向4个按钮-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_live_room_dialog_margin"
+            android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+            android:layout_marginRight="@dimen/activity_live_room_dialog_margin"
+            android:layout_marginTop="@dimen/activity_live_room_dialog_margin"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:text="@string/live_mic" />
+
+                <ImageButton
+                    android:id="@+id/dialog_setting_mic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_on_switch" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:text="@string/live_camera" />
+
+                <ImageButton
+                    android:id="@+id/dialog_setting_camera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_on_switch" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:text="@string/live_beauty_filter" />
+
+                <ImageButton
+                    android:id="@+id/dialog_setting_beauty_filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_on_switch" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_live_room_dialog_margin"
+            android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+            android:layout_marginRight="@dimen/activity_live_room_dialog_margin"
+            android:layout_marginTop="@dimen/activity_live_room_dialog_margin"
+            android:orientation="horizontal">
+
+            <!--全体禁言-->
+            <LinearLayout
+                android:id="@+id/dialog_setting_forbid_all_speak_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:text="@string/live_setting_camera_forbid_all" />
+
+                <ImageButton
+                    android:id="@+id/dialog_setting_forbid_all_speak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_on_switch" />
+            </LinearLayout>
+
+            <!--禁止举手-->
+            <LinearLayout
+                android:id="@+id/dialog_setting_forbid_raise_hand_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:text="@string/live_setting_camera_forbid_raise_hand" />
+
+                <ImageButton
+                    android:id="@+id/dialog_setting_forbid_raise_hand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_on_switch" />
+            </LinearLayout>
+
+            <!--全体静音-->
+            <LinearLayout
+                android:id="@+id/dialog_setting_forbid_all_audio_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:text="@string/live_setting_camera_forbid_all_audio" />
+
+                <ImageButton
+                    android:id="@+id/dialog_setting_forbid_all_audio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_on_switch" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_marginLeft="@dimen/activity_live_room_dialog_margin"
+            android:background="@color/live_fail" />
+
+        <!--下部所有-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_live_room_dialog_margin"
+            android:paddingTop="@dimen/activity_live_room_dialog_margin">
+
+            <RelativeLayout
+                android:id="@+id/dialog_setting_radio_ppt_container"
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="28dp"
+                    android:layout_toLeftOf="@+id/dialog_setting_radio_ppt_fs"
+                    android:text="@string/live_setting_ppt" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_ppt_fs"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_full_screen"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_ppt_os"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_radio_ppt_fs"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_overspread"
+                    android:textColor="@color/live_white" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="28dp"
+                    android:layout_toLeftOf="@+id/dialog_setting_radio_definition_low"
+                    android:text="@string/live_setting_definition" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_definition_low"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_definition_low"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_definition_high"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_radio_definition_low"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_definition_high"
+                    android:textColor="@color/live_white" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_setting_definition_webrtc"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+                <Button
+                    android:id="@+id/dialog_setting_radio_definition_720"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_definition_720"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_definition_1080"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_radio_definition_720"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_definition_1080"
+                    android:textColor="@color/live_white" />
+            </RelativeLayout>
+            <!--相机切换-->
+            <RelativeLayout
+                android:id="@+id/dialog_setting_camera_switch_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_camera_front"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_camera_switch_front"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_camera_back"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_radio_camera_front"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_camera_switch_back"
+                    android:textColor="@color/live_white" />
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="13dp"
+                    android:layout_toLeftOf="@+id/dialog_setting_radio_camera_front"
+                    android:text="@string/live_setting_camera_switch" />
+
+
+            </RelativeLayout>
+
+            <!--静态动态PPT切换-->
+            <RelativeLayout
+                android:id="@+id/dialog_setting_ppt_view_type_switch_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                >
+
+                <Button
+                    android:id="@+id/dialog_setting_ppt_view_type_anim"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_ppt_view_type_anim"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_ppt_view_type_static"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_ppt_view_type_anim"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_ppt_view_type_static"
+                    android:textColor="@color/live_white" />
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="28dp"
+                    android:layout_toLeftOf="@+id/dialog_setting_ppt_view_type_anim"
+                    android:text="@string/live_setting_ppt_view_type_switch" />
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+
+                <TextView
+                    style="@style/LiveTextNormal"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="28dp"
+                    android:layout_toLeftOf="@+id/dialog_setting_radio_link_up_1"
+                    android:text="@string/live_setting_link_type" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_link_up_1"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_link_type_up1"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_link_up_2"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_radio_link_up_1"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_link_type_up2"
+                    android:textColor="@color/live_white" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_link_down_1"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_link_type_down1"
+                    android:textColor="@color/live_white" />
+
+                <Button
+                    android:id="@+id/dialog_setting_radio_link_down_2"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:layout_toRightOf="@+id/dialog_setting_radio_link_down_1"
+                    android:background="@drawable/live_radio_btn"
+                    android:gravity="center"
+                    android:text="@string/live_setting_link_type_down2"
+                    android:textColor="@color/live_white" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

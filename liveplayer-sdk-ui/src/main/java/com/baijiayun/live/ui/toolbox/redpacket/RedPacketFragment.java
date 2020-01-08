@@ -8,7 +8,9 @@ import android.widget.ListView;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
+import com.baijiayun.live.ui.toolbox.redpacket.widget.MoveModel;
 import com.baijiayun.live.ui.toolbox.redpacket.widget.TranslateSurfaceView;
+import com.baijiayun.livecore.models.LPRedPacketModel;
 
 
 /**
@@ -21,11 +23,13 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
     private RedPacketContract.Presenter mPresenter;
 
     private TranslateSurfaceView mTsf;
-    private ListView mLvJignxiTop;
+    private ListView mLvJignxiTop;;
     private RedPacketTopAdapter mTopAdapter;
     private int mCurrStateType;
 
+    private int count = 0;
 
+    private LPRedPacketModel mLPRedPacketModel;
 
     @Override
     public int getLayoutId() {
@@ -48,19 +52,35 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
         mTopAdapter = new RedPacketTopAdapter(getContext());
         mLvJignxiTop.setAdapter(mTopAdapter);
 
-        $.id(R.id.rl_red_packet).view().setOnClickListener(v -> {
-            //屏蔽点击传递其他View
+        $.id(R.id.rl_red_packet).view().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //屏蔽点击传递其他View
+            }
         });
 
-        $.id(R.id.btn_reb_phb_close).view().setOnClickListener(v -> {
+        $.id(R.id.btn_reb_phb_close).view().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-            mPresenter.exit();
+                mPresenter.exit();
 //                mPresenter.updateRedPacket();
+            }
         });
         //没抢到
-        $.id(R.id.tv_red_not_next).clicked(v -> mPresenter.switchState(RedPacketContract.TYPE_REDPACKET_RANKING_LIST));
+        $.id(R.id.tv_red_not_next).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPresenter.switchState(RedPacketContract.TYPE_REDPACKET_RANKING_LIST);
+            }
+        });
         //抢到了
-        $.id(R.id.tv_red_have_button).clicked(v -> mPresenter.switchState(RedPacketContract.TYPE_REDPACKET_RANKING_LIST));
+        $.id(R.id.tv_red_have_button).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPresenter.switchState(RedPacketContract.TYPE_REDPACKET_RANKING_LIST);
+            }
+        });
 
     }
 
@@ -71,6 +91,7 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
     }
 
 
+    int index = 0;
     @Override
     public void switchRedPacketRankingList(RedPacketTopModel[] list) {
 
@@ -141,9 +162,13 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
             $.id(R.id.rl_fragment_redpacket_phb).visibility(View.INVISIBLE);
             $.id(R.id.rl_red_rob).visibility(View.INVISIBLE);
 
-            mTsf.setOnClickRedPacketListenert(model -> {
-                //点击请求
-                mPresenter.robRedPacket(model);
+            count = 0;
+            mTsf.setOnClickRedPacketListenert(new TranslateSurfaceView.OnClickRedPacketListener() {
+                @Override
+                public void onClick(MoveModel model) {
+                    //点击请求
+                    mPresenter.robRedPacket(model);
+                }
             });
             mTsf.setVisibility(View.VISIBLE);
             mTsf.start();

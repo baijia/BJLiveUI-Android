@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_live_room_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/live_color_bg"
+    android:fitsSystemWindows="true">
+
+    <!--切换的时候切换容器-->
+    <RelativeLayout
+        android:id="@+id/activity_live_room_background_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="@color/live_white" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_ppt_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/activity_live_room_background_container"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="@dimen/activity_live_room_margin"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/activity_live_room_center_anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_speakers_container"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:layout_below="@+id/activity_live_room_background_container"
+        android:visibility="gone" />
+
+    <com.baijiayun.live.ui.viewsupport.AutoExitDrawerLayout
+        android:id="@+id/activity_live_room_chat_drawer"
+        android:layout_width="268dp"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/activity_live_room_bottom_left"
+        android:layout_below="@+id/activity_live_room_background_container"
+        android:layout_marginBottom="@dimen/activity_live_room_margin"
+        android:layout_marginTop="@dimen/activity_live_room_margin">
+
+        <FrameLayout
+            android:id="@+id/activity_live_room_chat"
+            android:layout_width="268dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:visibility="visible" />
+
+    </com.baijiayun.live.ui.viewsupport.AutoExitDrawerLayout>
+
+    <LinearLayout
+        android:id="@+id/activity_live_room_new_message_reminder_container"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:background="@drawable/live_item_chat_msg_reminder"
+        android:layout_marginLeft="@dimen/activity_live_room_margin"
+        android:alpha="0.8"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:gravity="center"
+        android:layout_above="@+id/activity_live_room_bottom_left">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_arrow_moremsg"
+            />
+        <TextView
+            android:id="@+id/activity_live_room_new_message_reminder"
+            android:paddingLeft="3dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="@color/live_white" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="26dp" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_bottom_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/activity_live_room_margin"
+        android:layout_marginLeft="@dimen/activity_live_room_margin" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_bottom_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/activity_live_room_margin"
+        android:layout_marginRight="@dimen/activity_live_room_margin" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/activity_live_room_bottom_right"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="@dimen/activity_live_room_margin" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_cloud_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/activity_live_room_center_anchor"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/activity_live_room_margin"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+    <com.baijiayun.live.ui.base.DragFragment
+        android:id="@+id/activity_dialog_timer"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:visibility="gone"/>
+    <com.baijiayun.live.ui.base.DragFragment
+        android:id="@+id/activity_dialog_question_tool"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:visibility="gone"/>
+    <com.baijiayun.live.ui.speakerlist.AwardView
+        android:id="@+id/award_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
+    <FrameLayout
+        android:id="@+id/activity_show_toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:background="@color/live_text_color_mid_light"
+        >
+        <TextView
+            android:id="@+id/activity_toast_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_live_room_dialog_margin"
+            android:textSize="14sp"
+            android:layout_gravity="center"
+            android:textColor="@color/live_white"
+            />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_question_answer"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/activity_live_room_red_packet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
+</RelativeLayout>

@@ -7,8 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.baijiayun.livecore.utils.LPLogger;
-
 /**
  * Created by Ansen on 2015/5/14 23:30.
  */
@@ -240,7 +238,7 @@ public class FrameAnimation {
                     }
                 }
                 Bitmap bitmap = decodeBitmap(mImageView.getContext(), mFrameRess[i]);
-                LPLogger.d("yjm", "bitmap width=" + bitmap.getWidth() + ", Height=" + bitmap.getHeight() + ", size=" + bitmap.getByteCount()/1024 + ", config=" + bitmap.getConfig());
+                Log.d("yjm", "bitmap width=" + bitmap.getWidth() + ", Height=" + bitmap.getHeight() + ", size=" + bitmap.getByteCount()/1024 + ", config=" + bitmap.getConfig());
                 mImageView.setImageBitmap(bitmap);
                 if (i == mLastFrame) {
                     if (mIsRepeat) {

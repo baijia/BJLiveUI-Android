@@ -37,7 +37,7 @@ public class MoreMenuDialogFragment extends BaseDialogFragment implements MoreMe
 
     @Override
     protected int getLayoutId() {
-        return R.layout.bjy_dialog_more;
+        return R.layout.dialog_more;
     }
 
     @Override

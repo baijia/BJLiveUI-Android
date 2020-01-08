@@ -21,7 +21,7 @@ public class ApplyItem implements SpeakItem {
     public ApplyItem(ViewGroup itemContainer, IUserModel model, SpeakersContract.Presenter presenter) {
         this.userModel = model;
         Context context = itemContainer.getContext();
-        view = LayoutInflater.from(context).inflate(R.layout.bjy_item_speak_apply, itemContainer, false);
+        view = LayoutInflater.from(context).inflate(R.layout.item_speak_apply, itemContainer, false);
         QueryPlus q = QueryPlus.with(view);
         q.id(R.id.item_speak_apply_avatar).image(context, model.getAvatar());
         q.id(R.id.item_speak_apply_name).text(model.getName() + context.getString(R.string.live_media_speak_applying));

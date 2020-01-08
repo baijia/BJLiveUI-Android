@@ -26,7 +26,7 @@ public abstract class BaseSwitchItem implements Switchable {
     private boolean isInFullScreen = false;
     protected SpeakersContract.Presenter presenter;
 
-    public BaseSwitchItem(SpeakersContract.Presenter presenter) {
+    BaseSwitchItem(SpeakersContract.Presenter presenter) {
         this.presenter = presenter;
     }
 
@@ -67,8 +67,8 @@ public abstract class BaseSwitchItem implements Switchable {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    protected void registerClickEvent(View view) {
-        GestureDetector gestureDetector = new GestureDetector(view.getContext(), new ClickGestureDetector(this));
+    void registerClickEvent(View view) {
+        GestureDetector gestureDetector = new GestureDetector(((Activity) presenter.getRouterListener()), new ClickGestureDetector(this));
         view.setOnTouchListener((v, event) -> {
             gestureDetector.onTouchEvent(event);
             return true;
@@ -76,14 +76,6 @@ public abstract class BaseSwitchItem implements Switchable {
     }
 
     protected abstract void showOptionDialog();
-
-    protected void doOnSwitch() {
-
-    }
-
-    protected boolean enableClearScreen() {
-        return false;
-    }
 
     private static class ClickGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
@@ -107,14 +99,8 @@ public abstract class BaseSwitchItem implements Switchable {
                 switchable.showOptionDialog();
             } else {
                 // clear screen
-                if (switchable.presenter.getRouterListener() instanceof Activity) {
-                    if (((Activity) switchable.presenter.getRouterListener()).getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        switchable.presenter.getRouterListener().switchClearScreen();
-                    }
-                } else {
-                    if (switchable.enableClearScreen()) {
-                        switchable.presenter.getRouterListener().switchClearScreen();
-                    }
+                if (((Activity) switchable.presenter.getRouterListener()).getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    switchable.presenter.getRouterListener().switchClearScreen();
                 }
             }
             return true;
@@ -133,7 +119,6 @@ public abstract class BaseSwitchItem implements Switchable {
 
             if (!switchable.isInFullScreen()) {
                 if (switchable instanceof Playable && ((Playable) switchable).isVideoStreaming()) {
-                    switchable.doOnSwitch();
                     switchable.presenter.getRouterListener().getFullScreenItem().switchBackToList();
                     switchable.switchToFullScreen();
                 }
