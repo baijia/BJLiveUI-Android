@@ -249,7 +249,7 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
                                     if (iMediaControlModel.isAudioOn()) {
                                         liveRoomRouterListener.getLiveRoom().getRecorder().attachAudio();
                                     } else if (!iMediaControlModel.isAudioOn()) {
-                                        if(liveRoomRouterListener.getLiveRoom().getRecorder().isVideoAttached())
+                                        if(liveRoomRouterListener.getLiveRoom().getRecorder().isAudioAttached())
                                         liveRoomRouterListener.getLiveRoom().getRecorder().detachAudio();
                                     }
                                     if (iMediaControlModel.isVideoOn() && !liveRoomRouterListener.getLiveRoom().getRecorder().isVideoAttached()) {
@@ -417,6 +417,10 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
                             liveRoomRouterListener.navigateToPPTDrawing(false);
                             isDrawing = !isDrawing;
                             view.showDrawingStatus(isDrawing);
+                        }
+                    } else {
+                        if (liveRoomRouterListener.getLiveRoom().getCurrentUser() != null && liveRoomRouterListener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant) {
+                            liveRoomRouterListener.disableSpeakerMode();
                         }
                     }
                     isGetDrawingAuth = false;

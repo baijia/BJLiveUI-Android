@@ -1,7 +1,6 @@
 package com.baijiayun.live.ui.activity;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.utils.JsonObjectUtil;
@@ -13,7 +12,6 @@ import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.utils.LPLogger;
-import com.baijiayun.livecore.utils.LPRxUtils;
 import com.baijiayun.livecore.wrapper.impl.LPCameraView;
 
 import java.util.Random;
@@ -112,26 +110,26 @@ public class GlobalPresenter implements BasePresenter {
                         }
                         if (iMediaModel.isVideoOn() && iMediaModel.isAudioOn()) {
                             if (!teacherVideoOn && !teacherAudioOn) {
-                                routerListener.showMessageTeacherOpenAV();
+                                routerListener.showMessageTeacherOpenAV(true, true, iMediaModel.getMediaSourceType());
                             } else if (!teacherAudioOn) {
-                                routerListener.showMessageTeacherOpenAudio();
+                                routerListener.showMessageTeacherOpenAV(false, true, iMediaModel.getMediaSourceType());
                             } else if(!teacherVideoOn){
-                                routerListener.showMessageTeacherOpenVideo();
+                                routerListener.showMessageTeacherOpenAV(true, false, iMediaModel.getMediaSourceType());
                             }
                         } else if (iMediaModel.isVideoOn()) {
                             if (teacherAudioOn && teacherVideoOn) {
-                                routerListener.showMessageTeacherCloseAudio();
+                                routerListener.showMessageTeacherCloseAV(true, false, iMediaModel.getMediaSourceType());
                             } else if (!teacherVideoOn) {
-                                routerListener.showMessageTeacherOpenVideo();
+                                routerListener.showMessageTeacherOpenAV(true, false, iMediaModel.getMediaSourceType());
                             }
                         } else if (iMediaModel.isAudioOn()) {
                             if (teacherAudioOn && teacherVideoOn) {
-                                routerListener.showMessageTeacherCloseVideo();
+                                routerListener.showMessageTeacherCloseAV(false, true, iMediaModel.getMediaSourceType());
                             } else if (!teacherAudioOn) {
-                                routerListener.showMessageTeacherOpenAudio();
+                                routerListener.showMessageTeacherOpenAV(false, true, iMediaModel.getMediaSourceType());
                             }
                         } else {
-                            routerListener.showMessageTeacherCloseAV();
+                            routerListener.showMessageTeacherCloseAV(false, false, iMediaModel.getMediaSourceType());
                         }
                         setTeacherMedia(iMediaModel);
                     });
@@ -283,12 +281,7 @@ public class GlobalPresenter implements BasePresenter {
         //红包
         mSubscriptionRedPacket = routerListener.getLiveRoom().getObservableOfRedPacket()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<LPRedPacketModel>() {
-                    @Override
-                    public void accept(LPRedPacketModel lpRedPacketModel) throws Exception {
-                        routerListener.switchRedPacketUI(true, lpRedPacketModel);
-                    }
-                });
+                .subscribe(lpRedPacketModel -> routerListener.switchRedPacketUI(true, lpRedPacketModel));
     }
 
     public void observeAnnouncementChange() {
@@ -301,10 +294,6 @@ public class GlobalPresenter implements BasePresenter {
                         routerListener.navigateToAnnouncement();
                     }
                 });
-    }
-
-    public void unObserveAnnouncementChange() {
-        LPRxUtils.dispose(subscriptionOfAnnouncement);
     }
 
     void setTeacherMedia(IMediaModel media) {

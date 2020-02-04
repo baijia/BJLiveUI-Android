@@ -2,11 +2,14 @@ package com.baijiayun.live.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.activity.LiveRoomActivity;
+import com.baijiayun.live.ui.activity.LiveRoomBaseActivity;
 import com.baijiayun.live.ui.utils.LPShareModel;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.imodels.IUserModel;
@@ -53,6 +56,7 @@ public class LiveSDKWithUI {
             listener.onError("code is empty");
             return;
         }
+        addDefaultLoginConflictCallback();
 
         Intent intent = new Intent(context, LiveRoomActivity.class);
         intent.putExtra("name", name);
@@ -80,6 +84,7 @@ public class LiveSDKWithUI {
             listener.onError("sign =" + sign);
             return;
         }
+        addDefaultLoginConflictCallback();
 
         Intent intent = new Intent(context, LiveRoomActivity.class);
         intent.putExtra("roomId", roomId);
@@ -88,43 +93,49 @@ public class LiveSDKWithUI {
         context.startActivity(intent);
     }
 
+    private static boolean isPad(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
     public interface LiveSDKEnterRoomListener {
         void onError(String msg);
     }
 
     public static void setRoomExitListener(LPRoomExitListener listener) {
-        LiveRoomActivity.setRoomExitListener(listener);
+        LiveRoomBaseActivity.setRoomExitListener(listener);
     }
 
     public static void setShareListener(LPShareListener listener) {
-        LiveRoomActivity.setShareListener(listener);
+        LiveRoomBaseActivity.setShareListener(listener);
     }
 
     public static void setEnterRoomConflictListener(RoomEnterConflictListener listener) {
-        LiveRoomActivity.setEnterRoomConflictListener(listener);
+        LiveRoomBaseActivity.setEnterRoomConflictListener(listener);
     }
 
     public static void setRoomLifeCycleListener(LPRoomResumeListener listener) {
-        LiveRoomActivity.setRoomLifeCycleListener(listener);
+        LiveRoomBaseActivity.setRoomLifeCycleListener(listener);
     }
 
     public static void setShouldShowTechSupport(boolean shouldShowTechSupport) {
-        LiveRoomActivity.setShouldShowTechSupport(shouldShowTechSupport);
+        LiveRoomBaseActivity.setShouldShowTechSupport(shouldShowTechSupport);
     }
 
     public static void disableSpeakQueuePlaceholder() {
-        LiveRoomActivity.disableSpeakQueuePlaceholder();
+        LiveRoomBaseActivity.disableSpeakQueuePlaceholder();
     }
 
     /**
      * 跑马灯字段
      */
-    public static void setLiveRoomMarqueeTape(String str){
-        LiveRoomActivity.setLiveRoomMarqueeTape(str);
+    public static void setLiveRoomMarqueeTape(String str) {
+        LiveRoomBaseActivity.setLiveRoomMarqueeTape(str);
     }
 
-    public static void setLiveRoomMarqueeTape(String str, int interval){
-        LiveRoomActivity.setLiveRoomMarqueeTape(str, interval);
+    public static void setLiveRoomMarqueeTape(String str, int interval) {
+        LiveRoomBaseActivity.setLiveRoomMarqueeTape(str, interval);
     }
 
     public interface LPRoomResumeListener {
@@ -222,5 +233,43 @@ public class LiveSDKWithUI {
         public Map<String, Object> getWebRTCInfo() {
             return null;
         }
+    }
+
+    /**
+     * 登录冲突默认弹框提示
+     */
+    private static void addDefaultLoginConflictCallback(){
+        LiveSDKWithUI.setEnterRoomConflictListener((context12, endType, callback) -> {
+            String message;
+            switch (endType) {
+                case iOS:
+                    message = "iOS";
+                    break;
+                case PC_H5:
+                    message = "PC网页";
+                    break;
+                case PC_HTML:
+                    message = "PC网页";
+                    break;
+                case PC_Client:
+                    message = "PC客户";
+                    break;
+                case PC_MAC_Client:
+                    message = "MAC客户";
+                    break;
+                case Android:
+                    message = "Android";
+                    break;
+                default:
+                    message = endType.name();
+                    break;
+            }
+            new MaterialDialog.Builder(context12)
+                    .content("您的账号已在" + message + "端登录")
+                    .positiveText(R.string.confirm)
+                    .canceledOnTouchOutside(false)
+                    .onPositive((dialog, which) -> callback.exit())
+                    .show();
+        });
     }
 }

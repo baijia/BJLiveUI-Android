@@ -7,7 +7,8 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+
+import com.baijiayun.glide.Glide;
 
 import io.reactivex.Observable;
 
@@ -44,7 +45,7 @@ public class QueryPlus extends Query {
 
     public QueryPlus image(Context context, String url) {
         if (view instanceof ImageView) {
-            Picasso.with(context).load(url).into((ImageView) view);
+            Glide.with(context).load(url).into((ImageView) view);
         }
         return this;
     }

@@ -39,8 +39,8 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.3'
 
-//    api project(':liveplayer-sdk-ui')
-    implementation 'com.baijiayun.live:liveplayer-sdk-ui:2.0.4'
+    api project(':liveplayer-sdk-ui')
+//    implementation 'com.baijiayun.live:liveplayer-sdk-ui:2.0.7'
 //    api 'com.baijiayun.live:liveplayer-sdk-core:2.1.1'
 
 }

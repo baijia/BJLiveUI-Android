@@ -25,7 +25,7 @@ public class RxUtils {
     @NonNull
     public static Observable<Integer> clicks(@NonNull View view) {
         checkNotNull(view, "view == null");
-        return Observable.create(new ViewClickOnSubscribe(view));
+        return Observable.create(new RxUtils.ViewClickOnSubscribe(view));
     }
 
     private static class ViewClickOnSubscribe implements ObservableOnSubscribe<Integer> {

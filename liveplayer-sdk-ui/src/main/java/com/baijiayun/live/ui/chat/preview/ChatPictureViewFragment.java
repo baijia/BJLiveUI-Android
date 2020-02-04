@@ -2,24 +2,25 @@ package com.baijiayun.live.ui.chat.preview;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.baijiayun.glide.Glide;
+import com.baijiayun.glide.request.target.SimpleTarget;
+import com.baijiayun.glide.request.transition.Transition;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.DisplayUtils;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
-
-import static com.squareup.picasso.MemoryPolicy.NO_CACHE;
-import static com.squareup.picasso.MemoryPolicy.NO_STORE;
 
 /**
  * Created by Shubo on 2017/3/23.
@@ -50,20 +51,21 @@ public class ChatPictureViewFragment extends BaseDialogFragment implements ChatP
     protected void init(Bundle savedInstanceState, Bundle arguments) {
         super.hideBackground().contentBackgroundColor(ContextCompat.getColor(getContext(), R.color.live_transparent));
         String url = arguments.getString("url");
-        imageView = (ImageView) contentView.findViewById(R.id.lp_dialog_big_picture_img);
-        tvLoading = (TextView) contentView.findViewById(R.id.lp_dialog_big_picture_loading_label);
-//        btnSave = (Button) view.findViewById(R.id.lp_dialog_big_picture_save);
-        Picasso.with(getContext())
+        imageView = contentView.findViewById(R.id.lp_dialog_big_picture_img);
+        tvLoading = contentView.findViewById(R.id.lp_dialog_big_picture_loading_label);
+
+        Glide.with(getContext())
                 .load(AliCloudImageUtil.getScaledUrl(url, AliCloudImageUtil.SCALED_MFIT, DisplayUtils.getScreenWidthPixels(getContext()), DisplayUtils.getScreenHeightPixels(getContext())))
-                .memoryPolicy(NO_CACHE, NO_STORE)
-                .into(imageView, new Callback() {
+                .into(new SimpleTarget<Drawable>() {
                     @Override
-                    public void onSuccess() {
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                         tvLoading.setVisibility(View.GONE);
+                        imageView.setImageDrawable(resource);
                     }
 
                     @Override
-                    public void onError() {
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
                         try {
                             if (getActivity() != null)
                                 tvLoading.setText(getString(R.string.live_image_loading_fail));
@@ -71,39 +73,17 @@ public class ChatPictureViewFragment extends BaseDialogFragment implements ChatP
                         }
                     }
                 });
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                if(btnSave.getVisibility() == View.VISIBLE){
-//                    btnSave.setVisibility(View.GONE);
-//                }else{
-                dismissAllowingStateLoss();
-//                }
-            }
+
+        imageView.setOnClickListener(v -> {
+            dismissAllowingStateLoss();
         });
-        imageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                byte[] src = convertBmpToByteArray();
-                if (src != null)
-                    presenter.showSaveDialog(src);
-                return true;
-            }
+        imageView.setOnLongClickListener(v -> {
+            byte[] src = convertBmpToByteArray();
+            if (src != null)
+                presenter.showSaveDialog(src);
+            return true;
         });
-//        btnSave.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                saveImageToGallery(getContext(), ((BitmapDrawable)imageView.getDrawable()).getBitmap());
-//                Toast.makeText(getContext(), "图片成功保存到本地", Toast.LENGTH_SHORT).show();
-//                btnSave.setVisibility(View.GONE);
-//            }
-//        });
-        contentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismissAllowingStateLoss();
-            }
-        });
+        contentView.setOnClickListener(v -> dismissAllowingStateLoss());
     }
 
     @Override

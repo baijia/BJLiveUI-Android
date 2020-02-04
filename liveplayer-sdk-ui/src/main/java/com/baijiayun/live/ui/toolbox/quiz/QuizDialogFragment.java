@@ -75,7 +75,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_quiz;
+        return R.layout.bjy_fragment_quiz;
     }
 
     @Override

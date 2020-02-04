@@ -116,7 +116,6 @@
     <string name="live_teacher_not_in">老师未在教室</string>
     <string name="live_teacher_in">已有老师</string>
     <string name="live_chat_filtered">已开启只看老师/助教</string>
-    <string name="live_chat_filter">只看老师/助教</string>
     <string name="live_login_conflict_tip">继续进入将导致该老师强制下线</string>
     <string name="live_enter_room">进入教室</string>
     <string name="live_i_know">我知道了</string>
@@ -134,8 +133,11 @@
     <string name="live_cloud_record_setting">录课设置</string>
     <string name="live_cloud_record_setting_end">结束录课</string>
     <string name="live_cloud_record_setting_content">直播正在录制中</string>
+    <string name="live_cloud_recording_content">正在录课中</string>
+    <string name="live_cloud_record_start">开始录课</string>
     <string name="live_exit_hint_title">提示</string>
-    <string name="live_exit_hint_confirm">确定退出</string>
+    <string name="live_exit_hint_confirm">退出</string>
+    <string name="live_exit_hint_end_class_and_exit">下课并退出</string>
     <string name="live_exit_hint_content">确定要退出直播教室吗？</string>
     <string name="live_audio_room_error">音频课不能开启摄像头</string>
     <string name="live_sweet_hint">温馨提示</string>
@@ -181,7 +183,7 @@
     <string name="live_network_tips_level_1">网络较差</string>
     <string name="live_network_tips_level_2">网络差</string>
     <string name="live_network_tips_level_3">网络极差</string>
-    
+
     <string name="string_complete">完成</string>
     <string name="string_board_title">白板</string>
     <string name="string_board_del_info">确认删除?</string>
@@ -227,6 +229,12 @@
 
     <string name="string_live_uisdk_forbid_group_true">本组已全体禁言</string>
     <string name="string_live_uisdk_forbid_group_false">本组已取消全体禁言</string>
+
+    <string name="live_chat_copy">复制</string>
+    <string name="live_chat_translate">翻译</string>
+    <string name="live_chat_filter">只看老师/助教</string>
+    <string name="live_chat_recall">撤回</string>
+    <string name="live_chat_delete">删除</string>
     <string name="timer_start">开始</string>
     <string name="timer_error_tip">请先设置%1$s时间</string>
     <string name="timer_restart">重新开始</string>
@@ -236,5 +244,32 @@
     <string name="timer_countup">正计时</string>
     <string name="timer_pause_tip">计时器(已暂停)</string>
     <string name="timer">计时器</string>
+    <string name="title_activity_live_room_pad">LiveRoomPadActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="handsup_user_list">举手列表（%1$s）</string>
+    <string name="seat_full">坐席已满</string>
+    <string name="pad_camera_closed">已关闭摄像头</string>
+    <string name="pad_leave_room">已离开教室</string>
+    <string name="pad_class_start_tip">请先点击开始上课按钮</string>
+    <string name="pad_class_answer_time_out">答题时间已到</string>
+    <string name="pad_class_set_presenter">%1$s成为主讲</string>
+    <string name="pad_class_you">你</string>
+    <string name="user">用户</string>
+    <string name="chat">聊天</string>
+    <string name="pad_class_net_desc_default">0.00%</string>
+    <string name="qa_to_answer">待回复</string>
+    <string name="qa_to_publish">待发布</string>
+    <string name="qa_published">已发布</string>
+    <string name="qa_replay">回复</string>
+    <string name="qa_publish">发布</string>
+    <string name="qa_copy_question">复制提问</string>
+    <string name="qa_append_apply">追加回复</string>
+    <string name="qa_edit">重新编辑</string>
+    <string name="qa_cancel_publish">取消发布</string>
+    <string name="qa_input_question">请输入提问内容</string>
+    <string name="qa_input_answer">请输入回复</string>
+    <string name="pad_no_history_msg">无更多历史消息</string>
+    <string name="confirm">确认</string>
 </resources>
 

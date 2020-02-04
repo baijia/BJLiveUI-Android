@@ -11,12 +11,11 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
-import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.livecore.models.imodels.IExpressionModel;
-import com.squareup.picasso.Picasso;
 
 import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
 
@@ -35,7 +34,6 @@ public class EmojiFragment extends BaseFragment implements EmojiContract.View {
     private int rouCount = 4;
 
     public static EmojiFragment newInstance() {
-
         Bundle args = new Bundle();
         EmojiFragment fragment = new EmojiFragment();
         fragment.setArguments(args);
@@ -47,9 +45,7 @@ public class EmojiFragment extends BaseFragment implements EmojiContract.View {
         super.init(savedInstanceState);
         gridPadding = DisplayUtils.dip2px(getContext(), 10);
         adjustItemCount();
-        presenter = new EmojiPresenter(this);
-        presenter.setRouter((LiveRoomRouterListener) getActivity());
-        setPresenter(presenter);
+
         viewPager = (ViewPager) $.id(R.id.fragment_emoji_container_viewpager).view();
         pagerAdapter = new EmojiPagerAdapter();
         viewPager.setAdapter(pagerAdapter);
@@ -80,7 +76,7 @@ public class EmojiFragment extends BaseFragment implements EmojiContract.View {
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_emoji;
+        return R.layout.bjy_fragment_emoji;
     }
 
     public void setCallBack(EmojiSelectCallBack callBack) {
@@ -90,6 +86,7 @@ public class EmojiFragment extends BaseFragment implements EmojiContract.View {
     @Override
     public void setPresenter(EmojiContract.Presenter presenter) {
         super.setBasePresenter(presenter);
+        this.presenter = presenter;
     }
 
     @Override
@@ -183,25 +180,22 @@ public class EmojiFragment extends BaseFragment implements EmojiContract.View {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, android.view.View convertView, ViewGroup parent) {
             ViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                convertView = inflater.inflate(R.layout.item_emoji, parent, false);
+                convertView = inflater.inflate(R.layout.bjy_item_emoji, parent, false);
                 holder = new ViewHolder();
-                holder.imageView = (ImageView) convertView.findViewById(R.id.item_emoji_iv);
+                holder.imageView = convertView.findViewById(R.id.item_emoji_iv);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
             final IExpressionModel expressionModel = getItem(position);
-            Picasso.with(getContext()).load(expressionModel.getUrl()).into(holder.imageView);
-            holder.imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (callBack != null)
-                        callBack.onEmojiSelected(expressionModel);
-                }
+            Glide.with(getContext()).load(expressionModel.getUrl()).into(holder.imageView);
+            holder.imageView.setOnClickListener(v -> {
+                if (callBack != null)
+                    callBack.onEmojiSelected(expressionModel);
             });
             return convertView;
         }

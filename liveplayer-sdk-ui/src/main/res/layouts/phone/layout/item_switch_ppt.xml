@@ -13,7 +13,9 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"
-        android:background="@drawable/btn_dialog_disagree">
+        android:padding="1dp"
+        android:clickable="true"
+        android:background="@drawable/item_bg_quick_switch_ppt">
 
         <View
             android:background="#fff7f7f8"
@@ -40,7 +42,6 @@
             android:textSize="9sp"
             android:gravity="center"
             android:background="@color/live_transparent_opacity_02"/>
-
 
     </RelativeLayout>
 

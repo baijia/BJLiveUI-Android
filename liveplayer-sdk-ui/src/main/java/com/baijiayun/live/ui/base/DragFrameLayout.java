@@ -2,14 +2,17 @@ package com.baijiayun.live.ui.base;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import com.baijiayun.live.ui.R;
 import com.baijiayun.livecore.utils.DisplayUtils;
 
 
@@ -17,7 +20,7 @@ import com.baijiayun.livecore.utils.DisplayUtils;
  * Created by yangjingming on 2018/6/7.
  */
 
-public class DragFragment extends FrameLayout{
+public class DragFrameLayout extends FrameLayout{
     private int lastX = 0;
     private int lastY = 0;
     private int x1 = 0;
@@ -31,10 +34,21 @@ public class DragFragment extends FrameLayout{
     RelativeLayout.LayoutParams lpFeedback = new RelativeLayout.LayoutParams(
             DisplayUtils.dip2px(getContext(), 224), ViewGroup.LayoutParams.WRAP_CONTENT);
 
-    public DragFragment(Context context, AttributeSet attrs) {
+    public DragFrameLayout(Context context){
+        this(context, null);
+    }
+
+    public DragFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         initScreenParam(context);
         this.context = context;
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.DragFrameLayout);
+        lpFeedback.width = ta.getDimensionPixelSize(R.styleable.DragFrameLayout_width, DisplayUtils.dip2px(context,224));
+        ta.recycle();
+    }
+
+    public void setWidth(int width) {
+        lpFeedback.width = DisplayUtils.dip2px(context, width);
     }
 
     private void initScreenParam(Context context) {

@@ -47,7 +47,7 @@ public class AwardView extends FrameLayout {
 
     public AwardView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        LayoutInflater.from(context).inflate(R.layout.layout_award, this);
+        LayoutInflater.from(context).inflate(R.layout.bjy_layout_award, this);
         starIv = findViewById(R.id.award_start_iv);
         goldenShineIv = findViewById(R.id.golden_light_iv);
         medalIv = findViewById(R.id.award_medal_iv);

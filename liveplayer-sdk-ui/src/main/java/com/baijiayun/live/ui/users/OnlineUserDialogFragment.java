@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,20 +16,13 @@ import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.users.group.GroupExtendableListViewAdapter;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPGroupItem;
 import com.baijiayun.livecore.models.imodels.IUserModel;
-import com.baijiayun.livecore.models.roomresponse.LPResRoomGroupInfoModel;
 import com.baijiayun.livecore.utils.DisplayUtils;
-import com.baijiayun.livecore.utils.LPLogger;
-import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Shubo on 2017/4/5.
@@ -74,7 +66,7 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_online_users;
+        return R.layout.bjy_dialog_online_users;
     }
 
     @Override
@@ -150,11 +142,11 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
 
         OnlineUserViewHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.item_online_user_name);
-            avatar = (ImageView) itemView.findViewById(R.id.item_online_user_avatar);
-            teacherTag = (TextView) itemView.findViewById(R.id.item_online_user_teacher_tag);
-            assistantTag = (TextView) itemView.findViewById(R.id.item_online_user_assist_tag);
-            presenterTag = (TextView) itemView.findViewById(R.id.item_online_user_presenter_tag);
+            name = itemView.findViewById(R.id.item_online_user_name);
+            avatar = itemView.findViewById(R.id.item_online_user_avatar);
+            teacherTag = itemView.findViewById(R.id.item_online_user_teacher_tag);
+            assistantTag = itemView.findViewById(R.id.item_online_user_assist_tag);
+            presenterTag = itemView.findViewById(R.id.item_online_user_presenter_tag);
         }
     }
 
@@ -177,7 +169,6 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
                     lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
 
                     if (!presenter.isLoading() && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-
                         if (presenter.isGroup()) {
                             presenter.loadMore(0);
                         } else {
@@ -236,12 +227,6 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
                     Glide.with(getContext())
                         .load(avatar)
                         .into(userViewHolder.avatar);
-
-//                    Picasso.with(getContext())
-//                            .load(AliCloudImageUtil.getRoundedAvatarUrl(avatar, 64))
-//                            .centerInside()
-//                            .resize(32, 32)
-//                            .into(userViewHolder.avatar);
             } else if (holder instanceof LoadingViewHolder) {
                 LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
                 loadingViewHolder.progressBar.setIndeterminate(true);
@@ -266,10 +251,8 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
     @Override
     public void showGroupView(boolean isShow) {
         if (isShow) {
-//            mElvOnlineGroup.setVisibility(View.VISIBLE);
             mTvOnlineGroupTitle.setVisibility(View.VISIBLE);
         } else {
-//            mElvOnlineGroup.setVisibility(View.GONE);
             mTvOnlineGroupTitle.setVisibility(View.GONE);
         }
     }

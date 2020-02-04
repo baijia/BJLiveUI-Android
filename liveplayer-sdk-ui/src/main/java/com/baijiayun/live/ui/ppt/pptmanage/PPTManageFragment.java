@@ -14,12 +14,12 @@ import android.widget.TextView;
 import com.baijiahulian.common.cropperv2.BJCommonImageCropHelper;
 import com.baijiahulian.common.cropperv2.ThemeConfig;
 import com.baijiahulian.common.cropperv2.model.PhotoInfo;
+import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.live.ui.utils.QueryPlus;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -257,18 +257,18 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
                 int res = getDrawableResByFileExt(presenter.getItem(position).getFileExt());
                 if (res == 0) { // pic
                     String url = AliCloudImageUtil.getScaledUrl(((DocumentModel) presenter.getItem(position)).pageInfoModel.url, AliCloudImageUtil.SCALED_FILL, 50, 50);
-                    Picasso.with(getContext()).load(url).into(docViewHolder.ivIcon);
+                    Glide.with(getContext()).load(url).into(docViewHolder.ivIcon);
                 } else {
-                    Picasso.with(getContext()).load(res).into(docViewHolder.ivIcon);
+                    Glide.with(getContext()).load(res).into(docViewHolder.ivIcon);
                 }
             } else if (holder instanceof UploadingViewHolder) {
                 UploadingViewHolder viewHolder = (UploadingViewHolder) holder;
                 viewHolder.tvTitle.setText(presenter.getItem(position).getFileName());
                 int res = getDrawableResByFileExt(presenter.getItem(position).getFileExt());
                 if (res == 0) {
-                    Picasso.with(getContext()).load(R.drawable.live_ic_file_jpg).into(viewHolder.ivIcon);
+                    Glide.with(getContext()).load(R.drawable.live_ic_file_jpg).into(viewHolder.ivIcon);
                 } else {
-                    Picasso.with(getContext()).load(res).into(viewHolder.ivIcon);
+                    Glide.with(getContext()).load(res).into(viewHolder.ivIcon);
                 }
                 if (presenter.getItem(position).getStatus() == DocumentUploadingModel.UPLOADING) {
                     viewHolder.tvStatus.setText(getString(R.string.live_uploading));

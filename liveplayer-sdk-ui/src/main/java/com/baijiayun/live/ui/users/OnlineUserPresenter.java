@@ -42,35 +42,25 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
                 .getOnlineUserVM()
                 .getObservableOfOnLineUserCount()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer integer) {
-                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
-                    }
-                });
+                .subscribe(integer -> view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount()));
+
         subscriptionOfUserDataChange = routerListener.getLiveRoom()
                 .getOnlineUserVM()
                 .getObservableOfOnlineUser()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<IUserModel>>() {
-                    @Override
-                    public void accept(List<IUserModel> iUserModels) {
-                        // iUserModels == null   no more data
-                        if (isLoading)
-                            isLoading = false;
-                        view.notifyDataChanged();
-                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
-                    }
+                .subscribe(iUserModels -> {
+                    // iUserModels == null   no more data
+                    if (isLoading)
+                        isLoading = false;
+                    view.notifyDataChanged();
+                    view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
                 });
 
         mSubscriptionGroupInfo = routerListener.getLiveRoom().getOnlineUserVM().getObservableOfOnGroupItem()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<LPGroupItem>>() {
-                    @Override
-                    public void accept(List<LPGroupItem> lpGroupItems) throws Exception {
-                        view.notifyGroupData(lpGroupItems);
-                        view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
-                    }
+                .subscribe(lpGroupItems -> {
+                    view.notifyGroupData(lpGroupItems);
+                    view.notifyUserCountChange(routerListener.getLiveRoom().getOnlineUserVM().getAllCount());
                 });
 
         routerListener.getLiveRoom().getOnlineUserVM().requestGroupInfoReq();
@@ -126,6 +116,7 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
     public void loadMore(int groupId) {
         isLoading = true;
         routerListener.getLiveRoom().getOnlineUserVM().loadMoreUser(groupId);
+        view.notifyDataChanged();
     }
 
     @Override
@@ -135,9 +126,7 @@ public class OnlineUserPresenter implements OnlineUserContract.Presenter {
 
     @Override
     public boolean isGroup() {
-        if (routerListener.getLiveRoom().getOnlineUserVM().enableGroupUserPublic())
-            return true;
-        return false;
+        return routerListener.getLiveRoom().getOnlineUserVM().enableGroupUserPublic();
     }
 
     @Override

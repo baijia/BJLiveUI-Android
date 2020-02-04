@@ -3,13 +3,15 @@
     package="com.baijiayun.live.ui">
 
     <application>
+
         <activity
-            android:name="com.baijiayun.live.ui.activity.LiveRoomActivity"
+            android:name=".activity.LiveRoomActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
-            android:launchMode="singleTop"
             android:hardwareAccelerated="false"
+            android:launchMode="singleTop"
             android:theme="@style/LiveAppTheme"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            />
     </application>
 
 </manifest>

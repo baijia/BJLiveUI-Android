@@ -8,7 +8,7 @@ import com.baijiayun.livecore.context.LPConstants;
  * Created by Shubo on 2017/2/15.
  */
 
-interface RightBottomMenuContract {
+public interface RightBottomMenuContract {
     interface View extends BaseView<Presenter> {
         void showVideoStatus(boolean isOn);
 

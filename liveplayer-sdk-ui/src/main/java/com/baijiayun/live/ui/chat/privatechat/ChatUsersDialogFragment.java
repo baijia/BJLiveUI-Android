@@ -18,11 +18,9 @@ import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BaseFragment;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.imodels.IUserModel;
-import com.squareup.picasso.Picasso;
 
 /**
  * Created by yangjingming on 2018/1/16.

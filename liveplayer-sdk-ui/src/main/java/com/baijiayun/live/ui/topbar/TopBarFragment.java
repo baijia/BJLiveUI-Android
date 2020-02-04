@@ -21,7 +21,7 @@ public class TopBarFragment extends BaseFragment implements TopBarContract.View 
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_topbar;
+        return R.layout.bjy_fragment_topbar;
     }
 
     @Override
