@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.LinearLayout;
 
 import com.baijiayun.live.ui.R;
@@ -178,6 +180,12 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
         for (ItemPositionHelper.ItemAction action : actions) {
             switch (action.action) {
                 case ADD:
+                    if (action.speakItem.getView() != null) {
+                        final ViewParent parent = action.speakItem.getView().getParent();
+                        if (parent != null) {
+                            ((ViewGroup) parent).removeView(action.speakItem.getView());
+                        }
+                    }
                     container.addView(action.speakItem.getView(), action.value);
                     break;
                 case REMOVE:

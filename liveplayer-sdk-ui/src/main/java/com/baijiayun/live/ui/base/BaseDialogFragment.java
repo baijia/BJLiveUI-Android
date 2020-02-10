@@ -65,15 +65,16 @@ public abstract class BaseDialogFragment extends DialogFragment {
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dialog.getWindow().getDecorView().setSystemUiVisibility(getActivity().getWindow().getDecorView().getSystemUiVisibility());
         // 处理dialog沉浸式状态栏
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
+        dialog.setOnShowListener(dialog1 -> {
+            try{
                 //Clear the not focusable flag from the window
-                if (getDialog() == null) return;
+                if (getDialog() == null || getActivity() == null || getActivity().isDestroyed()) return;
                 getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
                 //Update the WindowManager with the new attributes (no nicer way I know of to do this)..
                 WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
                 wm.updateViewLayout(getDialog().getWindow().getDecorView(), getDialog().getWindow().getAttributes());
+            }catch (Exception ignore){
+
             }
         });
         return dialog;
@@ -228,6 +229,9 @@ public abstract class BaseDialogFragment extends DialogFragment {
     }
 
     protected void showToast(String msg) {
+        if(getActivity() == null || getActivity().isDestroyed()){
+           return;
+        }
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 

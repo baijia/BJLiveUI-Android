@@ -57,6 +57,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
     private boolean isUrlLoaded;
     private boolean isLoadFailed = false; //url load失败了也会调到onPageFinished
     private boolean isDestroyed = false;
+    private WebView mWebView;
 
 //    private static final String str = "(function() {\n" +
 //            "    var bjlapp = this.bjlapp = this.bjlapp || {};\n" +
@@ -129,7 +130,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
 
     @SuppressLint("SetJavaScriptEnabled")
     private void initWebClient() {
-        WebView mWebView = ((WebView) $.id(R.id.wv_quiz_main).view());
+        mWebView = ((WebView) $.id(R.id.wv_quiz_main).view());
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.addJavascriptInterface(this, windowName);
         mWebView.setVerticalScrollBarEnabled(false);
@@ -196,7 +197,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
                 // code -11 net::ERR_BAD_SSL_CLIENT_AUTH_CERT 忽略https证书问题
                 if(error.getErrorCode() != -11) {
                     $.id(R.id.pb_web_view_quiz).gone();
-                    setCloseBtnStatus(false);
+                    setCloseBtnStatus(forceJoin);
                     isLoadFailed = true;
                 }
             }
@@ -206,7 +207,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
                 super.onReceivedError(view, errorCode, description, failingUrl);
                 if(errorCode != -11){
                     $.id(R.id.pb_web_view_quiz).gone();
-                    setCloseBtnStatus(false);
+                    setCloseBtnStatus(forceJoin);
                     isLoadFailed = true;
                 }
             }
@@ -340,6 +341,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
 
     @Override
     public void onDestroy() {
+        mWebView.destroy();
         super.onDestroy();
         isDestroyed = true;
         presenter = null;

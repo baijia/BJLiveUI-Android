@@ -62,6 +62,9 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected void showToast(String msg) {
+        if(getActivity() == null || getActivity().isDestroyed()){
+            return;
+        }
         Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();

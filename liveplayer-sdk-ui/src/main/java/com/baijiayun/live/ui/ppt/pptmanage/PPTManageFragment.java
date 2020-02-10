@@ -17,9 +17,9 @@ import com.baijiahulian.common.cropperv2.model.PhotoInfo;
 import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.live.ui.utils.QueryPlus;
+import com.baijiayun.livecore.ppt.util.AliCloudImageUtil;
 
 import java.util.ArrayList;
 import java.util.List;

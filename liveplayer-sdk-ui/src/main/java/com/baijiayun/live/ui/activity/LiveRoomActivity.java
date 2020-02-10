@@ -556,10 +556,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     break;
                 case LPError.CODE_ERROR_LOGIN_CONFLICT:
                     break;
-                case LPError.CODE_ERROR_OPEN_AUDIO_RECORD_FAILED:
-                    if (!TextUtils.isEmpty(error.getMessage()))
-                        showMessage(error.getMessage());
-                    break;
+
                 case LPError.CODE_ERROR_OPEN_AUDIO_CAMERA_FAILED:
                     if (!TextUtils.isEmpty(error.getMessage()))
                         showMessage(error.getMessage());
@@ -568,6 +565,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 case LPError.CODE_WARNING_PLAYER_LAG:
                 case LPError.CODE_WARNING_PLAYER_MEDIA_SUBSCRIBE_TIME_OUT:
                     break;
+                case LPError.CODE_ERROR_OPEN_AUDIO_RECORD_FAILED:
                 default:
                     if (!TextUtils.isEmpty(error.getMessage()))
                         showMessage(error.getMessage());

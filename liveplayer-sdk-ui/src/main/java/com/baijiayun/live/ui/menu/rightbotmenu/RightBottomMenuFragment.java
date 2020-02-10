@@ -138,6 +138,10 @@ public class RightBottomMenuFragment extends BaseFragment implements RightBottom
 
     @Override
     public void clearScreen() {
+        //fix npe bugly #81021
+        if($ == null){
+            return;
+        }
         if ($.id(R.id.fragment_right_bottom_video).view().getVisibility() == View.VISIBLE)
             $.id(R.id.fragment_right_bottom_video).invisible();
         if ($.id(R.id.fragment_right_bottom_audio).view().getVisibility() == View.VISIBLE)

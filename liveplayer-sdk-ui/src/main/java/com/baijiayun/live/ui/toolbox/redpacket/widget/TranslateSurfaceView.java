@@ -28,7 +28,7 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
 
     private final int MAX_RED_PACKET_NUMBER = 12;//红包最多个数
     private final int OPEN_SHOW_TIME = 500;//点开显示时间
-    private final int OPEN_CALLBACK_TIME= 1000;//打开红包有效时间间隔
+    private final int OPEN_CALLBACK_TIME = 1000;//打开红包有效时间间隔
     private final int COUNT_OPEN_BITMAP = 14;//打开效果图序列
     private final int OPEN_SHOW_OPEN_TIME = 50;//打开序列单个显示时间
 
@@ -44,7 +44,7 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
     private int height;
 
     private Bitmap bitmap;
-    private Bitmap []bitmapOpen;
+    private Bitmap[] bitmapOpen;
 
     private int bitmapWidth;
     private int bitmapHeight;
@@ -175,13 +175,9 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
         for (MoveModel moveModel : moveList) {
-
             if (moveModel.isOpen) {
-
                 long time = System.currentTimeMillis();
-                if (moveModel.openTime  == 0 ||
-                        (time - moveModel.openTime) < OPEN_SHOW_TIME
-                ) {
+                if (moveModel.openTime == 0 || (time - moveModel.openTime) < OPEN_SHOW_TIME) {
                     //首次渲染打开效果
                     moveModel.openTime = moveModel.openTime == 0 ? time : moveModel.openTime;
 
@@ -191,6 +187,9 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
                     int index = (int) ((time - moveModel.openTime) / OPEN_SHOW_OPEN_TIME);
                     if (index > COUNT_OPEN_BITMAP - 1)
                         index = COUNT_OPEN_BITMAP - 1;
+                    if(index <0 || index >= bitmapOpen.length){
+                        continue;
+                    }
 
                     RectF rectf = new RectF();
                     rectf.left = x;
@@ -246,6 +245,7 @@ public class TranslateSurfaceView extends SurfaceView implements DrawInterface {
 
     /**
      * 是否点击在红包区域
+     *
      * @param x
      * @param y
      */

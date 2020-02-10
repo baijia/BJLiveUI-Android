@@ -43,20 +43,19 @@ import android.widget.Toast;
 import com.baijiayun.glide.Glide;
 import com.baijiayun.glide.request.RequestOptions;
 import com.baijiayun.glide.request.target.SimpleTarget;
-import com.baijiayun.glide.request.target.Target;
 import com.baijiayun.glide.request.transition.Transition;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.live.ui.chat.utils.CenterImageSpan;
 import com.baijiayun.live.ui.chat.utils.URLImageParser;
 import com.baijiayun.live.ui.chat.widget.ChatMessageView;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.ChatImageUtil;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.imodels.IMessageModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.ppt.util.AliCloudImageUtil;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -445,8 +444,6 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
                             .apply(requestOptions)
                             .into(target);
 
-                    // set tag to avoid target being garbage collected!
-                    //imageViewHolder.ivImg.setTag(target);
                     GestureDetectorCompat gestureDetectorCompat = new GestureDetectorCompat(getContext(), new PressListener(message, holder, true));
                     imageViewHolder.ivImg.setOnTouchListener((v, event) -> {
                         gestureDetectorCompat.onTouchEvent(event);

@@ -17,8 +17,8 @@ import com.baijiayun.glide.request.target.SimpleTarget;
 import com.baijiayun.glide.request.transition.Transition;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
-import com.baijiayun.live.ui.utils.AliCloudImageUtil;
 import com.baijiayun.live.ui.utils.DisplayUtils;
+import com.baijiayun.livecore.ppt.util.AliCloudImageUtil;
 
 import java.io.ByteArrayOutputStream;
 
