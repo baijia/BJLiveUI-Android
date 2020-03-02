@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.base.*
 import com.baijiayun.live.ui.databinding.FragmentHandsupListBinding
-import com.baijiayun.live.ui.databinding.ItemHandsupBinding
+import com.baijiayun.live.ui.databinding.BjyPadItemHandsupBinding
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
 import kotlinx.android.synthetic.main.fragment_handsup_list.*
 
@@ -63,7 +63,7 @@ class HandsUpListFragment : BaseDialogFragment() {
 
     inner class HandsUpAdapter : RecyclerView.Adapter<ViewHolder>() {
         override fun onCreateViewHolder(container: ViewGroup, position: Int): ViewHolder {
-            val dataBinding: ItemHandsupBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.bjy_pad_item_handsup, container, false)
+            val dataBinding: BjyPadItemHandsupBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.bjy_pad_item_handsup, container, false)
             return ViewHolder(dataBinding, dataBinding.root)
         }
 
@@ -81,6 +81,6 @@ class HandsUpListFragment : BaseDialogFragment() {
 
     }
 
-    class ViewHolder(val dataBinding: ItemHandsupBinding, itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(val dataBinding: BjyPadItemHandsupBinding, itemView: View) : RecyclerView.ViewHolder(itemView)
 
 }

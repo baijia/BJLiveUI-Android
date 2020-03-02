@@ -13,7 +13,7 @@ import android.widget.TextView
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
-import com.baijiayun.live.ui.databinding.LayoutItemOnlineUserBinding
+import com.baijiayun.live.ui.databinding.BjyPadLayoutItemOnlineUserBinding
 import com.baijiayun.live.ui.users.group.GroupExtendableListViewAdapter
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
 import com.baijiayun.livecore.context.LPConstants
@@ -150,7 +150,7 @@ class OnlineUserFragment : BasePadFragment() {
                 val itemView = LayoutInflater.from(context).inflate(R.layout.bjy_item_online_user_loadmore, viewGroup, false)
                 LoadingViewHolder(itemView)
             } else {
-                val dataBinding: LayoutItemOnlineUserBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.bjy_pad_layout_item_online_user, viewGroup, false)
+                val dataBinding: BjyPadLayoutItemOnlineUserBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.bjy_pad_layout_item_online_user, viewGroup, false)
                 OnlineUserViewHolder(dataBinding, dataBinding.root)
             }
         }
@@ -208,7 +208,7 @@ class OnlineUserFragment : BasePadFragment() {
         var progressBar: ProgressBar = itemView.findViewById(R.id.item_online_user_progress)
     }
 
-    class OnlineUserViewHolder(val dataBinding: LayoutItemOnlineUserBinding, itemView: View) : RecyclerView.ViewHolder(itemView){
+    class OnlineUserViewHolder(val dataBinding: BjyPadLayoutItemOnlineUserBinding, itemView: View) : RecyclerView.ViewHolder(itemView){
         val roleTextView: TextView = itemView.findViewById(R.id.item_online_user_role)
     }
 }
