@@ -109,7 +109,7 @@ public class TimerPresenter implements TimerContract.Presenter {
     private void startTimer() {
         view.showTimerPause(isPause);
         LPRxUtils.dispose(timeDisposable);
-        timeDisposable = Observable.interval(0, 1, TimeUnit.SECONDS, Schedulers.newThread())
+        timeDisposable = Observable.interval(0, 1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
                     if (isPause || view == null) {
                         return;

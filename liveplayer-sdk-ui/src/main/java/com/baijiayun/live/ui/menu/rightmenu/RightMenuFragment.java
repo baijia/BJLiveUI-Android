@@ -6,16 +6,11 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
-import com.baijiayun.live.ui.toolbox.timer.TimerFragment;
-import com.baijiayun.live.ui.toolbox.timer.TimerPresenter;
 import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.live.ui.viewsupport.CountdownCircleView;
 
@@ -86,7 +81,7 @@ public class RightMenuFragment extends BaseFragment implements RightMenuContract
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_right_menu;
+        return R.layout.bjy_fragment_right_menu;
     }
 
     @Override

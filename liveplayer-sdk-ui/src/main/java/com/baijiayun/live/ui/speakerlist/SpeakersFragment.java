@@ -23,11 +23,14 @@ import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView;
 import com.baijiayun.livecore.context.LPConstants;
+import com.baijiayun.livecore.models.LPAwardUserInfo;
 import com.baijiayun.livecore.models.LPInteractionAwardModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
+import com.baijiayun.livecore.utils.CommonUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Shubo on 2019-07-25.
@@ -186,7 +189,10 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
                             ((ViewGroup) parent).removeView(action.speakItem.getView());
                         }
                     }
-                    container.addView(action.speakItem.getView(), action.value);
+                    //fix java.lang.IndexOutOfBoundsException: index=2 count=1
+                    if(action.value <= container.getChildCount()){
+                        container.addView(action.speakItem.getView(), action.value);
+                    }
                     break;
                 case REMOVE:
                     container.removeView(action.speakItem.getView());
@@ -253,21 +259,23 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
 
     @Override
     public void notifyAward(LPInteractionAwardModel awardModel) {
-        if (awardModel.isFromCache && awardModel.value.record != null) {
-            for (Map.Entry<String, Integer> entry : awardModel.value.record.entrySet()) {
+        if (awardModel.isFromCache && awardModel.value.getRecordAward() != null) {
+            for (Map.Entry<String, LPAwardUserInfo> entry : awardModel.value.getRecordAward().entrySet()) {
                 Playable playable = positionHelper.getPlayableItemByUserNumber(entry.getKey());
                 if (playable == null) continue;
-                playable.notifyAwardChange(entry.getValue());
+                playable.notifyAwardChange(entry.getValue().count);
             }
         } else {
             Playable playable = positionHelper.getPlayableItemByUserNumber(awardModel.value.to);
+            //关闭摄像头，老师点赞本地依然需要显示
             if (playable == null) {
                 presenter.localShowAwardAnimation(awardModel.value.to);
                 return;
             }
-            //noinspection ConstantConditions
-            playable.notifyAwardChange(awardModel.value.record.get(awardModel.value.to));
-            routerListener.showAwardAnimation(playable.getUser().getName());
+            if(awardModel.value.getRecordAward().get(awardModel.value.to) != null){
+                playable.notifyAwardChange(awardModel.value.getRecordAward().get(awardModel.value.to).count);
+                routerListener.showAwardAnimation(CommonUtils.getEncodePhoneNumber(playable.getUser().getName()));
+            }
         }
     }
 
@@ -295,11 +303,14 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
     }
 
     private SpeakItem createRemotePlayableItem(IMediaModel iMediaModel) {
-        return new RemoteItem(container, iMediaModel, presenter);
+        RemoteItem remoteItem = new RemoteItem(container, iMediaModel, presenter);
+        remoteItem.notifyAwardChange(presenter.getAwardCount(iMediaModel.getUser().getNumber()));
+        return remoteItem;
     }
 
     private SpeakItem createLocalPlayableItem() {
         LocalItem localItem = new LocalItem(container, presenter);
+        localItem.notifyAwardChange(presenter.getAwardCount(routerListener.getLiveRoom().getCurrentUser().getNumber()));
         getLifecycle().addObserver(localItem);
         return localItem;
     }

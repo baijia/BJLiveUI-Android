@@ -24,11 +24,10 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.chat.emoji.EmojiFragment;
 import com.baijiayun.live.ui.chat.emoji.EmojiPresenter;
-import com.baijiayun.live.ui.chat.emoji.EmojiSelectCallBack;
 import com.baijiayun.live.ui.chat.privatechat.ChatUsersDialogFragment;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.models.LPExpressionModel;
-import com.baijiayun.livecore.models.imodels.IExpressionModel;
+import com.baijiayun.livecore.utils.CommonUtils;
 
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
 
     @Override
     public int getLayoutId() {
-        return R.layout.dialog_message_send;
+        return R.layout.bjy_dialog_message_send;
     }
 
     @Override
@@ -171,7 +170,8 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
             dismissAllowingStateLoss();
             return;
         }
-        final LPExpressionModel singleEmoji = getSingleEmoji((EditText) $.id(R.id.dialog_message_send_et).view());
+        final EditText editText = (EditText) $.id(R.id.dialog_message_send_et).view();
+        final LPExpressionModel singleEmoji = presenter.getSingleEmoji(editText.getText().toString().trim());
         if (singleEmoji != null) {
             if (presenter.isPrivateChat()) {
                 presenter.sendEmojiToUser("[" + singleEmoji.getKey() + "]");
@@ -200,20 +200,6 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
         }
     }
 
-    private LPExpressionModel getSingleEmoji(EditText etMsg) {
-        if (etMsg.getTag() != null) {
-            LPExpressionModel emoji = (LPExpressionModel) etMsg.getTag();
-            String singleEmoji = "[" + emoji.name + "]";
-            if (singleEmoji.equals(etMsg.getText().toString())) {
-                return emoji;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -230,7 +216,7 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
     public void showPrivateChatChange() {
         if (!presenter.isLiveCanWhisper()) return;
         if (presenter.isPrivateChat()) {
-            ((EditText) $.id(R.id.dialog_message_send_et).view()).setHint("私聊" + presenter.getPrivateChatUser().getName());
+            ((EditText) $.id(R.id.dialog_message_send_et).view()).setHint("私聊" + CommonUtils.getEncodePhoneNumber(presenter.getPrivateChatUser().getName()));
             ($.id(R.id.dialog_private_chat_btn).view()).setSelected(true);
             ((TextView) $.id(R.id.dialog_private_chat_btn).view()).setTextColor(getResources().getColor(R.color.live_blue));
         } else {
@@ -348,9 +334,6 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
                 emojiFragment.setPresenter(emojiPresenter);
                 emojiFragment.setCallBack(emoji -> {
                     EditText etMsg = (EditText) $.id(R.id.dialog_message_send_et).view();
-                    if (TextUtils.isEmpty(etMsg.getText().toString())) {
-                        etMsg.setTag(emoji);
-                    }
                     etMsg.setText(etMsg.getEditableText().append(emoji.getBoxName()));
                     etMsg.setSelection(etMsg.getText().length());
                 });
@@ -382,9 +365,6 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
             emojiFragment.setPresenter(emojiPresenter);
             emojiFragment.setCallBack(emoji -> {
                 EditText etMsg = (EditText) $.id(R.id.dialog_message_send_et).view();
-                if (TextUtils.isEmpty(etMsg.getText().toString())) {
-                    etMsg.setTag(emoji);
-                }
                 etMsg.setText(etMsg.getEditableText().append(emoji.getBoxName()));
                 etMsg.setSelection(etMsg.getText().length());
             });

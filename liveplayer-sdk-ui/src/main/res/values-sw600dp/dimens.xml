@@ -1,0 +1,52 @@
+<resources>
+    <!-- Example customization of dimensions originally defined in res/values/dimens.xml
+         (such as screen margins) for screens with more than 820dp of available width. This
+         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
+    <dimen name="activity_horizontal_margin">64dp</dimen>
+
+    <dimen name="main_video_height">135dp</dimen>
+    <dimen name="main_video_width">240dp</dimen>
+    <dimen name="main_video_single_height">180dp</dimen>
+    <dimen name="main_video_single_width">240dp</dimen>
+
+    <dimen name="speak_video_height">135dp</dimen>
+    <dimen name="speak_video_width">240dp</dimen>
+    <dimen name="item_video_textsize">14sp</dimen>
+    <dimen name="top_menu_height">32dp</dimen>
+    <dimen name="top_menu_title_size">14sp</dimen>
+    <dimen name="top_menu_inner_height">24dp</dimen>
+    <dimen name="top_menu_title_width">200dp</dimen>
+
+    <dimen name="common_text_size">14sp</dimen>
+
+    <!--在线用户列表-->
+    <dimen name="user_item_margin_left">8dp</dimen>
+    <dimen name="user_item_margin_left2">14dp</dimen>
+    <dimen name="user_item_margin_top">8dp</dimen>
+    <dimen name="user_item_margin_bottom">4dp</dimen>
+    <dimen name="user_item_role_label_margin">10dp</dimen>
+    <dimen name="user_item_role_label_padding">8dp</dimen>
+
+    <!--问答-->
+    <dimen name="qa_empty_img_width">108dp</dimen>
+    <dimen name="qa_empty_img_height">119dp</dimen>
+    <dimen name="qa_item_padding">6dp</dimen>
+    <dimen name="qa_item_margin_top">6dp</dimen>
+    <dimen name="qa_item_popup_window_padding">6dp</dimen>
+    <dimen name="qa_item_popup_window_text_size">16sp</dimen>
+    <dimen name="qa_item_popup_window_width">96dp</dimen>
+    <dimen name="qa_interactive_tab_height">50dp</dimen>
+    <dimen name="qa_send_button_margin_end">12dp</dimen>
+    <dimen name="qa_send_button_margin_bottom">12dp</dimen>
+
+    <!--聊天-->
+    <dimen name="chat_item_margin_top">19dp</dimen>
+    <dimen name="chat_item_margin_end">24dp</dimen>
+    <dimen name="chat_item_text_content_padding_start">8dp</dimen>
+    <dimen name="chat_item_text_content_padding_top">5dp</dimen>
+    <dimen name="chat_message_reminder_padding">10dp</dimen>
+
+    <dimen name="tab_item_red_point_width">16dp</dimen>
+    <dimen name="tab_item_red_point_margin_start">12dp</dimen>
+    <dimen name="tab_item_red_point_margin_bottom">8dp</dimen>
+</resources>

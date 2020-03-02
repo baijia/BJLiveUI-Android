@@ -137,5 +137,7 @@ interface SettingContract {
         void setDownCDNLink(int order);
 
         boolean isUseWebRTC();
+
+        void setRemarksEnable(boolean isEnable);
     }
 }

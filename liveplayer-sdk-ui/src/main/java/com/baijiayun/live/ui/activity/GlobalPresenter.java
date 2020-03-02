@@ -9,9 +9,10 @@ import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPJsonModel;
-import com.baijiayun.livecore.models.LPRedPacketModel;
+import com.baijiayun.livecore.models.LPUserModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.utils.LPLogger;
+import com.baijiayun.livecore.utils.LPRxUtils;
 import com.baijiayun.livecore.wrapper.impl.LPCameraView;
 
 import java.util.Random;
@@ -36,19 +37,18 @@ public class GlobalPresenter implements BasePresenter {
             subscriptionOfTeacherMedia, subscriptionOfUserIn, subscriptionOfUserOut, subscriptionOfQuizStart,
             subscriptionOfQuizRes, subscriptionOfQuizEnd, subscriptionOfQuizSolution, subscriptionOfDebug,
             subscriptionOfAnnouncement, subscriptionOfClassSwitch, subscriptionOfAnswerStart, subscriptionOfAnswerEnd,
-            subscriptionOfTimerStart,subscriptionOfTimerEnd;
+            subscriptionOfTimerStart,subscriptionOfTimerEnd, subscriptionOfIsCloudRecordAllowed,
+            subscriptionOfAttentionAlert;
 
     //红包
-    private Disposable mSubscriptionRedPacket;
+    private Disposable mSubscriptionRedPacket, subscriptionOfCloudRecord;
 
     private boolean isVideoManipulated = false;
 
     private int counter = 0;
 
     private boolean isForbidChatChanged = false;
-
-    //前后台切换
-    private boolean isBackstage = false;
+    private boolean isCloudRecording = false;
     private LPCameraView mCameraView;
 
     @Override
@@ -63,6 +63,7 @@ public class GlobalPresenter implements BasePresenter {
                 .subscribe(integer -> {
                     routerListener.showMessageClassStart();
                     routerListener.enableStudentSpeakMode();
+                    autoRequestCloudRecord();
                 });
         subscriptionOfClassEnd = routerListener.getLiveRoom().getObservableOfClassEnd()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -271,6 +272,9 @@ public class GlobalPresenter implements BasePresenter {
                             routerListener.closeTimer();
                         }
                     });
+            subscriptionOfAttentionAlert = routerListener.getLiveRoom().getToolBoxVM().getObservableOfAttentionAlert()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(lpAttentionAlertModel -> routerListener.showMessage(lpAttentionAlertModel.content));
         }
         if (!routerListener.isTeacherOrAssistant()) {
             // 公告变了
@@ -282,6 +286,12 @@ public class GlobalPresenter implements BasePresenter {
         mSubscriptionRedPacket = routerListener.getLiveRoom().getObservableOfRedPacket()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(lpRedPacketModel -> routerListener.switchRedPacketUI(true, lpRedPacketModel));
+
+        subscriptionOfCloudRecord = routerListener.getLiveRoom().getObservableOfCloudRecordStatus()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aBoolean -> {
+                    isCloudRecording = aBoolean;
+                });
     }
 
     public void observeAnnouncementChange() {
@@ -329,7 +339,9 @@ public class GlobalPresenter implements BasePresenter {
         RxUtils.dispose(mSubscriptionRedPacket);
         RxUtils.dispose(subscriptionOfTimerStart);
         RxUtils.dispose(subscriptionOfTimerEnd);
-
+        RxUtils.dispose(subscriptionOfIsCloudRecordAllowed);
+        RxUtils.dispose(subscriptionOfAttentionAlert);
+        RxUtils.dispose(subscriptionOfCloudRecord);
     }
 
     @Override
@@ -360,4 +372,30 @@ public class GlobalPresenter implements BasePresenter {
             }
         }
     }
+
+    /**
+     * 自动开启云端录制
+     */
+    private void autoRequestCloudRecord(){
+        //老师/助教进教室后，开启自动录制主动发cloud_record广播
+        if (routerListener.getLiveRoom().getAutoStartCloudRecordStatus() == 1) {
+            doRequestCloudRecord();
+        }
+    }
+
+    void doRequestCloudRecord() {
+        if (routerListener.getLiveRoom().isTeacherOrAssistant() && !isCloudRecording) {
+            LPRxUtils.dispose(subscriptionOfIsCloudRecordAllowed);
+            subscriptionOfIsCloudRecordAllowed = routerListener.getLiveRoom().requestIsCloudRecordAllowed()
+                    .subscribe(lpCheckRecordStatusModel -> {
+                        if (lpCheckRecordStatusModel.recordStatus == 1) {
+                            routerListener.getLiveRoom().requestCloudRecord(true);
+                        } else {
+                            routerListener.showMessage(lpCheckRecordStatusModel.reason);
+                        }
+                    });
+        }
+    }
 }
+
+

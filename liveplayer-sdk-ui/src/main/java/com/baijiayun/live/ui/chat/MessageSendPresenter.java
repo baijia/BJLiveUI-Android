@@ -5,7 +5,13 @@ import android.text.TextUtils;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.Precondition;
 import com.baijiayun.livecore.context.LPConstants;
+import com.baijiayun.livecore.models.LPExpressionModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.baijiayun.live.ui.utils.Precondition.checkNotNull;
 
@@ -18,6 +24,7 @@ public class MessageSendPresenter implements MessageSendContract.Presenter {
     private MessageSendContract.View view;
     private LiveRoomRouterListener routerListener;
     private boolean forbidPrivateChat;
+    private Map<String,LPExpressionModel> emojiMap;
 
     public MessageSendPresenter(MessageSendContract.View view) {
         this.view = view;
@@ -99,6 +106,11 @@ public class MessageSendPresenter implements MessageSendContract.Presenter {
     }
 
     @Override
+    public LPExpressionModel getSingleEmoji(String emojiName) {
+        return emojiMap.get(emojiName);
+    }
+
+    @Override
     public boolean isPrivateChat() {
         return routerListener.isPrivateChat();
     }
@@ -131,6 +143,15 @@ public class MessageSendPresenter implements MessageSendContract.Presenter {
     @Override
     public void setRouter(LiveRoomRouterListener liveRoomRouterListener) {
         this.routerListener = liveRoomRouterListener;
+        initEmoji();
+    }
+
+    private void initEmoji() {
+        emojiMap = new HashMap<>();
+        final List<LPExpressionModel> expressions = routerListener.getLiveRoom().getExpressions();
+        for (LPExpressionModel lpExpressionModel : expressions) {
+            emojiMap.put(lpExpressionModel.getBoxName(),lpExpressionModel);
+        }
     }
 
     @Override

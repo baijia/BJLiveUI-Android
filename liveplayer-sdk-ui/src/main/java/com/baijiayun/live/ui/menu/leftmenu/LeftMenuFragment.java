@@ -7,7 +7,6 @@ import android.widget.ImageView;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
-import com.baijiayun.livecore.context.LPConstants;
 
 /**
  * Created by Shubo on 2017/2/15.
@@ -19,10 +18,9 @@ public class LeftMenuFragment extends BaseFragment implements LeftMenuContract.V
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_leftmenu;
+        return R.layout.bjy_fragment_leftmenu;
     }
 
-    private boolean mRemarksEnable = true;
     @Override
     protected void init(Bundle savedInstanceState) {
         super.init(savedInstanceState);
@@ -38,39 +36,6 @@ public class LeftMenuFragment extends BaseFragment implements LeftMenuContract.V
                 showQuestionAnswerInfo(false);
             });
         }
-
-         if (presenter.getCurrentUser().getType() == LPConstants.LPUserType.Teacher
-                || presenter.getCurrentUser().getType() == LPConstants.LPUserType.Assistant) {
-             $.id(R.id.fragment_left_menu_remarks).visibility(View.VISIBLE);
-             presenter.setRemarksEnable(true);
-         } else {
-             $.id(R.id.fragment_left_menu_remarks).visibility(View.INVISIBLE);
-             presenter.setRemarksEnable(false);
-         }
-        $.id(R.id.fragment_left_menu_remarks).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mRemarksEnable) {
-                    //隐藏备注
-                    ((ImageView)$.id(R.id.fragment_left_menu_remarks).view())
-                            .setImageDrawable(getResources().getDrawable(R.drawable.iv_ui_remarks_hild));
-                    presenter.setRemarksEnable(false);
-                } else {
-                    //显示备注
-                    ((ImageView)$.id(R.id.fragment_left_menu_remarks).view())
-                            .setImageDrawable(getResources().getDrawable(R.drawable.iv_ui_remarks_show));
-                    presenter.setRemarksEnable(true);
-                }
-                mRemarksEnable = !mRemarksEnable;
-            }
-        });
-
-
-//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-//            $.id(R.id.fragment_left_menu_clear_screen).gone();
-//        } else {
-//            $.id(R.id.fragment_left_menu_clear_screen).visible();
-//        }
     }
 
     @Override

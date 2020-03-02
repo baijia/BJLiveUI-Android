@@ -21,7 +21,7 @@ public class RollCallDialogFragment extends BaseDialogFragment implements RollCa
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_roll_call;
+        return R.layout.bjy_dialog_roll_call;
     }
 
     @Override

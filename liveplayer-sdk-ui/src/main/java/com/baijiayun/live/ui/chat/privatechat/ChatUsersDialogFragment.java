@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
@@ -21,6 +20,7 @@ import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.utils.CommonUtils;
 
 /**
  * Created by yangjingming on 2018/1/16.
@@ -37,7 +37,7 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
 
     @Override
     public int getLayoutId() {
-        return R.layout.dialog_chat_users;
+        return R.layout.bjy_dialog_chat_users;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
         recyclerView.setLayoutManager(new LinearLayoutWrapManager(getActivity()));
         adapter = new ChatUserAdapter();
         recyclerView.setAdapter(adapter);
-        if(privateChatToUser != null) showPrivateChatLabel(privateChatToUser.getName());
+        if(privateChatToUser != null) showPrivateChatLabel(CommonUtils.getEncodePhoneNumber(privateChatToUser.getName()));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState){
@@ -119,7 +119,7 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
                     privateChatLabel.setVisibility(View.GONE);
                     presenter.setPrivateChatUser(null);
                     adapter.notifyDataSetChanged();
-                    Toast.makeText(getContext(),"私聊已取消",Toast.LENGTH_SHORT).show();
+                    showToast("私聊已取消");
                 }
             });
         }else{
@@ -164,10 +164,10 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == VIEW_TYPE_USER) {
-                View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_chat_user, parent, false);
+                View view = LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_chat_user, parent, false);
                 return new ChatUserViewHolder(view);
             } else if (viewType == VIEW_TYPE_LOADING) {
-                View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_chat_user_loadmore, parent, false);
+                View view = LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_chat_user_loadmore, parent, false);
                 return new LoadingViewHolder(view);
             }
             return null;
@@ -187,7 +187,7 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
                     userViewHolder.privateChatUser.setBackgroundColor(getResources().getColor(R.color.live_white));
                 }
 
-                userViewHolder.name.setText(userModel.getName());
+                userViewHolder.name.setText(CommonUtils.getEncodePhoneNumber(userModel.getName()));
                 if (userModel.getType() == LPConstants.LPUserType.Teacher) {
                     userViewHolder.teacherTag.setVisibility(View.VISIBLE);
                     userViewHolder.teacherTag.setText(TextUtils.isEmpty(teacherLabel) ? getString(R.string.live_teacher) : teacherLabel);
@@ -210,7 +210,7 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
                     public void onClick(View view) {
                         userViewHolder.privateChatUser.setBackgroundColor(getResources().getColor(R.color.live_private_chat_bg));
                         presenter.setPrivateChatUser(userModel);
-                        presenter.chooseOneToChat(userModel.getName(), true);
+                        presenter.chooseOneToChat(CommonUtils.getEncodePhoneNumber(userModel.getName()), true);
                     }
                 });
             } else if (holder instanceof LoadingViewHolder) {

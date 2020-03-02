@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/chat_message_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingStart="@dimen/chat_item_text_content_padding_start"
+        android:paddingTop="@dimen/chat_item_text_content_padding_top"
+        android:paddingEnd="@dimen/chat_item_text_content_padding_start"
+        android:paddingBottom="@dimen/chat_item_text_content_padding_top"
+        android:textColor="#ff4a4a4a"
+        android:textSize="@dimen/common_text_size"
+        tools:background="@drawable/item_pad_chat_text_bg"
+        tools:text="有人觉得三天的时间出国是天方夜谭，我却觉得不是。" />
+
+</merge>

@@ -7,15 +7,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.models.LPAnswerSheetOptionModel;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by yangjingming on 2018/6/5.
@@ -30,7 +27,7 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
 
     @Override
     public int getLayoutId() {
-        return R.layout.dialog_question_tool;
+        return R.layout.bjy_dialog_question_tool;
     }
 
     @Override
@@ -58,12 +55,12 @@ public class QuestionToolFragment extends BaseFragment implements QuestionToolCo
                     return;
                 }
                 if (presenter.submitAnswers()) {
-                    Toast.makeText(getContext(), "提交成功！", Toast.LENGTH_SHORT).show();
+                    showToast("提交成功！");
                     isSubmit = true;
                     ((Button) ($.id(R.id.dialog_btn_submit)).view()).setText("确定");
 //                    dismissAllowingStateLoss();
                 } else {
-                    Toast.makeText(getContext(), "请选择选项", Toast.LENGTH_SHORT).show();
+                    showToast("请选择选项");
                 }
             }
         });

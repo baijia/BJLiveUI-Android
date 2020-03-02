@@ -11,6 +11,7 @@ import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPShortResult;
 import com.baijiayun.livecore.utils.LPJsonUtils;
 import com.baijiayun.livecore.utils.LPLogger;
+import com.baijiayun.log.BJFileLog;
 import com.google.gson.JsonObject;
 
 import java.util.concurrent.TimeUnit;
@@ -90,12 +91,9 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
         Disposable robDisposable = mRouter.getLiveRoom().requestCloudRobRedPacket(Integer.valueOf(mLPRedPacketModel.id))
                 .observeOn(AndroidSchedulers.mainThread())
             .subscribe(lpShortResult -> {
-                if (model == null)
+                if (model == null || !model.isRob)
                     return;
-
-                if (!model.isRob)
-                    return;
-
+                BJFileLog.d(RedPacketPresenter.class, TAG, "requestCloudRobRedPacket " + lpShortResult.data);
                 RobRedPacketModel robModel = LPJsonUtils.parseJsonObject((JsonObject) lpShortResult.data, RobRedPacketModel.class);
                 if (robModel.status == 0) {
                     //抢成功
@@ -108,6 +106,7 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
                     model.isOpen = true;
                 }
             }, throwable -> {
+                BJFileLog.d(RedPacketPresenter.class, TAG, "requestCloudRobRedPacket : error " + throwable.getMessage());
                 LPLogger.d(TAG, "requestCloudRobRedPacket : error");
             });
         mCompositeDisposable.add(robDisposable);

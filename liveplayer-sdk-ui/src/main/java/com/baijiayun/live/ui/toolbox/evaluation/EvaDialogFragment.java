@@ -71,7 +71,7 @@ public class EvaDialogFragment extends BaseDialogFragment implements EvaDialogCo
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_eva;
+        return R.layout.bjy_fragment_eva;
     }
 
     @Override

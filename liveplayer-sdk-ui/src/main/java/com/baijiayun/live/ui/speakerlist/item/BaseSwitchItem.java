@@ -81,6 +81,14 @@ public abstract class BaseSwitchItem implements Switchable {
 
     }
 
+    protected boolean isSyncPPTVideo() {
+        return false;
+    }
+
+    protected void syncPPTVideo() {
+
+    }
+
     protected boolean enableClearScreen() {
         return false;
     }
@@ -130,12 +138,17 @@ public abstract class BaseSwitchItem implements Switchable {
             if (clickableCheck()) {
                 return false;
             }
-
-            if (!switchable.isInFullScreen()) {
-                if (switchable instanceof Playable && ((Playable) switchable).isVideoStreaming()) {
-                    switchable.doOnSwitch();
-                    switchable.presenter.getRouterListener().getFullScreenItem().switchBackToList();
-                    switchable.switchToFullScreen();
+            if (!switchable.isSyncPPTVideo()) {
+                if (!switchable.isInFullScreen()) {
+                    if (switchable instanceof Playable && ((Playable) switchable).isVideoStreaming()) {
+                        switchable.doOnSwitch();
+                        switchable.presenter.getRouterListener().getFullScreenItem().switchBackToList();
+                        switchable.switchToFullScreen();
+                    }
+                }
+            } else {
+                if (!switchable.isInFullScreen()) {
+                    switchable.syncPPTVideo();
                 }
             }
             return super.onDoubleTap(e);

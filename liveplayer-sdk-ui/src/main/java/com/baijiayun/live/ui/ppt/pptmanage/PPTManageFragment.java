@@ -45,7 +45,7 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_ppt_manage;
+        return R.layout.bjy_dialog_ppt_manage;
     }
 
     @Override
@@ -225,10 +225,10 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == ITEM_TYPE_NORMAL) {
-                View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_ppt_manage_normal, parent, false);
+                View view = LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_ppt_manage_normal, parent, false);
                 return new DocViewHolder(view);
             } else if (viewType == ITEM_TYPE_UPLOADING) {
-                View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_ppt_manage_uploading, parent, false);
+                View view = LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_ppt_manage_uploading, parent, false);
                 return new UploadingViewHolder(view);
             }
             return null;

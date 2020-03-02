@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/interactive_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/user_chat_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/qa_resize_layout">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/user_chat_tablayout"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@drawable/shape_bottom_line"
+            android:paddingBottom="3dp"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="#FF1795FF"
+            app:tabIndicatorFullWidth="false"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="#FF1795FF"
+            app:tabPaddingEnd="4dp"
+            app:tabPaddingStart="4dp"
+            app:tabTextColor="@color/live_pad_grey">
+
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/online_user_tab_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </android.support.design.widget.TabLayout>
+    </android.support.v4.view.ViewPager>
+
+
+    <com.baijiayun.live.ui.widget.DragResizeFrameLayout
+        android:id="@+id/qa_resize_layout"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_alignParentBottom="true"
+        android:clickable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:background="@drawable/shape_top_line"
+                android:elevation="1dp">
+
+                <TextView
+                    android:id="@+id/qa_red_point"
+                    tools:visibility="visible"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_alignEnd="@+id/qa_iv"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/shape_red_exclamation"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/qa_iv"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="6dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_pad_qa" />
+
+                <TextView
+                    android:id="@+id/qa_title_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="4dp"
+                    android:layout_toRightOf="@+id/qa_iv"
+                    android:textColor="#ff4a4a4a"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <FrameLayout
+                android:id="@+id/qa_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </com.baijiayun.live.ui.widget.DragResizeFrameLayout>
+</RelativeLayout>

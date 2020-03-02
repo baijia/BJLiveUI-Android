@@ -49,7 +49,10 @@ public class ChatPresenter implements ChatContract.Presenter {
     private List<IMessageModel> privateChatMessageFilterList;
     private List<IMessageModel> chatMessageFilterList;
     private boolean isSelfForbidden;
+    //表情 [name] - url
     private Map<String,String> pressions;
+    //表情 [key] - [name]
+    private Map<String,String> pressionNames;
 
     public ChatPresenter(ChatContract.View view) {
         this.view = view;
@@ -59,6 +62,7 @@ public class ChatPresenter implements ChatContract.Presenter {
         privateChatMessageFilterList = new ArrayList<>();
         chatMessageFilterList = new ArrayList<>();
         pressions = new HashMap<>();
+        pressionNames = new HashMap<>();
     }
 
     @Override
@@ -71,6 +75,7 @@ public class ChatPresenter implements ChatContract.Presenter {
         Precondition.checkNotNull(routerListener);
         for (LPExpressionModel lpExpressionModel : routerListener.getLiveRoom().getExpressions()) {
             pressions.put("[" + lpExpressionModel.name + "]", lpExpressionModel.url);
+            pressionNames.put("[" + lpExpressionModel.key + "]", "[" + lpExpressionModel.name + "]");
         }
         chatMessageFilterList = getFilterMessageList(routerListener.getLiveRoom().getChatVM().getMessageList());
         view.notifyDataChanged();
@@ -300,6 +305,11 @@ public class ChatPresenter implements ChatContract.Presenter {
     @Override
     public Map<String,String> getExpressions(){
         return pressions;
+    }
+
+    @Override
+    public Map<String,String> getExpressionNames(){
+        return pressionNames;
     }
 
 

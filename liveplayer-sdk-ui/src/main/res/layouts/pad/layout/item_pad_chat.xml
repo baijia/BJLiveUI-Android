@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="chatFragment"
+            type="com.baijiayun.live.ui.chat.ChatPadFragment" />
+        <variable
+            name="message"
+            type="com.baijiayun.livecore.models.imodels.IMessageModel" />
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/chat_item_margin_top"
+        android:layout_marginEnd="@dimen/chat_item_margin_end">
+
+
+        <ImageView
+            android:id="@+id/chat_user_avatar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:scaleType="fitCenter"
+            app:imageUrl="@{message.from.avatar}"
+            tools:src="@drawable/ic_pad_camera_close" />
+
+        <TextView
+            android:id="@+id/chat_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_toStartOf="@+id/chat_time_tv"
+            android:layout_toEndOf="@+id/chat_user_avatar"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:textColor="#ff4a4a4a"
+            android:textSize="@dimen/common_text_size"
+            android:text="@{chatFragment.getMessageFromText(message)}"
+            tools:text="郭德纲砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸 [助教]" />
+
+
+        <TextView
+            android:id="@+id/chat_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_toStartOf="@+id/chat_client_iv"
+            android:textColor="#ff9b9b9b"
+            android:textSize="@dimen/common_text_size"
+            android:text='@{chatFragment.getMessageTime(message)}'
+            tools:text="09:26" />
+
+        <ImageView
+            android:id="@+id/chat_client_iv"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignBottom="@+id/chat_user_name"
+            android:layout_alignParentEnd="true"
+            android:scaleType="fitCenter"
+            android:src="@{chatFragment.getClientTypeRes(message)}"
+            tools:src="@drawable/ic_chat_client_pc" />
+
+        <FrameLayout
+            android:id="@+id/chat_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/chat_user_name"
+            android:layout_alignStart="@+id/chat_user_name"/>
+
+    </RelativeLayout>
+
+</layout>

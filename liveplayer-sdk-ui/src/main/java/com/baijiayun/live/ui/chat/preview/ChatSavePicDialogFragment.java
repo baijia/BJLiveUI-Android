@@ -20,7 +20,7 @@ public class ChatSavePicDialogFragment extends BaseDialogFragment implements Cha
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_chat_save_pic;
+        return R.layout.bjy_dialog_chat_save_pic;
     }
 
     @Override

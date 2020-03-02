@@ -1,6 +1,8 @@
 package com.baijiayun.live.ui.chat;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -21,6 +23,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -38,7 +41,6 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baijiayun.glide.Glide;
 import com.baijiayun.glide.request.RequestOptions;
@@ -50,6 +52,7 @@ import com.baijiayun.live.ui.chat.utils.CenterImageSpan;
 import com.baijiayun.live.ui.chat.utils.URLImageParser;
 import com.baijiayun.live.ui.chat.widget.ChatMessageView;
 import com.baijiayun.live.ui.utils.ChatImageUtil;
+import com.baijiayun.livecore.utils.CommonUtils;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
@@ -113,7 +116,7 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
         $.id(R.id.fragment_chat_private_end_btn).clicked(v -> {
             if (presenter != null)
                 presenter.endPrivateChat();
-            Toast.makeText(getContext(), "私聊已取消", Toast.LENGTH_SHORT).show();
+            showToast("私聊已取消");
         });
         $.id(R.id.fragment_chat_filter_close).clicked(v -> {
             if (presenter != null)
@@ -239,7 +242,7 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == MESSAGE_TYPE_TEXT) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_text, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_chat_text, parent, false);
                 return new TextViewHolder(view);
             } else if (viewType == MESSAGE_TYPE_EMOJI) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_chat_emoji, parent, false);
@@ -270,24 +273,23 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
                 } else {
                     color = ContextCompat.getColor(getContext(), R.color.live_text_color_light);
                 }
-                String name = "";
+                String name;
                 if (message.getFrom().getUserId().equals(presenter.getCurrentUser().getUserId())) {
                     color = ContextCompat.getColor(getContext(), R.color.live_yellow);
                     name = "我：";
                 } else {
-                    name = message.getFrom().getName() + "：";
+                    name = getEncodedName(message.getFrom()) + "：";
                 }
                 spanText = new SpannableString(name);
                 spanText.setSpan(new ForegroundColorSpan(color), 0, name.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
             } else {
                 if (message.isPrivateChat()) {
                     // 群聊模式 私聊item
                     if (!presenter.isLiveCanWhisper()) return;
                     boolean isFromMe = message.getFrom().getUserId().equals(presenter.getCurrentUser().getUserId());
                     boolean isToMe = message.getTo().equals(presenter.getCurrentUser().getUserId());
-                    String toName = message.getToUser() == null ? message.getTo() : message.getToUser().getName();
-                    String name = (isFromMe ? "我" : message.getFrom().getName()) + " 私聊 " + (isToMe ? "我" : toName) + ": ";
+                    String toName = message.getToUser() == null ? message.getTo() : getEncodedName(message.getToUser());
+                    String name = (isFromMe ? "我" : CommonUtils.getEncodePhoneNumber(message.getFrom().getName())) + " 私聊 " + (isToMe ? "我" : toName) + ": ";
                     spanText = new SpannableString(name);
 
                     if (isFromMe) {
@@ -321,12 +323,12 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
                     } else {
                         color = ContextCompat.getColor(getContext(), R.color.live_text_color_light);
                     }
-                    String name = "";
+                    String name;
                     if (message.getFrom().getNumber().equals(presenter.getCurrentUser().getNumber())) {
                         color = ContextCompat.getColor(getContext(), R.color.live_yellow);
                         name = "我：";
                     } else {
-                        name = message.getFrom().getName() + "：";
+                        name = getEncodedName(message.getFrom()) + "：";
                     }
                     spanText = new SpannableString(name);
                     spanText.setSpan(new ForegroundColorSpan(color), 0, name.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
@@ -394,13 +396,11 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
                 Glide.with(getContext()).load(message.getUrl())
                         .apply(requestOptions)
                         .into(emojiViewHolder.ivEmoji);
-                if (presenter.getRecallStatus(message) != ChatMessageView.NONE) {
-                    GestureDetectorCompat gestureDetectorCompat = new GestureDetectorCompat(getContext(), new PressListener(message, holder));
-                    emojiViewHolder.itemView.setOnTouchListener((v, event) -> {
-                        gestureDetectorCompat.onTouchEvent(event);
-                        return false;
-                    });
-                }
+                GestureDetectorCompat gestureDetectorCompat = new GestureDetectorCompat(getContext(), new PressListener(message, holder));
+                emojiViewHolder.itemView.setOnTouchListener((v, event) -> {
+                    gestureDetectorCompat.onTouchEvent(event);
+                    return true;
+                });
             } else if (holder instanceof ImageViewHolder) {
                 ImageViewHolder imageViewHolder = (ImageViewHolder) holder;
                 imageViewHolder.ivImg.setOnClickListener(null);
@@ -447,7 +447,7 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
                     GestureDetectorCompat gestureDetectorCompat = new GestureDetectorCompat(getContext(), new PressListener(message, holder, true));
                     imageViewHolder.ivImg.setOnTouchListener((v, event) -> {
                         gestureDetectorCompat.onTouchEvent(event);
-                        return false;
+                        return true;
                     });
                 }
             }
@@ -463,13 +463,23 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
     private SpannableStringBuilder getMixText(String content, TextView textView) {
         Pattern p = Pattern.compile("\\[[a-zA-Z0-9\u4e00-\u9fa5]+]");
         Matcher m = p.matcher(content);
-        SpannableStringBuilder ssb = new SpannableStringBuilder(content);
         while (m.find()) {
             String group = m.group();
+            if (presenter.getExpressionNames().containsKey(group)) {
+                final String name = presenter.getExpressionNames().get(group);
+                if (name != null) {
+                    content = content.replace(group, name);
+                }
+            }
+        }
+        Matcher matcher = p.matcher(content);
+        SpannableStringBuilder ssb = new SpannableStringBuilder(content);
+        while (matcher.find()) {
+            String group = matcher.group();
             if (presenter.getExpressions().containsKey(group)) {
                 Drawable drawable = new URLImageParser(textView, textView.getTextSize()).getDrawable(presenter.getExpressions().get(group));
                 CenterImageSpan centerImageSpan = new CenterImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
-                ssb.setSpan(centerImageSpan, m.start(), m.end(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+                ssb.setSpan(centerImageSpan, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
                 ssb.removeSpan(group);
             }
         }
@@ -599,7 +609,7 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
         }
     }
 
-    private void showMenu(int x, int y, View parentView, IMessageModel iMessageModel) {
+    private void showMenu(int x, int y, View parentView, IMessageModel iMessageModel, boolean isEmoji) {
         PopupWindow popupWindow = new PopupWindow(getContext());
         popupWindow.setFocusable(true);
         popupWindow.setWidth(DisplayUtils.dip2px(getContext(), 60));
@@ -613,9 +623,10 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
         if (recallStatus == ChatMessageView.DELETE) {
             items.add(getContext().getString(R.string.live_chat_delete));
         }
+        items.add(getContext().getString(R.string.live_chat_copy));
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         String[] strs = new String[items.size()];
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.menu_chat_message, items.toArray(strs));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.bjy_menu_chat_message, items.toArray(strs));
         ListView listView = new ListView(getContext());
 
         GradientDrawable bgDrawable = new GradientDrawable();
@@ -626,13 +637,38 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
         listView.setDividerHeight(0);
         listView.setPadding(0, DisplayUtils.dip2px(getContext(), 2), 0, DisplayUtils.dip2px(getContext(), 2));
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (position == 0) {
+            final String item = items.get(position);
+            if (getContext().getResources().getString(R.string.live_chat_copy).equals(item)) {
+                if (isEmoji) {
+                    String content = presenter.getExpressionNames().get(iMessageModel.getContent());
+                    if (TextUtils.isEmpty(content)) {
+                        content = iMessageModel.getContent();
+                    }
+                    copy(content);
+                } else {
+                    copy("[img:" + iMessageModel.getUrl() + "]");
+                }
+            } else {
                 presenter.reCallMessage(iMessageModel);
             }
             popupWindow.dismiss();
         });
         popupWindow.setContentView(listView);
         popupWindow.showAtLocation(parentView, Gravity.NO_GRAVITY, x - popupWindow.getWidth() / 2, y - popupWindow.getHeight());
+    }
+
+    private boolean copy(String copyStr) {
+        try {
+            //获取剪贴板管理器
+            ClipboardManager cm = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            // 创建普通字符型ClipData
+            ClipData mClipData = ClipData.newPlainText("Label", copyStr);
+            // 将ClipData内容放到系统剪贴板里。
+            cm.setPrimaryClip(mClipData);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     class PressListener extends GestureDetector.SimpleOnGestureListener {
@@ -656,19 +692,20 @@ public class ChatFragment extends BaseFragment implements ChatContract.View {
         @Override
         public void onLongPress(MotionEvent e) {
             super.onLongPress(e);
-            if (presenter.getRecallStatus(iMessageModel) == ChatMessageView.NONE) {
-                return;
-            }
-            showMenu((int) e.getRawX(), (int) e.getRawY(), parent, iMessageModel);
+            showMenu((int) e.getRawX(), (int) e.getRawY(), parent, iMessageModel, !showBigPic);
         }
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (!showBigPic) {
-                return false;
+                return true;
             }
             presenter.showBigPic(position);
             return true;
         }
+    }
+
+    private String getEncodedName(IUserModel userModel) {
+        return CommonUtils.getEncodePhoneNumber(userModel.getName());
     }
 }

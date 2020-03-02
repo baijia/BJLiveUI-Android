@@ -58,7 +58,7 @@ public class LiveSDKWithUI {
         }
         addDefaultLoginConflictCallback();
 
-        Intent intent = new Intent(context, LiveRoomActivity.class);
+        Intent intent = new Intent(context, LiveRoomTripleActivity.class);
         intent.putExtra("name", name);
         intent.putExtra("code", code);
         if (!TextUtils.isEmpty(avatar)) {
@@ -85,8 +85,7 @@ public class LiveSDKWithUI {
             return;
         }
         addDefaultLoginConflictCallback();
-
-        Intent intent = new Intent(context, LiveRoomActivity.class);
+        Intent intent = new Intent(context, LiveRoomTripleActivity.class);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sign", sign);
         intent.putExtra("user", model);
@@ -117,10 +116,6 @@ public class LiveSDKWithUI {
 
     public static void setRoomLifeCycleListener(LPRoomResumeListener listener) {
         LiveRoomBaseActivity.setRoomLifeCycleListener(listener);
-    }
-
-    public static void setShouldShowTechSupport(boolean shouldShowTechSupport) {
-        LiveRoomBaseActivity.setShouldShowTechSupport(shouldShowTechSupport);
     }
 
     public static void disableSpeakQueuePlaceholder() {

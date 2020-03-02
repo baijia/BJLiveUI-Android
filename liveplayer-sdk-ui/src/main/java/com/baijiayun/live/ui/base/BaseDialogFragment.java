@@ -2,7 +2,6 @@ package com.baijiayun.live.ui.base;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -27,6 +26,7 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.utils.Precondition;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.utils.DisplayUtils;
+import com.baijiayun.livecore.utils.ToastCompat;
 
 
 /**
@@ -232,7 +232,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
         if(getActivity() == null || getActivity().isDestroyed()){
            return;
         }
-        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        ToastCompat.showToast(getContext(), msg, Toast.LENGTH_SHORT);
     }
 
     @Override

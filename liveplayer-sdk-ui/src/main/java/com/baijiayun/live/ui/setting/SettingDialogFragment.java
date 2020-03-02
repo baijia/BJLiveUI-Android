@@ -32,6 +32,7 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
     private QueryPlus $;
     private SettingContract.Presenter presenter;
     private Disposable disposable;
+    private boolean mRemarksEnable = false;
 
     public static SettingDialogFragment newInstance() {
         return new SettingDialogFragment();
@@ -163,13 +164,17 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                 if (checkClickable(getString(R.string.live_frequent_error_line))) {
                     if (presenter.getCDNCount() > 1) {
                         ArrayList<String> options = new ArrayList<>();
-                        for (int i = 1; i <= presenter.getCDNCount(); i++) {
-                            options.add("线路" + i);
+                        for (int i = 0; i <= presenter.getCDNCount(); i++) {
+                            if(i == 0){
+                                options.add("自动");
+                            } else{
+                                options.add("线路" + i);
+                            }
                         }
                         new MaterialDialog.Builder(getActivity())
                                 .items(options)
                                 .itemsCallback((dialog, itemView, position, text) -> {
-                                    presenter.setDownCDNLink(position);
+                                    presenter.setDownCDNLink(position - 1);
                                     dialog.dismiss();
                                 })
                                 .show();
@@ -226,6 +231,14 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
             }
         });
 
+        $.id(R.id.dialog_setting_ppt_remark_button).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.setRemarksEnable(!mRemarksEnable);
+                mRemarksEnable = !mRemarksEnable;
+                $.id(R.id.dialog_setting_ppt_remark_button).image(mRemarksEnable ? R.drawable.ic_on_switch : R.drawable.ic_off_switch);
+            }
+        });
 
         if (presenter.isTeacherOrAssistant()) {
             //只要是老师或助教，就显示全体禁言
@@ -240,11 +253,15 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                 //小班课、新版小班课、双师，显示全体静音，不显示禁止举手
                 $.id(R.id.dialog_setting_forbid_all_audio_container).visible();
                 $.id(R.id.dialog_setting_forbid_raise_hand_container).gone();
-            } else if (presenter.getRoomType() == LPConstants.LPRoomType.Single) {
+            } else if (presenter.getRoomType() == LPConstants.LPRoomType.Single || presenter.getRoomType() == LPConstants.LPRoomType.OneOnOne) {
                 //一对一，禁止举手、全体静音都不显示
                 $.id(R.id.dialog_setting_forbid_raise_hand_container).gone();
                 $.id(R.id.dialog_setting_forbid_all_audio_container).gone();
             }
+            //老师或助教默认显示PPT备注
+            $.id(R.id.dialog_setting_ppt_remark_container).visible();
+            mRemarksEnable = true;
+            presenter.setRemarksEnable(true);
         } else {
             $.id(R.id.dialog_setting_forbid_all_speak_container).gone();
             $.id(R.id.dialog_setting_forbid_raise_hand_container).gone();

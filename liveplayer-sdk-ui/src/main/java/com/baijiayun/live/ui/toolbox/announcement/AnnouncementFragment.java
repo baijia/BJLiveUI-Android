@@ -58,7 +58,7 @@ public class AnnouncementFragment extends BaseDialogFragment implements Announce
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_announcement;
+        return R.layout.bjy_dialog_announcement;
     }
 
     @Override

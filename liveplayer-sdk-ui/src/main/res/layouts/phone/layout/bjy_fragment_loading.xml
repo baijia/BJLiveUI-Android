@@ -49,6 +49,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_live_room_dialog_margin_big"
         android:gravity="center_vertical"
+        android:visibility="gone"
         android:orientation="horizontal">
 
         <ImageView

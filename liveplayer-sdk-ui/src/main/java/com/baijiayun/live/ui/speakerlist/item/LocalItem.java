@@ -50,7 +50,7 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
     }
 
     protected void initView() {
-        container = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.item_view_speaker_local, rootView, false);
+        container = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.bjy_item_view_speaker_local, rootView, false);
         $ = QueryPlus.with(container);
         videoContainer = (FrameLayout) $.id(R.id.item_local_speaker_avatar_container).view();
         refreshNameTable();
@@ -217,7 +217,9 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
     @Override
     public void switchBackToList() {
         super.switchBackToList();
-        cameraView.setZOrderMediaOverlay(true);
+        if (cameraView != null) {
+            cameraView.setZOrderMediaOverlay(true);
+        }
         invalidVideo();
     }
 
@@ -228,7 +230,9 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
     @Override
     public void switchToFullScreen() {
         super.switchToFullScreen();
-        cameraView.setZOrderMediaOverlay(false);
+        if (cameraView != null) {
+            cameraView.setZOrderMediaOverlay(false);
+        }
         invalidVideo();
     }
 

@@ -27,7 +27,7 @@ public class QuestionShowFragment extends BaseFragment implements QuestionShowCo
 
     @Override
     public int getLayoutId() {
-        return R.layout.dialog_question_show;
+        return R.layout.bjy_dialog_question_show;
     }
 
     @Override

@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.baijiayun.live.ui.R;
+import com.baijiayun.livecore.utils.CommonUtils;
 
 /**
  * 红包排名
@@ -58,7 +59,7 @@ public class RedPacketTopAdapter extends BaseAdapter {
 
         TopHolder topHolder;
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.item_jingx_red_packet_top, parent,false);
+            convertView = inflater.inflate(R.layout.bjy_item_jingx_red_packet_top, parent,false);
             topHolder = new TopHolder();
 
             topHolder.mLlItemJingxiRedPacketTop = convertView.findViewById(R.id.ll_item_jingxi_red_packet_top);
@@ -85,12 +86,12 @@ public class RedPacketTopAdapter extends BaseAdapter {
                     mContext.getResources().getDrawable(R.drawable.iv_lp_ui_red_top_3));
         } else {
             topHolder.mTvJingxiRpIcon.setBackground(null);
-            topHolder.mTvJingxiRpIcon.setText("" + model.rank_id);
+            topHolder.mTvJingxiRpIcon.setText(String.valueOf(model.rank_id));
             topHolder.mTvJingxiRpTopName.setTextColor(mContext.getResources().getColor(R.color.color_00000000));
         }
 
-        topHolder.mTvJingxiRpTopName.setText(model.user_name);
-        topHolder.mTvJingxiRpTopCoin.setText("" + model.coin);
+        topHolder.mTvJingxiRpTopName.setText(CommonUtils.getEncodePhoneNumber(model.user_name));
+        topHolder.mTvJingxiRpTopCoin.setText(String.valueOf(model.coin));
         return convertView;
     }
 

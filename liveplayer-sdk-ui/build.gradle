@@ -52,7 +52,8 @@ dependencies {
     }
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.1.5'
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.1.7'
+
 
 //    api (project(path: ':liveplayer-sdk-core')){
 //        exclude group:"com.android.support"

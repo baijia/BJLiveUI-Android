@@ -59,7 +59,7 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_ppt_switch;
+        return R.layout.bjy_dialog_ppt_switch;
     }
 
     @Override
@@ -278,7 +278,7 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
 
         @Override
         public SwitchHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SwitchHolder(LayoutInflater.from(getActivity()).inflate(R.layout.item_switch_ppt, parent, false));
+            return new SwitchHolder(LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_switch_ppt, parent, false));
         }
 
         @Override

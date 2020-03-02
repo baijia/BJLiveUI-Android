@@ -27,7 +27,7 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_announcement_double_ann;
+        return R.layout.bjy_fragment_announcement_double_ann;
     }
 
     @Override

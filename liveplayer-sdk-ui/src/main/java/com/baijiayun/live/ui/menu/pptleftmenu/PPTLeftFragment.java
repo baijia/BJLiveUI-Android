@@ -21,7 +21,7 @@ public class PPTLeftFragment extends BaseFragment implements PPTLeftContract.Vie
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_ppt_left_menu;
+        return R.layout.bjy_fragment_ppt_left_menu;
     }
 
     @Override

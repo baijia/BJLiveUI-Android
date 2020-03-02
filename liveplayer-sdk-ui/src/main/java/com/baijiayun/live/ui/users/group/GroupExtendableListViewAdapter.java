@@ -9,7 +9,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.color.CircleView;
 import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.viewsupport.CircleTextView;
@@ -114,7 +113,7 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
         GroupHolder groupHolder;
         if (convertView == null) {
             groupHolder = new GroupHolder();
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_online_group_partent, parent, false);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_online_group_partent, parent, false);
             groupHolder.mIvItemOnlinePartentState = convertView.findViewById(R.id.iv_item_online_partent_state);
             groupHolder.mTvItemOnlinePartentTitle = convertView.findViewById(R.id.tv_item_online_partent_title);
             groupHolder.mTvItemOnlinePartentNumber = convertView.findViewById(R.id.tv_item_online_partent_number);
@@ -151,7 +150,7 @@ public class GroupExtendableListViewAdapter extends BaseExpandableListAdapter {
         GroupChildHolder groupChildHolder;
         if (convertView == null) {
             groupChildHolder = new GroupChildHolder();
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_online_user, parent, false);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_online_user, parent, false);
             groupChildHolder.mItemOnlineUserAvatar = convertView.findViewById(R.id.item_online_user_avatar);
             groupChildHolder.mItemOnlineUserName = convertView.findViewById(R.id.item_online_user_name);
             groupChildHolder.mItemOnlineUserTeacherTag = convertView.findViewById(R.id.item_online_user_teacher_tag);

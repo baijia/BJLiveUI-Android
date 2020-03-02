@@ -43,7 +43,5 @@ interface LeftMenuContract {
         void showQuestionAnswer();
 
         IUserModel getCurrentUser();
-
-        void setRemarksEnable(boolean isEnable);
     }
 }

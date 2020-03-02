@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/qa_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        />
+
+
+    <ImageView
+        android:id="@+id/qa_empty_iv"
+        android:layout_width="@dimen/qa_empty_img_width"
+        android:layout_height="@dimen/qa_empty_img_height"
+        android:src="@drawable/live_question_empty"
+        android:scaleType="fitCenter"
+        android:layout_gravity="center"
+        />
+
+</FrameLayout>

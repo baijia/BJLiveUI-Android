@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.context.LPError;
-import com.baijiayun.livecore.utils.LPLogger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +45,7 @@ public class SimpleTextDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_simple_text);
+        setContentView(R.layout.bjy_dialog_simple_text);
 
         initView();
         initListener();

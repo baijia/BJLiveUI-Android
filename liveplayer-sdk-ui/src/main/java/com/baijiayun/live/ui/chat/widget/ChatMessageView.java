@@ -13,9 +13,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.GestureDetectorCompat;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.style.LineHeightSpan;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -33,7 +30,6 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.chat.utils.TextLineHeightSpan;
 import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.RxUtils;
-import com.baijiayun.livecore.hubble.LPHubbleManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -173,7 +169,7 @@ public class ChatMessageView extends LinearLayout {
         }
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         String[] strs = new String[items.size()];
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.menu_chat_message, items.toArray(strs));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.bjy_menu_chat_message, items.toArray(strs));
         ListView listView = new ListView(getContext());
 
         GradientDrawable bgDrawable = new GradientDrawable();

@@ -14,7 +14,7 @@ public class BlankTipsFragment extends BaseFragment implements BlankTipsContract
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_announcement_blank_tips;
+        return R.layout.bjy_fragment_announcement_blank_tips;
     }
 
 

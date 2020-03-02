@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -20,6 +19,7 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.livecore.LiveSDK;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.utils.ToastCompat;
 
 
 public abstract class LiveRoomBaseActivity extends AppCompatActivity {
@@ -89,6 +89,12 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
         outState.putString("sign", sign);
         outState.putSerializable("user", enterUser);
     }
+
+    public static boolean getShowTechSupport() {
+        return shouldShowTechSupport;
+    }
+
+    public abstract LiveRoomRouterListener getRouterListener();
 
     protected void addFragment(int layoutId, Fragment fragment, boolean addToBackStack, String fragmentTag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -217,10 +223,8 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(message)) return;
 
         this.runOnUiThread(() -> {
-            if (this.isFinishing()) return;
-            Toast toast = Toast.makeText(LiveRoomBaseActivity.this, message, Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
+            if (this.isFinishing() || this.isDestroyed()) return;
+            ToastCompat.showToastCenter(LiveRoomBaseActivity.this,message,Toast.LENGTH_SHORT);
         });
     }
 
@@ -236,7 +240,7 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
     protected static LiveSDKWithUI.LPRoomResumeListener roomLifeCycleListener;
     protected static String liveHorseLamp; // 跑马灯
     protected static int liveHorseLampInterval = 60; // 跑马灯时间间隔
-    protected static boolean shouldShowTechSupport = true;
+    protected static boolean shouldShowTechSupport = false; //是否显示百家云提供技术支持话术
 
     protected static boolean disableSpeakQueuePlaceholder = false;
 
@@ -265,10 +269,6 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
 
     public static void setEnterRoomConflictListener(LiveSDKWithUI.RoomEnterConflictListener enterRoomConflictListener) {
         LiveRoomBaseActivity.enterRoomConflictListener = enterRoomConflictListener;
-    }
-
-    public static void setShouldShowTechSupport(boolean shouldShow) {
-        shouldShowTechSupport = shouldShow;
     }
 
     public static void setLiveRoomMarqueeTape(String liveRoomMarqueeTape) {

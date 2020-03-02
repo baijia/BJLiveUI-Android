@@ -102,11 +102,6 @@ public class LeftMenuPresenter implements LeftMenuContract.Presenter {
     }
 
     @Override
-    public void setRemarksEnable(boolean isEnable) {
-        routerListener.setRemarksEnable(isEnable);
-    }
-
-    @Override
     public void destroy() {
         LPRxUtils.dispose(disposableOfQuestionQueue);
         routerListener = null;

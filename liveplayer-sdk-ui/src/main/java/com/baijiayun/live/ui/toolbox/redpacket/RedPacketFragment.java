@@ -29,7 +29,7 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_red_packet;
+        return R.layout.bjy_fragment_red_packet;
     }
 
 
@@ -75,39 +75,6 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
     public void switchRedPacketRankingList(RedPacketTopModel[] list) {
 
         switchRedPacketStart(RedPacketContract.TYPE_REDPACKET_RANKING_LIST);
-
-//        RedPacketTopModel[] test = new RedPacketTopModel[5];
-//        RedPacketTopModel model = new RedPacketTopModel();
-//        model.rank_id = 1;
-//        model.user_name = "百家赵";
-//        model.coin = 300 + (index * 5);
-//        test[0] = model;
-//
-//        model = new RedPacketTopModel();
-//        model.rank_id = 2;
-//        model.user_name = "百家钱";
-//        model.coin = 240 + + (index * 5);
-//        test[1] = model;
-//
-//        model = new RedPacketTopModel();
-//        model.rank_id = 3;
-//        model.user_name = "百家孙";
-//        model.coin = 210 + + (index * 5);
-//        test[2] = model;
-//
-//        model = new RedPacketTopModel();
-//        model.rank_id = 4;
-//        model.user_name = "百家李";
-//        model.coin = 180 + + (index * 5);
-//        test[3] = model;
-//
-//        model = new RedPacketTopModel();
-//        model.rank_id = 5;
-//        model.user_name = "百家周";
-//        model.coin = 99 + + (index * 5);
-//        test[4] = model;
-//        index++;
-
         if(list == null || list.length == 0) {
             //显示表情
             $.id(R.id.rl_lp_ui_redpack_none).visibility(View.VISIBLE);
@@ -225,6 +192,9 @@ public class RedPacketFragment extends BaseFragment implements RedPacketContract
 
     @Override
     public void onDestroy() {
+        if(mPresenter != null){
+            mPresenter.release();
+        }
         super.onDestroy();
         if (mTsf != null) {
             mTsf.pause();

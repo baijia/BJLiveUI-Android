@@ -13,4 +13,50 @@
     <dimen name="distance_setting_big_margin">40dp</dimen>
     <dimen name="timer_edit_width">35dp</dimen>
     <dimen name="timer_edit_height">45dp</dimen>
+
+    <dimen name="main_video_height">108dp</dimen>
+    <dimen name="main_video_width">192dp</dimen>
+
+    <dimen name="main_video_single_height">144dp</dimen>
+    <dimen name="main_video_single_width">192dp</dimen>
+
+    <dimen name="speak_video_height">72dp</dimen>
+    <dimen name="speak_video_width">128dp</dimen>
+
+    <dimen name="top_menu_height">28dp</dimen>
+    <dimen name="top_menu_inner_height">22dp</dimen>
+    <dimen name="top_menu_title_size">12sp</dimen>
+    <dimen name="item_video_textsize">12sp</dimen>
+    <dimen name="top_menu_title_width">200dp</dimen>
+
+    <dimen name="user_item_margin_left">4dp</dimen>
+    <dimen name="user_item_margin_left2">7dp</dimen>
+    <dimen name="user_item_margin_top">4dp</dimen>
+    <dimen name="user_item_margin_bottom">2dp</dimen>
+    <dimen name="user_item_role_label_margin">5dp</dimen>
+    <dimen name="user_item_role_label_padding">4dp</dimen>
+
+    <!--问答-->
+    <dimen name="qa_empty_img_width">72dp</dimen>
+    <dimen name="qa_empty_img_height">79dp</dimen>
+    <dimen name="qa_item_padding">3dp</dimen>
+    <dimen name="qa_item_margin_top">3dp</dimen>
+    <dimen name="qa_item_popup_window_padding">3dp</dimen>
+    <dimen name="qa_item_popup_window_text_size">12sp</dimen>
+    <dimen name="qa_item_popup_window_width">58dp</dimen>
+    <dimen name="qa_interactive_tab_height">30dp</dimen>
+    <dimen name="qa_send_button_margin_end">0dp</dimen>
+    <dimen name="qa_send_button_margin_bottom">0dp</dimen>
+
+    <!--聊天-->
+    <dimen name="chat_item_margin_top">8dp</dimen>
+    <dimen name="chat_item_margin_end">12dp</dimen>
+    <dimen name="common_text_size">12sp</dimen>
+    <dimen name="chat_item_text_content_padding_start">4dp</dimen>
+    <dimen name="chat_item_text_content_padding_top">3dp</dimen>
+    <dimen name="chat_message_reminder_padding">5dp</dimen>
+
+    <dimen name="tab_item_red_point_width">10dp</dimen>
+    <dimen name="tab_item_red_point_margin_start">8dp</dimen>
+    <dimen name="tab_item_red_point_margin_bottom">4dp</dimen>
 </resources>

@@ -75,7 +75,10 @@
     <color name="live_pad_agree">#1795FF</color>
     <color name="live_pad_start">#33C7FF</color>
     <color name="live_pad_stroke_grey">#EDEDEE</color>
+    <color name="live_pad_stroke_grey_single">#d0d0d0</color>
 
+
+    <color name="live_pad_bg_color">#000000</color>
     <color name="live_pad_grey">#FF4A4A4A</color>
     <color name="live_pad_selected_tab_blue">#FF1795FF</color>
     <color name="live_pad_orange">#F5A623</color>

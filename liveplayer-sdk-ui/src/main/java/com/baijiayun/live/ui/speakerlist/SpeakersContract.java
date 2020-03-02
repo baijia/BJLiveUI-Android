@@ -6,6 +6,7 @@ import com.baijiayun.live.ui.base.BaseView;
 import com.baijiayun.live.ui.speakerlist.item.RemoteItem;
 import com.baijiayun.livecore.models.LPInteractionAwardModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
+import com.baijiayun.livecore.models.imodels.IUserModel;
 
 /**
  * Created by Shubo on 2019-07-25.
@@ -54,7 +55,7 @@ public interface SpeakersContract {
         LiveRoomRouterListener getRouterListener();
 
         // 奖励点赞
-        void requestAward(String number);
+        void requestAward(IUserModel userModel);
 
         // 获得奖励数
         int getAwardCount(String number);

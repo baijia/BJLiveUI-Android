@@ -16,6 +16,7 @@ import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.users.group.GroupExtendableListViewAdapter;
+import com.baijiayun.livecore.utils.CommonUtils;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPGroupItem;
@@ -187,10 +188,10 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == VIEW_TYPE_USER) {
-                View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_online_user, parent, false);
+                View view = LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_online_user, parent, false);
                 return new OnlineUserViewHolder(view);
             } else if (viewType == VIEW_TYPE_LOADING) {
-                View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_online_user_loadmore, parent, false);
+                View view = LayoutInflater.from(getActivity()).inflate(R.layout.bjy_item_online_user_loadmore, parent, false);
                 return new LoadingViewHolder(view);
             }
             return null;
@@ -204,7 +205,7 @@ public class OnlineUserDialogFragment extends BaseDialogFragment implements Onli
                 IUserModel userModel = presenter.getUser(position);
 
                 final OnlineUserViewHolder userViewHolder = (OnlineUserViewHolder) holder;
-                userViewHolder.name.setText(userModel.getName());
+                userViewHolder.name.setText(CommonUtils.getEncodePhoneNumber(userModel.getName()));
                 if (userModel.getType() == LPConstants.LPUserType.Teacher) {
                     userViewHolder.teacherTag.setVisibility(View.VISIBLE);
                     userViewHolder.teacherTag.setText(TextUtils.isEmpty(teacherLabel) ? getString(R.string.live_teacher) : teacherLabel);

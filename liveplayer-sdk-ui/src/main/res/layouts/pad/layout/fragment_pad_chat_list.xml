@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/chat_no_message_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textSize="12sp"
+        android:textColor="#DEDEDE"
+        android:text="@string/pad_no_history_msg"
+        android:layout_marginTop="8dp"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/chat_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/chat_input_ll"
+        android:layout_marginBottom="6dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/activity_live_room_new_message_reminder_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/chat_input_ll"
+        android:layout_marginStart="@dimen/activity_live_room_margin"
+        android:alpha="0.8"
+        android:background="@drawable/live_item_chat_msg_reminder"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/chat_message_reminder_padding"
+            android:paddingTop="@dimen/chat_message_reminder_padding"
+            android:paddingBottom="@dimen/chat_message_reminder_padding"
+            android:src="@drawable/ic_arrow_moremsg" />
+
+        <TextView
+            android:id="@+id/activity_live_room_new_message_reminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
+            android:paddingTop="@dimen/chat_message_reminder_padding"
+            android:paddingRight="@dimen/chat_message_reminder_padding"
+            android:paddingBottom="@dimen/chat_message_reminder_padding"
+            android:textSize="@dimen/common_text_size"
+            android:textColor="@color/live_white" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/chat_input_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:elevation="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/live_white"
+        >
+        <TextView
+            android:id="@+id/send_message_btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="返回"
+            android:padding="5dp"
+            android:gravity="center_vertical"
+            android:drawablePadding="2dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            android:textColor="@color/color_00000000"
+            android:drawableStart="@drawable/ic_back_black"
+            />
+        <TextView
+            android:id="@+id/send_message_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/live_item_chat_linearlayout"
+            android:padding="5dp"
+            android:text="输入聊天内容"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#ff9b9b9b" />
+
+        <ImageView
+            android:id="@+id/chat_notice_btn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_chat_notice" />
+
+    </LinearLayout>
+
+</RelativeLayout>

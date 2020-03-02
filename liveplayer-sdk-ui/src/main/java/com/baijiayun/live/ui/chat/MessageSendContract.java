@@ -3,6 +3,8 @@ package com.baijiayun.live.ui.chat;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BasePresenter;
 import com.baijiayun.live.ui.base.BaseView;
+import com.baijiayun.live.ui.base.RouterListener;
+import com.baijiayun.livecore.models.LPExpressionModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
 
 /**
@@ -56,5 +58,7 @@ public interface MessageSendContract {
         IUserModel getPrivateChatUser();
 
         LiveRoomRouterListener getLiveRouterListener();
+
+        LPExpressionModel getSingleEmoji(String emojiName);
     }
 }

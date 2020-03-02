@@ -50,7 +50,7 @@ public class LPShareDialog extends BaseDialogFragment {
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_share_room;
+        return R.layout.bjy_dialog_share_room;
     }
 
     @Override

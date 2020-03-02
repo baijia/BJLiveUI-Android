@@ -44,7 +44,7 @@ public class ChatPictureViewFragment extends BaseDialogFragment implements ChatP
 
     @Override
     protected int getLayoutId() {
-        return R.layout.dialog_big_picture;
+        return R.layout.bjy_dialog_big_picture;
     }
 
     @Override

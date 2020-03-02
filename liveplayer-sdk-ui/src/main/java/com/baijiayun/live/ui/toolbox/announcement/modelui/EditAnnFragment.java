@@ -24,7 +24,7 @@ public class EditAnnFragment extends BaseFragment implements EditAnnContract.Vie
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_announcement_edit;
+        return R.layout.bjy_fragment_announcement_edit;
     }
 
     @Override

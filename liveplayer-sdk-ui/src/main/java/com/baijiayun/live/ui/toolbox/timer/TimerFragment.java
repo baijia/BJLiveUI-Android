@@ -9,12 +9,13 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
 
-
+/**
+ * 计时器
+ */
 public class TimerFragment extends BaseFragment implements TimerContract.View{
     private TimerContract.Presenter presenter;
     private Context context;
@@ -105,7 +106,7 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
 
     private void publish(long duration) {
         if (!isLegal()) {
-            Toast.makeText(context,getString(R.string.timer_error_tip,isCountDown()?getString(R.string.timer_countdown):getString(R.string.timer_countup)),Toast.LENGTH_SHORT).show();
+            showToast(getString(R.string.timer_error_tip,isCountDown()?getString(R.string.timer_countdown):getString(R.string.timer_countup)));
             return;
         }
         if (getString(R.string.timer_start).equals(tvPublish.getText().toString())) {

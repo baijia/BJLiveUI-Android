@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="user"
+            type="com.baijiayun.livecore.models.imodels.IUserModel" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/item_online_user_avatar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/user_item_margin_left"
+            android:layout_marginTop="@dimen/user_item_margin_top"
+            android:layout_marginBottom="@dimen/user_item_margin_bottom"
+            app:imageUrl='@{user.avatar.startsWith("//") ? ("https:" + user.avatar) : user.avatar}'
+            tools:src="@drawable/ic_pad_camera_close" />
+
+        <TextView
+            android:id="@+id/item_online_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/user_item_margin_left2"
+            android:layout_toLeftOf="@+id/item_online_user_role"
+            android:layout_toEndOf="@+id/item_online_user_avatar"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="#ff4a4a4a"
+            android:textSize="@dimen/common_text_size"
+            android:text="@{com.baijiayun.livecore.utils.CommonUtils.getEncodePhoneNumber(user.name)}"
+            tools:text="郭德纲砸缸郭德纲砸缸郭德纲砸缸郭德纲砸缸郭德纲" />
+
+        <TextView
+            android:id="@+id/item_online_user_role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/user_item_role_label_margin"
+            android:layout_marginEnd="@dimen/user_item_role_label_margin"
+            android:paddingStart="@dimen/user_item_role_label_padding"
+            android:paddingTop="2dp"
+            android:paddingEnd="@dimen/user_item_role_label_padding"
+            android:paddingBottom="2dp"
+            android:textSize="@dimen/common_text_size"
+            tools:background="@drawable/item_online_user_assistant_bg"
+            tools:text="助教" />
+
+    </RelativeLayout>
+
+</layout>

@@ -25,6 +25,7 @@ import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LiveRoom;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.utils.CommonUtils;
 import com.baijiayun.livecore.wrapper.LPPlayer;
 import com.baijiayun.livecore.wrapper.impl.LPVideoView;
 import com.baijiayun.livecore.wrapper.listener.LPPlayerListener;
@@ -81,7 +82,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
     }
 
     protected void initView() {
-        container = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.item_view_speaker_remote, itemContainer, false);
+        container = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.bjy_item_view_speaker_remote, itemContainer, false);
         $ = QueryPlus.with(container);
         videoContainer = (FrameLayout) $.id(R.id.item_speak_speaker_avatar_container).view();
         avatarImageView = new ImageView(context);
@@ -98,20 +99,21 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
     }
 
     public void refreshNameTable() {
+        String userName = CommonUtils.getEncodePhoneNumber(mediaModel.getUser().getName());
         if (itemType == SpeakItemType.Presenter) {
             String teacherLabel = liveRoom.getCustomizeTeacherLabel();
             teacherLabel = TextUtils.isEmpty(teacherLabel) ? context.getString(R.string.live_teacher_hint) : "(" + teacherLabel + ")";
-            $.id(R.id.item_speak_speaker_name).text(mediaModel.getUser().getName() + (mediaModel.getUser().getType() == LPConstants.LPUserType.Teacher ? teacherLabel : context.getString(R.string.live_presenter_hint)));
+            $.id(R.id.item_speak_speaker_name).text(userName + (mediaModel.getUser().getType() == LPConstants.LPUserType.Teacher ? teacherLabel : context.getString(R.string.live_presenter_hint)));
         } else if (mediaModel.getUser().getType() == LPConstants.LPUserType.Teacher) {
             String teacherLabel = liveRoom.getCustomizeTeacherLabel();
             teacherLabel = TextUtils.isEmpty(teacherLabel) ? context.getString(R.string.live_teacher_hint) : "(" + teacherLabel + ")";
-            $.id(R.id.item_speak_speaker_name).text(mediaModel.getUser().getName() + teacherLabel);
+            $.id(R.id.item_speak_speaker_name).text(userName + teacherLabel);
         } else if (mediaModel.getUser().getType() == LPConstants.LPUserType.Assistant) {
             String assistantLabel = liveRoom.getCustomizeAssistantLabel();
             assistantLabel = TextUtils.isEmpty(assistantLabel) ? "" : "(" + assistantLabel + ")";
-            $.id(R.id.item_speak_speaker_name).text(mediaModel.getUser().getName() + (TextUtils.isEmpty(assistantLabel) ? "" : assistantLabel));
+            $.id(R.id.item_speak_speaker_name).text(userName + (TextUtils.isEmpty(assistantLabel) ? "" : assistantLabel));
         } else
-            $.id(R.id.item_speak_speaker_name).text(mediaModel.getUser().getName());
+            $.id(R.id.item_speak_speaker_name).text(userName);
     }
 
     @Override
@@ -210,15 +212,17 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
     @Override
     public void switchToFullScreen() {
         super.switchToFullScreen();
-        if (videoView != null)
+        if (videoView != null) {
             videoView.setZOrderMediaOverlay(false);
+        }
     }
 
     @Override
     public void switchBackToList() {
         super.switchBackToList();
-        if (videoView != null)
+        if (videoView != null) {
             videoView.setZOrderMediaOverlay(true);
+        }
     }
 
     @Override
@@ -360,7 +364,7 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
                     } else if (getString(R.string.live_unset_auth_drawing).equals(charSequence.toString())) {
                         liveRoom.getSpeakQueueVM().requestStudentDrawingAuthChange(false, mediaModel.getUser().getNumber());
                     } else if (getString(R.string.live_award).equals(charSequence.toString())) {
-                        presenter.requestAward(mediaModel.getUser().getNumber());
+                        presenter.requestAward(mediaModel.getUser());
                     }
                     materialDialog.dismiss();
                 })
@@ -411,6 +415,14 @@ public class RemoteItem extends BaseSwitchItem implements Playable {
         if (videoView != null) {
             videoView.setWaterMarkVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * keep_alive=true, 即使关闭音视频仍然保留席位
+     * @return
+     */
+    public boolean isKeepAlive(){
+        return mediaModel.isKeepAlive();
     }
 
     public static class LoadingListener implements LPPlayerListener {

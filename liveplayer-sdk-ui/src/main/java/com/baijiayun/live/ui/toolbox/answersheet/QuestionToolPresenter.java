@@ -138,7 +138,7 @@ public class QuestionToolPresenter implements QuestionToolContract.Presenter{
             return false;
         }
         checkOptions();
-        roomRouterListener.setQuestionAnswerCahce(lpAnswerModel);
+        roomRouterListener.setQuestionAnswerCache(lpAnswerModel);
         return roomRouterListener.getLiveRoom().getToolBoxVM().submitAnswers(lpAnswerModel);
     }
 }

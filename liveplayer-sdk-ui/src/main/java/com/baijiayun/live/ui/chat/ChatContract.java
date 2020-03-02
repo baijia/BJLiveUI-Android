@@ -78,5 +78,7 @@ interface ChatContract {
         boolean isForbiddenByTeacher();
 
         Map<String,String> getExpressions();
+
+        Map<String, String> getExpressionNames();
     }
 }

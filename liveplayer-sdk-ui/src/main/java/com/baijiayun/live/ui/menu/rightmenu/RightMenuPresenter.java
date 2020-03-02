@@ -114,6 +114,8 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
             liveRoomRouterListener.getLiveRoom().getSpeakQueueVM().cancelSpeakApply();
             view.showSpeakApplyCanceled();
         } else if (speakApplyStatus == RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING) {
+            //设置mediaViewModel.isHandUp=false
+            liveRoomRouterListener.getLiveRoom().getMediaViewModel().setCancelSpeak();
             // 取消发言
             cancelStudentSpeaking();
         }

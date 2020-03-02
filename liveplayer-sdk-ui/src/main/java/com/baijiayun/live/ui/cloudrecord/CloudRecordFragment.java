@@ -21,7 +21,7 @@ public class CloudRecordFragment extends BaseFragment implements CloudRecordCont
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_right_top_menu;
+        return R.layout.bjy_fragment_right_top_menu;
     }
 
     @Override

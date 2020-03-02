@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseFragment;
@@ -23,6 +22,7 @@ import com.baijiayun.live.ui.utils.DisplayUtils;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPQuestionPullResItem;
+import com.baijiayun.livecore.utils.CommonUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -110,7 +110,7 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_question_answer;
+        return R.layout.bjy_fragment_question_answer;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
     @Override
     public void showToast(String content) {
         if (getActivity() == null) return;
-        Toast.makeText(getActivity(), content, Toast.LENGTH_SHORT).show();
+        super.showToast(content);
     }
 
     @Override
@@ -202,10 +202,10 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
             if (viewType == VIEW_TYPE_QUESTION) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_question_answer, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_question_answer, parent, false);
                 return new QuestionItem(view);
             } else if (viewType == VIEW_TYPE_LOADING) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_online_user_loadmore, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bjy_item_online_user_loadmore, parent, false);
                 return new LoadingViewHolder(view);
             }
             return null;
@@ -220,22 +220,22 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
                 questionHolder.questionSymbol.setText("问");
                 questionHolder.questionSymbol.setBackground(getContext().getResources().getDrawable(R.drawable.ic_item_question_symbol));
                 questionHolder.questionSymbol.setTextColor(getContext().getResources().getColor(R.color.live_red_question_symbol));
-                questionHolder.questionName.setText(item.itemList.get(0).from.getName());
+                questionHolder.questionName.setText(CommonUtils.getEncodePhoneNumber(item.itemList.get(0).from.getName()));
                 questionHolder.questionTime.setText(getTime(item.itemList.get(0).time));
                 questionHolder.questionContent.setText(item.itemList.get(0).content);
                 if (item.itemList.size() > 1) { // 存在老师回复
                     questionHolder.questionReply.setVisibility(View.VISIBLE);
                     questionHolder.questionReply.removeAllViews();
                     for (int i = 1; i < item.itemList.size(); i++) {
-                        LinearLayout questionReply = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.item_question_answer, null, false);
+                        LinearLayout questionReply = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.bjy_item_question_answer, null, false);
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         layoutParams.bottomMargin = DisplayUtils.dip2px(getContext(), 10);
                         questionReply.setBackground(getContext().getResources().getDrawable(R.drawable.bg_item_question_answer_reply));
-                        TextView questionSymbol = ((TextView) questionReply.findViewById(R.id.fragment_question_answer_symbol));
+                        TextView questionSymbol = questionReply.findViewById(R.id.fragment_question_answer_symbol);
                         questionSymbol.setText("答");
                         questionSymbol.setTextColor(getContext().getResources().getColor(R.color.live_blue_question_symbol));
                         questionSymbol.setBackground(getContext().getResources().getDrawable(R.drawable.ic_item_answer_symbol));
-                        ((TextView) questionReply.findViewById(R.id.fragment_question_answer_name)).setText(item.itemList.get(i).from.getName());
+                        ((TextView) questionReply.findViewById(R.id.fragment_question_answer_name)).setText(CommonUtils.getEncodePhoneNumber(item.itemList.get(i).from.getName()));
                         ((TextView) questionReply.findViewById(R.id.fragment_question_answer_time)).setText(getTime(item.itemList.get(i).time));
                         ((TextView) questionReply.findViewById(R.id.fragment_question_answer_content)).setText(item.itemList.get(i).content);
                         questionHolder.questionReply.addView(questionReply, layoutParams);

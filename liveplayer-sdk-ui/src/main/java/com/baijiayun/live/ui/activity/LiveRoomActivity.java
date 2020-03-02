@@ -119,6 +119,7 @@ import com.baijiayun.livecore.LiveSDK;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.context.LiveRoom;
+import com.baijiayun.livecore.context.LiveRoomImpl;
 import com.baijiayun.livecore.listener.LPLaunchListener;
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener;
 import com.baijiayun.livecore.models.LPAnswerModel;
@@ -156,6 +157,8 @@ import io.reactivex.schedulers.Schedulers;
 import static com.baijiayun.live.ui.utils.Precondition.checkNotNull;
 
 public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRouterListener {
+    private final String TAG = LiveRoomActivity.class.getCanonicalName();
+
     private RelativeLayout rlContainer;
     private RelativeLayout flBackground;
     private FrameLayout flLeft;
@@ -224,7 +227,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private TextView tvStreamInfo;
     private LinearLayout messageReminderContainer;
     private List<IMediaModel> userMediaModels;
-    private Disposable subscriptionOfIsCloudRecordAllowed;
     private int minVolume;
     private IUserModel privateChatUser;
     private LPError lpError;
@@ -235,11 +237,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     private CompositeDisposable timerList = new CompositeDisposable();
 
-    private final String TAG = LiveRoomActivity.class.getCanonicalName();
-
     private Handler mHandler = new Handler();
     private LPAnswerModel lpAnswerModel;
     private EvaDialogFragment evaDialogFragment;
+
+    private boolean isDlchatOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +254,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             onConfigurationChanged(getResources().getConfiguration());
         }
 
-        loadingFragment = LoadingFragment.newInstance(true, shouldShowTechSupport);
+        loadingFragment = LoadingFragment.newInstance(true);
         LoadingPresenter loadingPresenter;
         if (roomId == -1) {
             loadingPresenter = new LoadingPresenter(loadingFragment, code, name, avatar);
@@ -284,7 +286,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         checkScreenOrientationInit();
     }
 
-    private boolean isDlchatOpen = false;
+    @Override
+    public LiveRoomRouterListener getRouterListener() {
+        return this;
+    }
 
     private void initViews() {
         flBackground = findViewById(R.id.activity_live_room_background_container);
@@ -334,7 +339,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 }
             }
         });
-        awardView = (AwardView) findViewById(R.id.award_view);
+        awardView = findViewById(R.id.award_view);
     }
 
     @Override
@@ -361,7 +366,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 if (errorFragment != null && errorFragment.isAdded())
                     removeFragment(errorFragment);
                 removeAllFragment();
-                loadingFragment = LoadingFragment.newInstance(LiveSDK.checkTeacherUnique, shouldShowTechSupport);
+                loadingFragment = LoadingFragment.newInstance(LiveSDK.checkTeacherUnique);
                 LoadingPresenter loadingPresenter = new LoadingPresenter(loadingFragment, code, nickName, null);
                 bindVP(loadingFragment, loadingPresenter);
                 addFragment(R.id.activity_live_room_loading, loadingFragment);
@@ -589,27 +594,24 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             if (mAuditionEndDialog == null) {
                 mAuditionEndDialog = new SimpleTextDialog(this, error);
                 mAuditionEndDialog.setCancelable(false);
-                mAuditionEndDialog.setOnOkClickListener(new SimpleTextDialog.OnOkClickListener() {
-                    @Override
-                    public void onJump(String url) {
-                        mAuditionEndDialog.dismiss();
-                        mAuditionEndDialog = null;
+                mAuditionEndDialog.setOnOkClickListener(url -> {
+                    mAuditionEndDialog.dismiss();
+                    mAuditionEndDialog = null;
 
-                        //跳转link
-                        if (!TextUtils.isEmpty(url)) {
-                            if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                                if (!TextUtils.isEmpty(url))
-                                    url = "http://" + url;
-                            }
-
-                            Intent intent = new Intent();
-                            intent.setAction("android.intent.action.VIEW");
-                            Uri uri = Uri.parse(url);
-                            intent.setData(uri);
-                            LiveRoomActivity.this.startActivity(intent);
+                    //跳转link
+                    if (!TextUtils.isEmpty(url)) {
+                        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                            if (!TextUtils.isEmpty(url))
+                                url = "http://" + url;
                         }
-                        LiveRoomActivity.this.finish();
+
+                        Intent intent = new Intent();
+                        intent.setAction("android.intent.action.VIEW");
+                        Uri uri = Uri.parse(url);
+                        intent.setData(uri);
+                        LiveRoomActivity.this.startActivity(intent);
                     }
+                    LiveRoomActivity.this.finish();
                 });
             }
             if (mAuditionEndDialog.isShowing())
@@ -1112,7 +1114,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
         liveRoom.switchRoom(new LPLaunchListener() {
             @Override
-            public void onLaunchSteps(int i, int i1) {
+            public void onLaunchSteps(int step, int totalStep) {
+
             }
 
             @Override
@@ -1414,21 +1417,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         }
     }
 
-    private void showNetError(LPError error) {
-        if (errorFragment != null && errorFragment.isAdded()) return;
-        if (flError.getChildCount() >= 2) return;
-        if (loadingFragment != null && loadingFragment.isAdded()) {
-            removeFragment(loadingFragment);
-        }
-        errorFragment = ErrorFragment.newInstance("好像断网了", error.getMessage(), ErrorFragment.ERROR_HANDLE_RECONNECT, shouldShowTechSupport);
-        errorFragment.setRouterListener(this);
-        flError.setVisibility(View.VISIBLE);
-        addFragment(R.id.activity_live_room_error, errorFragment);
-        if (Build.VERSION.SDK_INT < 24) {
-            getSupportFragmentManager().executePendingTransactions();
-        }
-    }
-
     @Override
     public void doReEnterRoom(boolean checkUnique) {
         if (errorFragment != null && errorFragment.isAdded()) {
@@ -1443,7 +1431,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         RxUtils.dispose(subscriptionOfMarquee);
         RxUtils.dispose(subscriptionOfLoginConflict);
         RxUtils.dispose(subscriptionOfStreamInfo);
-        RxUtils.dispose(subscriptionOfIsCloudRecordAllowed);
         RxUtils.dispose(subscriptionOfTeacherAbsent);
         RxUtils.dispose(disposableOfMediaPublish);
 
@@ -1493,7 +1480,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         liveRoom.quitRoom();
 
         flLoading.setVisibility(View.VISIBLE);
-        loadingFragment = LoadingFragment.newInstance(checkUnique, shouldShowTechSupport);
+        loadingFragment = LoadingFragment.newInstance(checkUnique);
         LoadingPresenter loadingPresenter;
         if (roomId == -1) {
             loadingPresenter = new LoadingPresenter(loadingFragment, code, name, avatar);
@@ -1639,18 +1626,12 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                             liveRoom.getRecorder().attachAudio();
                             speakersPresenter.attachVideoForce();
                         }
-                        if (liveRoom.getAutoStartCloudRecordStatus() == 1) {
-                            subscriptionOfIsCloudRecordAllowed = liveRoom.requestIsCloudRecordAllowed()
-                                    .subscribe(lpCheckRecordStatusModel -> {
-                                        if (lpCheckRecordStatusModel.recordStatus == 1) {
-                                            liveRoom.requestCloudRecord(true);
-                                        } else {
-                                            showMessage(lpCheckRecordStatusModel.reason);
-                                        }
-                                    });
-                        }
                     } else if (liveRoom.getCurrentUser().getType() == LPConstants.LPUserType.Student) {
                         enableStudentSpeakMode();
+                    }
+                    //已上课，老师/助教补发cloud_record
+                    if(getLiveRoom().isTeacherOrAssistant() && ((LiveRoomImpl)liveRoom).getRoomLoginModel().started){
+                        globalPresenter.doRequestCloudRecord();
                     }
                 });
         timerList.add(timer);
@@ -1685,12 +1666,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         }
         subscriptionOfMarquee = Observable.interval(0, liveHorseLampInterval, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Long>() {
-                    @Override
-                    public void accept(Long aLong) {
-                        showMarqueeTape(lamp);
-                    }
-                });
+                .subscribe(aLong -> showMarqueeTape(lamp));
     }
 
     private void showMarqueeTape(String lamp) {
@@ -1798,7 +1774,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
         int currentOrientation = getResources().getConfiguration().orientation;
         if (lppptView.isEditable()) {
-//            flTop.setVisibility(View.GONE);
             if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
                 checkNotNull(leftMenuFragment);
                 flLeft.setVisibility(View.GONE);
@@ -1811,7 +1786,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             }
             flPPTLeft.setVisibility(View.VISIBLE);
         } else {
-//            flTop.setVisibility(View.VISIBLE);
             flLeft.setVisibility(View.VISIBLE);
             dlChat.setVisibility(View.VISIBLE);
             flRightBottom.setVisibility(View.VISIBLE);
@@ -2083,9 +2057,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
         timerList.clear();
 
-        Log.i("tag", "ondestroy");
-
-        shouldShowTechSupport = true;
         if (pptManagePresenter != null) {
             pptManagePresenter.destroy();
             pptManagePresenter = null;
@@ -2097,7 +2068,6 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         RxUtils.dispose(subscriptionOfMarquee);
         RxUtils.dispose(subscriptionOfLoginConflict);
         RxUtils.dispose(subscriptionOfStreamInfo);
-        RxUtils.dispose(subscriptionOfIsCloudRecordAllowed);
         RxUtils.dispose(subscriptionOfTeacherAbsent);
         RxUtils.dispose(disposableOfMediaPublish);
         LPRxUtils.dispose(savePictureDisposable);
@@ -2123,21 +2093,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     .positiveText(getString(R.string.live_exit_hint_confirm))
                     .negativeColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_text_color))
                     .negativeText(getString(R.string.live_cancel))
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                            if (lpError != null && lpError.getCode() == LPError.CODE_ERROR_LOGIN_UNIQUE_CONFLICT) {
-                                getLiveRoom().quitRoom();
-                            }
-                            finish();
+                    .onPositive((materialDialog, dialogAction) -> {
+                        if (lpError != null && lpError.getCode() == LPError.CODE_ERROR_LOGIN_UNIQUE_CONFLICT) {
+                            getLiveRoom().quitRoom();
                         }
+                        finish();
                     })
-                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                            materialDialog.dismiss();
-                        }
-                    })
+                    .onNegative((materialDialog, dialogAction) -> materialDialog.dismiss())
                     .build()
                     .show();
         }
@@ -2227,7 +2189,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     @Override
     public void changeNewChatMessageReminder(boolean isNeedShow, int newMessageNumber) {
         if (messageReminderContainer == null)
-            messageReminderContainer = (LinearLayout) findViewById(R.id.activity_live_room_new_message_reminder_container);
+            messageReminderContainer = findViewById(R.id.activity_live_room_new_message_reminder_container);
         if (!isNeedShow || newMessageNumber == 0) {
             messageReminderContainer.setVisibility(View.GONE);
             return;
@@ -2236,12 +2198,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         messageReminderContainer.bringToFront();
         ((TextView) findViewById(R.id.activity_live_room_new_message_reminder)).setText(getString(R.string.live_room_new_chat_message, newMessageNumber));
         messageReminderContainer.setVisibility(View.VISIBLE);
-        messageReminderContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (chatFragment != null && chatFragment.isAdded())
-                    chatFragment.scrollToBottom();
-            }
+        messageReminderContainer.setOnClickListener(v -> {
+            if (chatFragment != null && chatFragment.isAdded())
+                chatFragment.scrollToBottom();
         });
     }
 
@@ -2273,26 +2232,20 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     public void showPPTLoadErrorDialog(final int errorCode, String description) {
         try {
             if (isFinishing()) return;
+            String title = getString(R.string.live_room_ppt_load_error, errorCode);
+            if(errorCode == -10086){
+                title = description;
+            }
             new MaterialDialog.Builder(this)
-                    .title(getString(R.string.live_room_ppt_load_error, errorCode))
+                    .title(title)
                     .content(getString(R.string.live_room_ppt_switch))
                     .contentColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_text_color))
                     .positiveColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_blue))
                     .positiveText(getString(R.string.live_room_ppt_switch_confirm))
                     .negativeColor(ContextCompat.getColor(LiveRoomActivity.this, R.color.live_text_color))
                     .negativeText(getString(R.string.live_cancel))
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                            lppptView.setAnimPPTEnable(false);
-                        }
-                    })
-                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                            materialDialog.dismiss();
-                        }
-                    })
+                    .onPositive((materialDialog, dialogAction) -> lppptView.setAnimPPTEnable(false))
+                    .onNegative((materialDialog, dialogAction) -> materialDialog.dismiss())
                     .build()
                     .show();
         } catch (Exception ignore) {
@@ -2441,6 +2394,11 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
+    public void setShouldShowTecSupport(boolean showTecSupport) {
+        shouldShowTechSupport = showTecSupport;
+    }
+
+    @Override
     public void showAwardAnimation(String userName) {
         awardView.startAnim();
         awardView.setVisibility(View.VISIBLE);
@@ -2470,7 +2428,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
-    public void setQuestionAnswerCahce(LPAnswerModel lpAnswerModel) {
+    public void setQuestionAnswerCache(LPAnswerModel lpAnswerModel) {
         this.lpAnswerModel = lpAnswerModel;
     }
 
@@ -2534,17 +2492,14 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     @Override
     public void setRemarksEnable(boolean isEnable) {
-
         if (lppptView == null) {
             return;
         }
-
         lppptView.setRemarksEnable(isEnable);
     }
 
     @Override
     public void switchRedPacketUI(boolean isShow, LPRedPacketModel lpRedPacketModel) {
-
         if (isShow) {
             //显示
             if (mRedPacketFragment != null) {

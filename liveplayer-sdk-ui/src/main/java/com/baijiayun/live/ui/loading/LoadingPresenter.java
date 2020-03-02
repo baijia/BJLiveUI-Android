@@ -20,6 +20,7 @@ public class LoadingPresenter implements LoadingContract.Presenter {
     private long roomId;
     private IUserModel userModel;
     private boolean isJoinCode;
+    private boolean shouldShowTecSupport;
 
     public LoadingPresenter(LoadingContract.View view, String code, String name, String avatar) {
         this.view = view;
@@ -45,6 +46,9 @@ public class LoadingPresenter implements LoadingContract.Presenter {
             public void onLaunchSteps(int i, int i1) {
                 if (LoadingPresenter.this.view != null)
                     LoadingPresenter.this.view.showLoadingSteps(i, i1);
+                if(routerListener != null && i== 2){
+                    routerListener.setShouldShowTecSupport(shouldShowTecSupport);
+                }
             }
 
             @Override
@@ -131,6 +135,11 @@ public class LoadingPresenter implements LoadingContract.Presenter {
     @Override
     public boolean isJoinCode() {
         return isJoinCode;
+    }
+
+    @Override
+    public void setShouldShowTecSupport(boolean showTecSupport) {
+        shouldShowTecSupport = showTecSupport;
     }
 
     @Override

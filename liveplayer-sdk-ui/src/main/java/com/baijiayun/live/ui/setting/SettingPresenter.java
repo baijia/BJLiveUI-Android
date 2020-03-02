@@ -480,7 +480,12 @@ public class SettingPresenter implements SettingContract.Presenter {
 
     @Override
     public void setDownCDNLink(int order) {
-        if(liveRoom.getPlayer().setLinkTypeTcpWithCdn(tcpCdnTag.get(order))){
+        String tcpCdn = "";
+        //-1为自动模式，设置preferCDN=""
+        if(order >= 0 && order < tcpCdnTag.size()){
+            tcpCdn = tcpCdnTag.get(order);
+        }
+        if(liveRoom.getPlayer().setLinkTypeTcpWithCdn(tcpCdn)){
             view.showDownLinkTCP();
         }else{
             view.showSwitchLinkTypeError();
@@ -490,5 +495,10 @@ public class SettingPresenter implements SettingContract.Presenter {
     @Override
     public boolean isUseWebRTC() {
         return routerListener.getLiveRoom().isUseWebRTC();
+    }
+
+    @Override
+    public void setRemarksEnable(boolean isEnable) {
+        routerListener.setRemarksEnable(isEnable);
     }
 }

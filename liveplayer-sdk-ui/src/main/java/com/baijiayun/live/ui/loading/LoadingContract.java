@@ -14,10 +14,6 @@ import com.baijiayun.livecore.models.imodels.IUserModel;
 interface LoadingContract {
     interface View extends BaseView<Presenter> {
         void showLoadingSteps(int currentStep, int totalSteps);
-
-        void showLaunchError(LPError lpError);
-
-        void setTechSupportVisibility(boolean shouldShow);
     }
 
     interface Presenter extends BasePresenter {
@@ -38,5 +34,7 @@ interface LoadingContract {
         void setLiveRoom(LiveRoom liveRoom);
 
         boolean isJoinCode();
+
+        void setShouldShowTecSupport(boolean showTecSupport);
     }
 }

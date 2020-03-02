@@ -32,7 +32,7 @@ public class RightBottomMenuFragment extends BaseFragment implements RightBottom
 
     @Override
     public int getLayoutId() {
-        return R.layout.fragment_right_bottom_menu;
+        return R.layout.bjy_fragment_right_bottom_menu;
     }
 
     @Override

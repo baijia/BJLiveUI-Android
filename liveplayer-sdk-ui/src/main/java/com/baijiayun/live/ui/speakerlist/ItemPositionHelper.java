@@ -53,7 +53,7 @@ public class ItemPositionHelper {
         if (speakItem instanceof RemoteItem) {
             handleRemoteItem((RemoteItem) speakItem);
         } else if (speakItem instanceof LocalItem) {
-            handleLocalItem(speakItem);
+            handleLocalItem((LocalItem)speakItem);
         } else if (speakItem instanceof ApplyItem) {
             handleApplyItem(speakItem);
         } else if (speakItem.getItemType() == SpeakItemType.PPT) {
@@ -174,13 +174,11 @@ public class ItemPositionHelper {
     private void handlePPTItem(SpeakItem speakItem) {
     }
 
-    private void handleLocalItem(SpeakItem speakItem) {
-        if (!(speakItem instanceof LocalItem)) return;
-        LocalItem localItem = (LocalItem) speakItem;
-        if (speakItems.contains(speakItem)) {
+    private void handleLocalItem(LocalItem localItem) {
+        if (speakItems.contains(localItem)) {
             if (!localItem.hasVideo()) {
-                if (((LocalItem) speakItem).isInFullScreen()) {
-                    ((LocalItem) speakItem).switchBackToList();
+                if (localItem.isInFullScreen()) {
+                    localItem.switchBackToList();
                     pptItem.switchToFullScreen();
                 }
                 speakItems.remove(localItem);
@@ -209,13 +207,16 @@ public class ItemPositionHelper {
             if (!remoteItem.hasVideo() && !remoteItem.hasAudio()) {
                 if (remoteItem.isInFullScreen()) {
                     remoteItem.switchBackToList();
-                    if (remoteItem.getItemType() != SpeakItemType.Presenter || remoteItem.getMediaSourceType() != LPConstants.MediaSourceType.MainCamera) {
-                        itemActions.add(new ItemAction(remoteItem, ActionType.REMOVE));
-                        speakItems.remove(remoteItem);
-                    }
                     pptItem.switchToFullScreen();
+                    //ATTENTION 主讲主摄像头或keep_alive=true保留席位
+                    if (remoteItem.getItemType() == SpeakItemType.Presenter && remoteItem.getMediaSourceType() == LPConstants.MediaSourceType.MainCamera
+                            || remoteItem.isKeepAlive())
+                        return;
+                    itemActions.add(new ItemAction(remoteItem, ActionType.REMOVE));
+                    speakItems.remove(remoteItem);
                 } else {
-                    if (remoteItem.getItemType() == SpeakItemType.Presenter && remoteItem.getMediaSourceType() == LPConstants.MediaSourceType.MainCamera)
+                    if (remoteItem.getItemType() == SpeakItemType.Presenter && remoteItem.getMediaSourceType() == LPConstants.MediaSourceType.MainCamera
+                            || remoteItem.isKeepAlive())
                         return;
                     speakItems.remove(remoteItem);
                     itemActions.add(new ItemAction(remoteItem, ActionType.REMOVE));

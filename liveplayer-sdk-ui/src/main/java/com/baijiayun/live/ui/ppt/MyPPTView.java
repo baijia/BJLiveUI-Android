@@ -12,7 +12,9 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.speakerlist.item.SpeakItemType;
 import com.baijiayun.live.ui.speakerlist.item.Switchable;
 import com.baijiayun.livecore.ppt.PPTView;
+import com.baijiayun.livecore.ppt.photoview.OnDoubleTapListener;
 import com.baijiayun.livecore.ppt.whiteboard.Whiteboard;
+import com.baijiayun.livecore.ppt.whiteboard.shape.Shape;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +50,21 @@ public class MyPPTView extends PPTView implements PPTContract.View, Switchable {
             }
         });
 
-        super.setOnDoubleTapListener(() -> {
-            if (isInFullScreen)
-                setDoubleTapScaleEnable(true);
-            else {
-                setDoubleTapScaleEnable(false);
-                presenter.getRouter().getFullScreenItem().switchBackToList();
-                switchToFullScreen();
+        super.setOnDoubleTapListener(new OnDoubleTapListener() {
+            @Override
+            public void onDoubleTapConfirmed() {
+                if (isInFullScreen)
+                    setDoubleTapScaleEnable(true);
+                else {
+                    setDoubleTapScaleEnable(false);
+                    presenter.getRouter().getFullScreenItem().switchBackToList();
+                    switchToFullScreen();
+                }
+            }
+
+            @Override
+            public void onDoubleTapOnShape(Shape shape) {
+
             }
         });
 

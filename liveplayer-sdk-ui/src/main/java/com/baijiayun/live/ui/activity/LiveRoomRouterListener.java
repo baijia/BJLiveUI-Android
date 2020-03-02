@@ -248,7 +248,7 @@ public interface LiveRoomRouterListener {
 
     void showQuestionAnswer(boolean showFragment);
 
-    void setQuestionAnswerCahce(LPAnswerModel lpAnswerModel);
+    void setQuestionAnswerCache(LPAnswerModel lpAnswerModel);
 
     boolean isQuestionAnswerShow();
 
@@ -267,4 +267,6 @@ public interface LiveRoomRouterListener {
     void showEvaluation();
 
     void dismissEvaDialog();
+
+    void setShouldShowTecSupport(boolean showTecSupport);
 }
