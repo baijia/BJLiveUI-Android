@@ -62,13 +62,18 @@ class InteractiveFragment : BasePadFragment(), DragResizeFrameLayout.OnResizeLis
     private var shouldShowQARedPoint = true
 
     private val liveFeatureTabs by lazy {
-        val tabList = routerViewModel.liveRoom.partnerConfig.liveFeatureTabs.split(",") as ArrayList<String>
-        tabList.remove("speaker")
-        //仅当enableLiveQuestionAnswer和liveFeatureTabs同时满足才显示问答
-        if(routerViewModel.liveRoom.partnerConfig.enableLiveQuestionAnswer == 0){
-            tabList.remove("answer")
+        if(routerViewModel.liveRoom.partnerConfig.liveFeatureTabs.isNullOrEmpty()){
+            ArrayList()
+        }else{
+            val list = routerViewModel.liveRoom.partnerConfig.liveFeatureTabs.split(",")
+            val tabList = ArrayList(list)
+            tabList.remove("speaker")
+            //仅当enableLiveQuestionAnswer和liveFeatureTabs同时满足才显示问答
+            if(routerViewModel.liveRoom.partnerConfig.enableLiveQuestionAnswer == 0){
+                tabList.remove("answer")
+            }
+            tabList
         }
-        tabList
     }
 
     private val questionAnswerEnable by lazy{
@@ -77,20 +82,23 @@ class InteractiveFragment : BasePadFragment(), DragResizeFrameLayout.OnResizeLis
 
     override fun observeActions() {
         routerViewModel.actionNavigateToMain.observe(this, Observer { it2 ->
-            if (it2 != true) {
+            if(it2 != true || liveFeatureTabs.isEmpty()){
+                viewPager.visibility = View.GONE
                 return@Observer
             }
             initView()
-            shouldShowQARedPoint = liveFeatureTabs[0] != "answer"
-            shouldShowMessageRedPoint = liveFeatureTabs[0] != "user"
+            shouldShowQARedPoint = liveFeatureTabs.size>1 && liveFeatureTabs[0] != "answer"
+            shouldShowMessageRedPoint = liveFeatureTabs.size>1 && liveFeatureTabs[0] != "user"
             if(liveFeatureTabs.contains("user")){
                 userViewModel.subscribe()
-                userViewModel.onlineUserCount.observe(this, Observer {
-                    userTabItemTv.text = "${getString(R.string.user)}($it)"
-                })
+                if(liveFeatureTabs.size > 1){
+                    userViewModel.onlineUserCount.observe(this, Observer {
+                        userTabItemTv.text = "${getString(R.string.user)}($it)"
+                    })
+                }
             }
 
-            if(liveFeatureTabs.contains("chat")){
+            if(liveFeatureTabs.size > 1 && liveFeatureTabs.contains("chat")){
                 chatViewModel?.redPointNumber?.observe(this, Observer {
                     if (shouldShowMessageRedPoint && it != null && it > 0) {
                         chatRedTipTv?.visibility = View.VISIBLE
@@ -106,22 +114,27 @@ class InteractiveFragment : BasePadFragment(), DragResizeFrameLayout.OnResizeLis
                     if(shouldShowQARedPoint) qaRedPointTv?.visibility = View.VISIBLE else qaRedPointTv?.visibility = View.GONE
                 })
             }
-            if(liveFeatureTabs[liveFeatureTabs.size -1] == "answer"){
-                qaViewModel?.allQuestionList?.observe(this, Observer {
-                    if (dragResizeFrameLayout.status == DragResizeFrameLayout.Status.MINIMIZE) {
-                        bottomDragRedPointTv.visibility = View.VISIBLE
-                    } else{
-                        bottomDragRedPointTv.visibility = View.GONE
-                    }
-                })
-            } else if(liveFeatureTabs[liveFeatureTabs.size -1] == "chat"){
-                chatViewModel?.redPointNumber?.observe(this, Observer {
-                    if (dragResizeFrameLayout.status == DragResizeFrameLayout.Status.MINIMIZE && it != null && it > 0) {
-                        bottomDragRedPointTv.visibility = View.VISIBLE
-                    } else {
-                        bottomDragRedPointTv.visibility = View.GONE
-                    }
-                })
+            //少于3个不显示底部可拖拽控件
+            if(liveFeatureTabs.size == 3){
+                if(liveFeatureTabs[liveFeatureTabs.size -1] == "answer"){
+                    qaViewModel?.allQuestionList?.observe(this, Observer {
+                        if (dragResizeFrameLayout.status == DragResizeFrameLayout.Status.MINIMIZE) {
+                            bottomDragRedPointTv.visibility = View.VISIBLE
+                        } else{
+                            bottomDragRedPointTv.visibility = View.GONE
+                        }
+                    })
+                } else if(liveFeatureTabs[liveFeatureTabs.size -1] == "chat"){
+                    chatViewModel?.redPointNumber?.observe(this, Observer {
+                        if (dragResizeFrameLayout.status == DragResizeFrameLayout.Status.MINIMIZE && it != null && it > 0) {
+                            bottomDragRedPointTv.visibility = View.VISIBLE
+                        } else {
+                            bottomDragRedPointTv.visibility = View.GONE
+                        }
+                    })
+                }
+            } else{
+                dragResizeFrameLayout.visibility = View.GONE
             }
         })
     }
@@ -150,13 +163,21 @@ class InteractiveFragment : BasePadFragment(), DragResizeFrameLayout.OnResizeLis
     }
 
     private fun initView(){
-        initViewpager()
-        initTabLayout()
-        //初始化底部可拖拽部分
-        val lastTabTag = liveFeatureTabs[liveFeatureTabs.size - 1]
-        childFragmentManager.beginTransaction().add(R.id.qa_container, getFragmentByTag(lastTabTag)).commitAllowingStateLoss()
-        dragTabTextView.text = getStringByTag(lastTabTag)
-        dragTabImageView.visibility = if(lastTabTag == "answer") View.VISIBLE else View.GONE
+        if(liveFeatureTabs.size <= 1){
+            viewPager.visibility = View.GONE
+            childFragmentManager.beginTransaction().add(R.id.interactive_container, getFragmentByTag(liveFeatureTabs[0])).commitAllowingStateLoss()
+        }
+        if(liveFeatureTabs.size == 2 || liveFeatureTabs.size == 3){
+            initViewpager()
+            initTabLayout()
+        }
+        if(liveFeatureTabs.size == 3){
+            //初始化底部可拖拽部分
+            val lastTabTag = liveFeatureTabs[liveFeatureTabs.size - 1]
+            childFragmentManager.beginTransaction().add(R.id.qa_container, getFragmentByTag(lastTabTag)).commitAllowingStateLoss()
+            dragTabTextView.text = getStringByTag(lastTabTag)
+            dragTabImageView.visibility = if(lastTabTag == "answer") View.VISIBLE else View.GONE
+        }
     }
 
     private fun initTabLayout(){
@@ -208,7 +229,9 @@ class InteractiveFragment : BasePadFragment(), DragResizeFrameLayout.OnResizeLis
                 return getFragmentByTag(liveFeatureTabs[position])
             }
 
-            override fun getCount() = liveFeatureTabs.size - 1
+            override fun getCount(): Int {
+                return if(liveFeatureTabs.size == 3) liveFeatureTabs.size - 1 else liveFeatureTabs.size
+            }
         }
 
         viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
