@@ -5,9 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.arch.lifecycle.Observer
 import android.content.Context
-import android.content.Intent
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -65,6 +63,7 @@ import com.baijiayun.livecore.context.LiveRoom
 import com.baijiayun.livecore.listener.LPLaunchListener
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener
 import com.baijiayun.livecore.models.*
+import com.baijiayun.livecore.utils.CommonUtils
 import com.baijiayun.livecore.utils.LPRxUtils
 import com.baijiayun.livecore.utils.LPSdkVersionUtils
 import com.google.gson.JsonObject
@@ -101,6 +100,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private var disposeOfTeacherAbsent: Disposable? = null
     private var disposeOfLoginConflict: Disposable? = null
     private var disposeOfMarquee: Disposable? = null
+    private var marqueeAnimator: ObjectAnimator? = null
     private val timerObserver by lazy {
         Observer<Pair<Boolean, LPBJTimerModel>> { it?.let { if (it.first) showTimer(it.second) else closeTimer() } }
     }
@@ -116,6 +116,44 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private val toastObserver by lazy {
         Observer<String> { it?.let { showMessage(it) } }
     }
+    private val reportObserver by lazy {
+        Observer<Unit> {
+            routerViewModel.liveRoom.toolBoxVM.requestAttentionReport(
+                    CommonUtils.isAppForeground(this), routerViewModel.liveRoom.currentUser as LPUserModel)
+        }
+    }
+    private val showErrorObserver by lazy {
+        Observer<LPError>{
+            when (it?.code) {
+                LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong() -> showKickOutDlg(it) //被踢出房间后的登录
+                LPError.CODE_ERROR_LOGIN_AUDITION.toLong() -> showAuditionEndDlg(it) // 试听结束
+                else -> {
+                    if (loadingFragment.isAdded) removeFragment(loadingFragment)
+                    if (errorFragment.isAdded || findFragment(fullContainer.id) is ErrorPadFragment) return@Observer
+                    showErrorDlg(it)
+                }
+            }
+        }
+    }
+    private val timeOutObserver by lazy {
+        Observer<Pair<String,Boolean>> {
+            it?.run {
+                if (second) {
+                    val timeDispose = Observable.timer(30, TimeUnit.SECONDS)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                //取消邀请
+                                routerViewModel.liveRoom.sendSpeakInviteReq(first, false)
+                            }
+                    timeOutDisposes[first] = timeDispose
+                } else {
+                    LPRxUtils.dispose(timeOutDisposes[first])
+                    timeOutDisposes.remove(first)
+                }
+            }
+        }
+    }
+    private val timeOutDisposes = HashMap<String,Disposable>()
 
     //试听码dialog提示
     private var mAuditionEndDialog: SimpleTextDialog? = null
@@ -131,6 +169,9 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private val messageSentFragment by lazy {
         MessageSentFragment.newInstance()
     }
+
+    private var messageSendPresenter: MessageSendPresenter? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,9 +194,9 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         R.layout.activity_live_room_pad
     } else {
         when {
-            isAspectRatio_16_9(this) -> R.layout.activity_live_room_pad
-            isAspectRatio_16_10(this) -> R.layout.activity_live_room_pad_16_10
-            isAspectRatio_18_9(this) -> R.layout.activity_live_room_pad_18_9
+            isAspectRatioNormal(this) -> R.layout.activity_live_room_pad
+            isAspectRatioSmall(this) -> R.layout.activity_live_room_pad_16_10
+            isAspectRatioLarge(this) -> R.layout.activity_live_room_pad_18_9
             else -> R.layout.activity_live_room_pad
         }
     }
@@ -193,6 +234,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     }
 
     private fun observeActions() = with(routerViewModel) {
+        liveRoomViewModel.observeActions()
         actionExit.observe(this@LiveRoomTripleActivity, Observer {
             it?.let { showExitDialog() }
         })
@@ -208,17 +250,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 this@LiveRoomTripleActivity.findViewById<View>(R.id.activity_live_room_pad_room_videos_container).visibility = if (it == 0) View.GONE else View.VISIBLE
             }
         })
-        actionShowError.observe(this@LiveRoomTripleActivity, Observer {
-            when (it?.code) {
-                LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong() -> showKickOutDlg(it) //被踢出房间后的登录
-                LPError.CODE_ERROR_LOGIN_AUDITION.toLong() -> showAuditionEndDlg(it) // 试听结束
-                else -> {
-                    if (loadingFragment.isAdded) removeFragment(loadingFragment)
-                    if (errorFragment.isAdded || findFragment(fullContainer.id) is ErrorPadFragment) return@Observer
-                    showErrorDlg(it)
-                }
-            }
-        })
+        actionShowError.observeForever (showErrorObserver)
         actionDismissError.observe(this@LiveRoomTripleActivity, Observer {
             it?.let {
                 fullContainer.visibility = View.GONE
@@ -269,9 +301,13 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         })
         actionShowSendMessageFragment.observe(this@LiveRoomTripleActivity, Observer {
             if (messageSentFragment.isAdded) return@Observer
-            val messageSendPresenter = MessageSendPresenter(messageSentFragment)
-            messageSendPresenter.forbidPrivateChange()
-            bindVP(messageSentFragment, messageSendPresenter)
+            messageSendPresenter = MessageSendPresenter(messageSentFragment)
+            messageSendPresenter?.setView(messageSentFragment)
+            bindVP(messageSentFragment, messageSendPresenter!!)
+            if (routerViewModel.choosePrivateChatUser) {
+                messageSentFragment.setAutoChoosePrivateChatUser(true)
+                routerViewModel.choosePrivateChatUser = false
+            }
             showDialogFragment(messageSentFragment)
         })
         actionShowAnnouncementFragment.observe(this@LiveRoomTripleActivity, Observer {
@@ -284,6 +320,9 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 shouldShowTechSupport = it
             }
         })
+        privateChatUser.observe(this@LiveRoomTripleActivity, Observer {
+            messageSendPresenter?.onPrivateChatUserChange()
+        })
     }
 
     private fun initSuccess() {
@@ -293,7 +332,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     }
 
     private fun initLiveRoom() {
-        LPSdkVersionUtils.setSdkVersion(LPSdkVersionUtils.MUTIL_CLASS_UI_PAD + BuildConfig.VERSION_NAME)
+        LPSdkVersionUtils.setSdkVersion(LPSdkVersionUtils.MULTI_CLASS_UI + BuildConfig.VERSION_NAME)
         routerViewModel.liveRoom.setOnLiveRoomListener { error ->
             when (error.code.toInt()) {
                 LPError.CODE_ERROR_ROOMSERVER_LOSE_CONNECTION -> doReEnterRoom(LiveSDK.checkTeacherUnique)
@@ -343,14 +382,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     //重进房间
     private fun doReEnterRoom(checkTeacherUnique: Boolean) {
         LiveSDK.checkTeacherUnique = checkTeacherUnique
-        LPRxUtils.dispose(disposeOfTeacherAbsent)
-        LPRxUtils.dispose(disposeOfLoginConflict)
-        LPRxUtils.dispose(disposeOfMarquee)
-        removeAllFragment()
-        supportFragmentManager.executePendingTransactions()
-        routerViewModel.liveRoom.quitRoom()
-        removeObservers()
-        viewModelStore.clear()
+        release(true)
         enterRoom()
     }
 
@@ -398,6 +430,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 }
             })
             showToast.observeForever(toastObserver)
+            reportAttention.observeForever(reportObserver)
         }
         routerViewModel.run {
             showTeacherIn.observe(this@LiveRoomTripleActivity, Observer {
@@ -414,7 +447,8 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                     return@Observer
                 }
                 it?.let {
-                    this@LiveRoomTripleActivity.findViewById<View>(R.id.activity_live_room_pad_room_top_parent).visibility = if (it) View.GONE else View.VISIBLE
+                    //sw600dp和sw400dp没有activity_live_room_pad_room_top_parent
+                    this@LiveRoomTripleActivity.findViewById<View>(R.id.activity_live_room_pad_room_top_parent)?.visibility = if (it) View.GONE else View.VISIBLE
                 }
             })
             action2RedPacketUI.observe(this@LiveRoomTripleActivity, Observer {
@@ -459,12 +493,13 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
             removeAnswer.observe(this@LiveRoomTripleActivity, Observer {
                 it?.let { removeAnswer() }
             })
-            showTimer.observeForever (timerObserver)
+            showTimer.observeForever(timerObserver)
             action2Award.observe(this@LiveRoomTripleActivity, Observer {
                 it?.let {
                     showAwardAnimation(it)
                 }
             })
+            timeOutStart.observeForever(timeOutObserver)
         }
     }
 
@@ -474,8 +509,20 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         findViewById<AwardView>(R.id.award_view).setUserName(userName)
     }
 
+    /**
+     * 大小班切换 liveRoom 需保持不变
+     * 其余资源清空再重新初始化
+     */
     private fun showClassSwitch() {
         showMessage(getString(R.string.live_room_switch))
+        val liveRoom = routerViewModel.liveRoom
+        release()
+        routerViewModel = getViewModel { RouterViewModel() }
+        liveRoomViewModel = getViewModel { LiveRoomViewModel(routerViewModel) }
+        oldBridge = OldLiveRoomRouterListenerBridge(routerViewModel)
+        routerViewModel.liveRoom = liveRoom
+        observeActions()
+        initView()
         routerViewModel.liveRoom.switchRoom(object : LPLaunchListener {
             override fun onLaunchSteps(i: Int, i1: Int) {}
 
@@ -484,12 +531,22 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
             }
 
             override fun onLaunchSuccess(liveRoom: LiveRoom) {
-                removeAllFragment()
-                initView()
-                initLiveRoom()
-                navigateToMain()
+                routerViewModel.actionNavigateToMain.value = true
             }
         })
+    }
+    private fun release(quitRoom: Boolean = false) {
+        LPRxUtils.dispose(disposeOfTeacherAbsent)
+        LPRxUtils.dispose(disposeOfLoginConflict)
+        LPRxUtils.dispose(disposeOfMarquee)
+        marqueeAnimator?.cancel()
+        removeAllFragment()
+        supportFragmentManager.executePendingTransactions()
+        if (quitRoom) {
+            routerViewModel.liveRoom.quitRoom()
+        }
+        removeObservers()
+        viewModelStore.clear()
     }
 
     private fun navigateToMain() {
@@ -576,15 +633,18 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
         findViewById<RelativeLayout>(R.id.activity_live_room_pad_background).addView(textView, lp)
         val width = DisplayUtils.getScreenWidthPixels(this).toFloat()
-        val objectAnimator = ObjectAnimator.ofFloat(textView, "translationX", -width)
-        objectAnimator.duration = (width * 20).toLong()
-        objectAnimator.interpolator = LinearInterpolator()
-        objectAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                findViewById<RelativeLayout>(R.id.activity_live_room_pad_background).removeView(textView)
-            }
-        })
-        objectAnimator.start()
+        marqueeAnimator?.cancel()
+        marqueeAnimator = ObjectAnimator.ofFloat(textView, "translationX", -width)
+        marqueeAnimator?.run {
+            duration = (width * 20).toLong()
+            interpolator = LinearInterpolator()
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    findViewById<RelativeLayout>(R.id.activity_live_room_pad_background).removeView(textView)
+                }
+            })
+            start()
+        }
     }
 
     private fun navigateToShare() {
@@ -908,7 +968,8 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     }
 
     private fun showKickOutDlg(error: LPError) {
-        routerViewModel.liveRoom.quitRoom()
+        routerViewModel.kickOut.value = Unit
+        release()
         val builder = AlertDialog.Builder(this)
         val dialog = builder.setMessage(error.message)
                 .setPositiveButton(R.string.live_quiz_dialog_confirm) { dialog1, _ ->
@@ -918,7 +979,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         dialog.setCancelable(false)
         if (!isFinishing) {
             dialog.show()
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.live_blue))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this,R.color.live_blue))
         }
     }
 
@@ -932,18 +993,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 mAuditionEndDialog = null
 
                 //跳转link
-                if (!TextUtils.isEmpty(url)) {
-                    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                        if (!TextUtils.isEmpty(url))
-                            url = "http://$url"
-                    }
-
-                    val intent = Intent()
-                    intent.action = "android.intent.action.VIEW"
-                    val uri = Uri.parse(url)
-                    intent.data = uri
-                    this.startActivity(intent)
-                }
+                CommonUtils.startActivityByUrl(this,url)
                 this.finish()
             }
         }
@@ -976,9 +1026,13 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private fun removeObservers() {
         routerViewModel.answerStart.removeObserver(answerObserver)
         routerViewModel.showTimer.removeObserver(timerObserver)
+        routerViewModel.timeOutStart.removeObserver(timeOutObserver)
+        routerViewModel.actionShowError.removeObserver(showErrorObserver)
         liveRoomViewModel.showToast.removeObserver(toastObserver)
         liveRoomViewModel.showRollCall.removeObserver(showRollCallObserver)
         liveRoomViewModel.dismissRollCall.removeObserver(dismissRollCallObserver)
+        liveRoomViewModel.reportAttention.removeObserver(reportObserver)
+        timeOutDisposes.forEach { (_, dispose) -> LPRxUtils.dispose(dispose) }
     }
 
     override fun getRouterListener(): LiveRoomRouterListener = oldBridge
@@ -990,25 +1044,17 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 doReEnterRoom(LiveSDK.checkTeacherUnique)
             }
         }
-        if (::liveRoomViewModel.isInitialized) {
-            liveRoomViewModel.switchBackstage(false)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (::liveRoomViewModel.isInitialized) {
-            liveRoomViewModel.switchBackstage(true)
-        }
     }
 
     override fun onDestroy() {
+        routerViewModel.liveRoom.quitRoom()
         removeObservers()
         super.onDestroy()
         pptManagePresenter?.destroy()
         LPRxUtils.dispose(disposeOfTeacherAbsent)
         LPRxUtils.dispose(disposeOfLoginConflict)
         LPRxUtils.dispose(disposeOfMarquee)
+        marqueeAnimator?.cancel()
         viewModelStore.clear()
     }
 }

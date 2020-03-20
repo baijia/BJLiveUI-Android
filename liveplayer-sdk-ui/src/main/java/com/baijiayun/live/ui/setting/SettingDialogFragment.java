@@ -135,13 +135,17 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                         for (int i = 1; i <= presenter.getCDNCount(); i++) {
                             options.add("线路" + i);
                         }
-                        new MaterialDialog.Builder(getActivity())
+                        final MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                                 .items(options)
                                 .itemsCallback((dialog, itemView, position, text) -> {
-                                    presenter.setUpCDNLink(position);
+                                    if (presenter != null) {
+                                        presenter.setUpCDNLink(position);
+                                    }
                                     dialog.dismiss();
-                                })
-                                .show();
+                                });
+                        if (getActivity() != null && !getActivity().isFinishing() && !getActivity().isDestroyed()) {
+                            builder.show();
+                        }
                     } else if (presenter.getCDNCount() == 1) {
                         presenter.setUpCDNLink(0);
                     } else {

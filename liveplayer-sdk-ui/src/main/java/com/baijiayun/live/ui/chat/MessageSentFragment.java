@@ -44,6 +44,7 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
     private MessageTextWatcher textWatcher;
     private EmojiFragment emojiFragment;
     private ChatUsersDialogFragment chatUsersDialogFragment;
+    private boolean autoChoosePrivateChatUser = false;
 
     public static MessageSentFragment newInstance() {
         return new MessageSentFragment();
@@ -162,6 +163,14 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
         });
 
         $.id(R.id.dialog_message_send_btn).enable(false);
+        if (autoChoosePrivateChatUser) {
+            presenter.choosePrivateChatUser();
+            autoChoosePrivateChatUser = false;
+        }
+    }
+
+    public void setAutoChoosePrivateChatUser(boolean autoChoosePrivateChatUser) {
+        this.autoChoosePrivateChatUser = autoChoosePrivateChatUser;
     }
 
     private void sendMessage() {
@@ -218,7 +227,7 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
         if (presenter.isPrivateChat()) {
             ((EditText) $.id(R.id.dialog_message_send_et).view()).setHint("私聊" + CommonUtils.getEncodePhoneNumber(presenter.getPrivateChatUser().getName()));
             ($.id(R.id.dialog_private_chat_btn).view()).setSelected(true);
-            ((TextView) $.id(R.id.dialog_private_chat_btn).view()).setTextColor(getResources().getColor(R.color.live_blue));
+            ((TextView) $.id(R.id.dialog_private_chat_btn).view()).setTextColor(getResources().getColor(R.color.live_white));
         } else {
             ((EditText) $.id(R.id.dialog_message_send_et).view()).setHint("输入聊天内容");
             ($.id(R.id.dialog_private_chat_btn).view()).setSelected(false);
@@ -413,6 +422,14 @@ public class MessageSentFragment extends BaseDialogFragment implements MessageSe
         @Override
         public void afterTextChanged(Editable s) {
 
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (chatUsersDialogFragment != null) {
+            chatUsersDialogFragment = null;
         }
     }
 }

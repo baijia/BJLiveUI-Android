@@ -179,12 +179,9 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
     }
 
     protected void showDialogFragment(final BaseDialogFragment dialogFragment) {
-        if(isFinishing()) return;
+        if(isFinishing() || isDestroyed()) return;
         if(!isForeground){
             tempDialogFragment = dialogFragment;
-            return;
-        }
-        if (getSupportFragmentManager().isStateSaved()) {
             return;
         }
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -193,7 +190,7 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
         dialogFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                if (isFinishing()) return;
+                if (isFinishing() || isDestroyed()) return;
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment prev = getSupportFragmentManager().findFragmentByTag(dialogFragment.getClass().getSimpleName() + dialogFragment.hashCode());
                 if (prev != null)

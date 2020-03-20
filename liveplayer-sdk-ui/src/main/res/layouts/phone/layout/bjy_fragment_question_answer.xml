@@ -157,7 +157,7 @@
                 android:layout_toLeftOf="@+id/fragment_question_answer_send"
                 android:layout_marginRight="13dp"
                 android:textSize="14sp"
-                android:text="0/140"
+                android:text="0/280"
                 android:textColor="#9B9B9B" />
             <ImageView
                 android:id="@+id/fragment_question_answer_send"

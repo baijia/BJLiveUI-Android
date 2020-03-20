@@ -12,6 +12,7 @@ import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.text.style.LineHeightSpan;
 import android.util.AttributeSet;
@@ -173,8 +174,8 @@ public class ChatMessageView extends LinearLayout {
         ListView listView = new ListView(getContext());
 
         GradientDrawable bgDrawable = new GradientDrawable();
-        bgDrawable.setColor(Color.WHITE);
-        bgDrawable.setCornerRadius(DisplayUtils.dip2px(getContext(), 4));
+        bgDrawable.setColor(ContextCompat.getColor(getContext(),R.color.live_pad_stroke_grey));
+        bgDrawable.setCornerRadius(DisplayUtils.dip2px(getContext(), 6));
         listView.setBackground(bgDrawable);
         listView.setAdapter(adapter);
         listView.setDividerHeight(0);

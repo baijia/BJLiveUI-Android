@@ -1,18 +1,24 @@
 package com.baijiayun.live.ui.onlineuser
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
 import android.databinding.DataBindingUtil
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
+import com.baijiayun.live.ui.chat.ChatOptMenuHelper
+import com.baijiayun.live.ui.chat.widget.ChatMessageView
+import com.baijiayun.live.ui.databinding.BjyPadItemHandsupBinding
 import com.baijiayun.live.ui.databinding.BjyPadLayoutItemOnlineUserBinding
 import com.baijiayun.live.ui.users.group.GroupExtendableListViewAdapter
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
@@ -21,7 +27,8 @@ import com.baijiayun.livecore.models.LPGroupItem
 import com.baijiayun.livecore.models.LPUserModel
 import com.baijiayun.livecore.models.imodels.IUserModel
 import com.baijiayun.livecore.utils.DisplayUtils
-import kotlinx.android.synthetic.main.fragment_pad_user_list.*
+import kotlinx.android.synthetic.main.fragment_pad_user_list.elv_online_group
+import java.util.ArrayList
 
 /**
  * Created by yongjiaming on 2019-10-23
@@ -31,7 +38,7 @@ class OnlineUserFragment : BasePadFragment() {
 
     private lateinit var onlineUserRecyclerView: RecyclerView
     private lateinit var onlineGroupTitleTv: TextView
-    private lateinit var groupAdapter : GroupExtendableListViewAdapter
+    private lateinit var groupAdapter: GroupExtendableListViewAdapter
 
     private val onlineUserAdapter by lazy { OnlineUserAdapter() }
 
@@ -46,6 +53,7 @@ class OnlineUserFragment : BasePadFragment() {
 
     override fun getLayoutId() = R.layout.fragment_pad_user_list
 
+    @SuppressLint("SetTextI18n")
     override fun observeActions() {
         routerViewModel.actionNavigateToMain.observe(this, Observer { b ->
             if (b != true) {
@@ -59,7 +67,7 @@ class OnlineUserFragment : BasePadFragment() {
                     onlineUserAdapter.notifyDataSetChanged()
                 })
                 onlineUserGroup.observe(this@OnlineUserFragment, Observer {
-                    onlineGroupTitleTv.visibility = if(it.isNullOrEmpty()) View.GONE else View.VISIBLE
+                    onlineGroupTitleTv.visibility = if (it.isNullOrEmpty()) View.GONE else View.VISIBLE
                     onlineGroupTitleTv.text = resources.getString(R.string.string_group) + "(${it?.size})"
                     groupAdapter.setDate(it)
                     groupAdapter.notifyDataSetChanged()
@@ -68,7 +76,7 @@ class OnlineUserFragment : BasePadFragment() {
         })
     }
 
-    private fun initExpandableListView(){
+    private fun initExpandableListView() {
         context?.let {
             onlineUserRecyclerView = RecyclerView(it)
             with(onlineUserRecyclerView) {
@@ -108,7 +116,21 @@ class OnlineUserFragment : BasePadFragment() {
             val item = groupAdapter.getGroup(it) as LPGroupItem
             onlineUserViewModel.updateGroupInfo(item)
         }
+        elv_online_group.setOnChildClickListener { _, view, groupPosition, childPosition, _ ->
+            kotlin.run {
+                val userModel = groupAdapter.getChild(groupPosition, childPosition) as LPUserModel
+                ChatOptMenuHelper.showOptMenu(context, routerViewModel, view, userModel)
+                true
+            }
+        }
+        onlineUserAdapter.setOnItemClickListener(object :OnItemClickListener{
+            override fun onItemClick(view: View, position: Int) {
+                val user = onlineUserAdapter.getUser(position) as LPUserModel
+                ChatOptMenuHelper.showOptMenu(context, routerViewModel,view, user)
+            }
+        })
     }
+
 
     inner class OnlineUserAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -118,12 +140,13 @@ class OnlineUserFragment : BasePadFragment() {
         private val visibleThreshold = 5
         private var lastVisibleItem = 0
         private var totalItemCount = 0
+        private var onItemClickListener: OnItemClickListener? = null
 
         init {
             onlineUserRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    if(dy == 0){
+                    if (dy == 0) {
                         return
                     }
                     val linearLayoutManager = recyclerView.layoutManager as LinearLayoutWrapManager
@@ -163,6 +186,9 @@ class OnlineUserFragment : BasePadFragment() {
         }
 
         override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
+            viewHolder.itemView.setOnClickListener {
+                onItemClickListener?.onItemClick(viewHolder.itemView,position)
+            }
             when (viewHolder) {
                 is LoadingViewHolder -> {
                     viewHolder.progressBar.isIndeterminate = true
@@ -172,21 +198,22 @@ class OnlineUserFragment : BasePadFragment() {
                     viewHolder.dataBinding.user = currentUser
 //                    context?.run {
 //                        val avatar = if (currentUser.avatar.startsWith("//")) "https:" + currentUser.avatar else currentUser.avatar
-//                        Glide.with(this).load(avatar).into(viewHolder.avatarIv)
+//                        Glide.with(this).load(avatar).into(TextViewHolder.avatarIv)
 //                    }
-//                    viewHolder.nameTv.text = currentUser.name
-                    when(currentUser.type) {
+//                    TextViewHolder.nameTv.text = currentUser.name
+                    when (currentUser.type) {
                         LPConstants.LPUserType.Teacher -> {
                             viewHolder.roleTextView.visibility = View.VISIBLE
                             viewHolder.roleTextView.text = context?.resources?.getString(R.string.live_teacher)
-                            viewHolder.roleTextView.setTextColor(context?.resources?.getColor(R.color.live_blue) ?: Color.BLACK)
-                            viewHolder.roleTextView.background = context?.resources?.getDrawable(R.drawable.item_online_user_teacher_bg)
+                            viewHolder.roleTextView.setTextColor(context?.let { ContextCompat.getColor(it,R.color.live_blue) } ?: Color.BLACK)
+                            viewHolder.roleTextView.background = context?.let{ ContextCompat.getDrawable(it,R.drawable.item_online_user_teacher_bg)}
                         }
                         LPConstants.LPUserType.Assistant -> {
                             viewHolder.roleTextView.visibility = View.VISIBLE
                             viewHolder.roleTextView.text = context?.resources?.getString(R.string.live_assistent)
-                            viewHolder.roleTextView.setTextColor(context?.resources?.getColor(R.color.live_pad_orange) ?: Color.BLACK)
-                            viewHolder.roleTextView.background = context?.resources?.getDrawable(R.drawable.item_online_user_assistant_bg)
+                            viewHolder.roleTextView.setTextColor(
+                                    context?.let { ContextCompat.getColor(it,R.color.live_pad_orange) } ?: Color.BLACK)
+                            viewHolder.roleTextView.background = context?.let{ ContextCompat.getDrawable(it,R.drawable.item_online_user_assistant_bg)}
                         }
                         else -> {
                             viewHolder.roleTextView.visibility = View.GONE
@@ -202,13 +229,22 @@ class OnlineUserFragment : BasePadFragment() {
         fun getUser(position: Int): IUserModel {
             return onlineUserViewModel.getUser(position) ?: LPUserModel()
         }
+
+        fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
+            this.onItemClickListener = onItemClickListener
+        }
+
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(view: View, position: Int)
     }
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var progressBar: ProgressBar = itemView.findViewById(R.id.item_online_user_progress)
     }
 
-    class OnlineUserViewHolder(val dataBinding: BjyPadLayoutItemOnlineUserBinding, itemView: View) : RecyclerView.ViewHolder(itemView){
+    class OnlineUserViewHolder(val dataBinding: BjyPadLayoutItemOnlineUserBinding, itemView: View) : RecyclerView.ViewHolder(itemView) {
         val roleTextView: TextView = itemView.findViewById(R.id.item_online_user_role)
     }
 }

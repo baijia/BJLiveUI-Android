@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.base.*
-import com.baijiayun.live.ui.databinding.FragmentHandsupListBinding
 import com.baijiayun.live.ui.databinding.BjyPadItemHandsupBinding
+import com.baijiayun.live.ui.databinding.FragmentHandsupListBinding
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
 import kotlinx.android.synthetic.main.fragment_handsup_list.*
 

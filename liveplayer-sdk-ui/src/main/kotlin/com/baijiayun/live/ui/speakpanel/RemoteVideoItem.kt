@@ -42,7 +42,7 @@ class RemoteVideoItem(private val rootView: ViewGroup, media: IMediaModel, speak
     private var itemType: SpeakItemType? = null
     private var showItemType: SpeakItemType? = null
     private var dialog: Dialog? = null
-    private lateinit var loadingListener: LoadingListener
+    private var loadingListener: LoadingListener? = null
     private var loadingViewAnimation: Animation? = null
     private var isZOrderMediaOverlay = false
 
@@ -110,6 +110,11 @@ class RemoteVideoItem(private val rootView: ViewGroup, media: IMediaModel, speak
         container.item_status_placeholder_ll.visibility = View.VISIBLE
         container.item_status_placeholder_tv.text = context.getString(R.string.pad_camera_closed)
         container.item_status_placeholder_iv.setImageResource(R.drawable.ic_pad_camera_close)
+    }
+
+    fun stopStreamingOnly(_mediaModel: IMediaModel) {
+        this.mediaModel = _mediaModel
+        player?.playAVClose(mediaModel.mediaId)
     }
 
     override fun refreshPlayable() {
@@ -255,6 +260,7 @@ class RemoteVideoItem(private val rootView: ViewGroup, media: IMediaModel, speak
                         else -> {
                         }
                     }
+                    refreshItemType()
                     materialDialog.dismiss()
                 }
                 .show()
@@ -277,7 +283,10 @@ class RemoteVideoItem(private val rootView: ViewGroup, media: IMediaModel, speak
     }
 
     private fun showSwitchDialog() {
-        if ((context as LiveRoomBaseActivity).supportFragmentManager?.isStateSaved == true) {
+        if (context == null || context !is LiveRoomBaseActivity) {
+            return
+        }
+        if (context.isFinishing || context.isDestroyed) {
             return
         }
         context.let {
@@ -391,10 +400,8 @@ class RemoteVideoItem(private val rootView: ViewGroup, media: IMediaModel, speak
     }
 
     private fun showLoading() {
-        if (!::loadingListener.isInitialized) {
-            loadingListener = LoadingListener(this)
-            player.addPlayerListener(loadingListener)
-        }
+        loadingListener = LoadingListener(this)
+        player.addPlayerListener(loadingListener)
         container.item_speak_speaker_loading_container.visibility = View.VISIBLE
         if (loadingViewAnimation == null) {
             loadingViewAnimation = AnimationUtils.loadAnimation(context, R.anim.live_video_loading)

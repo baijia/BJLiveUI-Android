@@ -4,7 +4,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,7 +27,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.OrientationEventListener;
@@ -127,11 +125,13 @@ import com.baijiayun.livecore.models.LPBJTimerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPRoomForbidChatResult;
+import com.baijiayun.livecore.models.LPUserModel;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
 import com.baijiayun.livecore.models.roomresponse.LPResRoomMediaControlModel;
 import com.baijiayun.livecore.ppt.listener.OnPPTStateListener;
+import com.baijiayun.livecore.utils.CommonUtils;
 import com.baijiayun.livecore.utils.LPRxUtils;
 import com.baijiayun.livecore.utils.LPSdkVersionUtils;
 import com.baijiayun.livecore.wrapper.model.LPAVMediaModel;
@@ -242,6 +242,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private EvaDialogFragment evaDialogFragment;
 
     private boolean isDlchatOpen = false;
+    private ObjectAnimator objectAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -345,7 +346,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     @Override
     protected void onResume() {
         super.onResume();
-        orientationEventListener.enable();
+        if (orientationEventListener != null) {
+            orientationEventListener.enable();
+        }
 
         if (roomLifeCycleListener != null) {
             roomLifeCycleListener.onResume(this, (code, nickName) -> {
@@ -372,24 +375,14 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                 addFragment(R.id.activity_live_room_loading, loadingFragment);
             });
         }
-
-        if (globalPresenter != null) {
-            globalPresenter.switchBackstage(false);
-        }
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-        orientationEventListener.disable();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (globalPresenter != null) {
-            globalPresenter.switchBackstage(true);
+        if (orientationEventListener != null) {
+            orientationEventListener.disable();
         }
     }
 
@@ -530,7 +523,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     @Override
     public void setLiveRoom(final LiveRoom liveRoom) {
         this.liveRoom = liveRoom;
-        LPSdkVersionUtils.setSdkVersion(LPSdkVersionUtils.MUTIL_CLASS_UI.concat(BuildConfig.VERSION_NAME));
+        LPSdkVersionUtils.setSdkVersion(LPSdkVersionUtils.MULTI_CLASS_UI.concat(BuildConfig.VERSION_NAME));
         liveRoom.setOnLiveRoomListener(error -> {
             switch ((int) error.getCode()) {
                 case LPError.CODE_ERROR_ROOMSERVER_LOSE_CONNECTION:
@@ -599,19 +592,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     mAuditionEndDialog = null;
 
                     //跳转link
-                    if (!TextUtils.isEmpty(url)) {
-                        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                            if (!TextUtils.isEmpty(url))
-                                url = "http://" + url;
-                        }
-
-                        Intent intent = new Intent();
-                        intent.setAction("android.intent.action.VIEW");
-                        Uri uri = Uri.parse(url);
-                        intent.setData(uri);
-                        LiveRoomActivity.this.startActivity(intent);
-                    }
-                    LiveRoomActivity.this.finish();
+                    CommonUtils.startActivityByUrl(this,url);
+                    this.finish();
                 });
             }
             if (mAuditionEndDialog.isShowing())
@@ -648,8 +630,17 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         }
     }
 
+    /**
+     * removeFragment 会走fragment的生命周期
+     * 因此要先解绑生命周期/销毁
+     * @param error
+     */
     private void showKickOutDlg(LPError error) {
-        liveRoom.quitRoom();
+        if (speakersFragment != null) {
+            speakersFragment.unBindItems();
+        }
+        removeAllFragment();
+        release(false);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog dialog = builder.setMessage(error.getMessage())
                 .setPositiveButton(R.string.live_quiz_dialog_confirm, (dialog1, which) -> {
@@ -1091,6 +1082,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
         flBackground.removeAllViews();
         flPPTLeft.setVisibility(View.GONE);
+        if (objectAnimator != null) {
+            objectAnimator.cancel();
+        }
         removeFragment(topBarFragment);
         removeFragment(cloudRecordFragment);
         removeFragment(leftMenuFragment);
@@ -1438,6 +1432,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             speakInviteDlg.dismiss();
             speakInviteDlg = null;
         }
+        if (objectAnimator != null) {
+            objectAnimator.cancel();
+        }
 
         removeFragment(topBarFragment);
         removeFragment(cloudRecordFragment);
@@ -1629,9 +1626,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     } else if (liveRoom.getCurrentUser().getType() == LPConstants.LPUserType.Student) {
                         enableStudentSpeakMode();
                     }
-                    //已上课，老师/助教补发cloud_record
-                    if(getLiveRoom().isTeacherOrAssistant() && ((LiveRoomImpl)liveRoom).getRoomLoginModel().started){
-                        globalPresenter.doRequestCloudRecord();
+                    //已上课，老师补发cloud_record
+                    if(getLiveRoom().isTeacher() && ((LiveRoomImpl)liveRoom).getRoomLoginModel().started){
+                        globalPresenter.autoRequestCloudRecord();
                     }
                 });
         timerList.add(timer);
@@ -1683,7 +1680,10 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         rlContainer.addView(textView, lp);
         int width = DisplayUtils.getScreenWidthPixels(this);
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(textView, "translationX", -width);
+        if (objectAnimator != null) {
+            objectAnimator.cancel();
+        }
+        objectAnimator = ObjectAnimator.ofFloat(textView, "translationX", -width);
         objectAnimator.setDuration(width * 20);
         objectAnimator.setInterpolator(new LinearInterpolator());
         objectAnimator.addListener(new AnimatorListenerAdapter() {
@@ -1949,6 +1949,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         lppptView.eraseAllShapes();
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     public void changeScreenOrientation() {
         int currentOrientation = getResources().getConfiguration().orientation;
@@ -2047,10 +2048,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         view.setPresenter(presenter);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
+    private void release(boolean quitRoom) {
         if (lppptView != null)
             lppptView.onDestroy();
         lppptView = null;
@@ -2074,9 +2072,19 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
         orientationEventListener = null;
 
+        if (objectAnimator != null) {
+            objectAnimator.cancel();
+        }
         liveHorseLamp = null;
+        if (liveRoom != null && quitRoom) {
+            liveRoom.quitRoom();
+        }
+    }
 
-        if (liveRoom != null) liveRoom.quitRoom();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        release(true);
     }
 
     @Override
@@ -2396,6 +2404,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     @Override
     public void setShouldShowTecSupport(boolean showTecSupport) {
         shouldShowTechSupport = showTecSupport;
+    }
+
+    @Override
+    public void reportAttention(LPUserModel userModel) {
+        if (liveRoom != null) {
+            liveRoom.getToolBoxVM().requestAttentionReport(CommonUtils.isAppForeground(this),userModel);
+        }
     }
 
     @Override

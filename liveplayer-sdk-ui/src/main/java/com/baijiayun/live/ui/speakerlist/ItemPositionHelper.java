@@ -168,7 +168,6 @@ public class ItemPositionHelper {
                 LPLogger.d("ItemPositionHelper", item.getIdentity() + " " + item.getItemType());
             }
         }
-        LPLogger.d("ItemPositionHelper", "--------------------");
     }
 
     private void handlePPTItem(SpeakItem speakItem) {
@@ -299,7 +298,6 @@ public class ItemPositionHelper {
         return null;
     }
 
-    @VisibleForTesting
     public List<SpeakItem> getSpeakItems() {
         return speakItems;
     }

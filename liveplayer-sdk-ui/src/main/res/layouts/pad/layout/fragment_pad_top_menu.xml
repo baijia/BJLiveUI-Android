@@ -28,12 +28,15 @@
         android:layout_centerVertical="true"/>
     <TextView
         android:id="@+id/fragment_pad_top_menu_title"
-        android:layout_width="@dimen/top_menu_title_width"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textSize="@dimen/top_menu_title_size"
+        android:layout_toEndOf="@+id/fragment_pad_top_menu_downlossrate"
+        android:layout_toStartOf="@id/fragment_pad_top_menu_time"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:textColor="@color/live_pad_title" />

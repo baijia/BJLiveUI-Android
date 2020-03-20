@@ -20,9 +20,7 @@
             android:left="6px"
             android:right="6px"
             android:top="6px" />
-        <stroke
-            android:width="1px"
-            android:color="@color/live_blue" />
+        <solid android:color="@color/live_blue" />
     </shape>
 </item>
 </selector>

@@ -22,7 +22,7 @@
         android:inputType="textMultiLine"
         android:gravity="start|top"
         android:minLines="5"
-        android:maxLength="140"
+        android:maxLength="280"
         android:paddingTop="6dp"
         android:layout_below="@+id/qa_copy_text"
         />
@@ -84,7 +84,7 @@
         android:id="@+id/qa_input_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0/140"
+        android:text="0/280"
         android:layout_alignBottom="@+id/qa_send_btn"
         android:layout_toStartOf="@+id/qa_cancel_btn"
         android:layout_marginEnd="10dp"

@@ -1,5 +1,6 @@
 package com.baijiayun.live.ui.speakerlist;
 
+import android.arch.lifecycle.LifecycleObserver;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -196,6 +197,9 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
                     break;
                 case REMOVE:
                     container.removeView(action.speakItem.getView());
+                    if(action.speakItem instanceof LifecycleObserver){
+                        getLifecycle().removeObserver((LifecycleObserver) action.speakItem);
+                    }
                     break;
                 case FULLSCREEN:
                     ((Switchable) action.speakItem).switchToFullScreen();
@@ -350,6 +354,18 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
                 setBackGroundVisible(true);
             } else {
                 setBackGroundVisible(false);
+            }
+        }
+    }
+
+    public void unBindItems() {
+        if (positionHelper != null) {
+            final List<SpeakItem> speakItems = positionHelper.getSpeakItems();
+            for (SpeakItem speakItem : speakItems) {
+                if (speakItem instanceof LocalItem) {
+                    LocalItem localItem = (LocalItem) speakItem;
+                    getLifecycle().removeObserver(localItem);
+                }
             }
         }
     }

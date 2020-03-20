@@ -72,6 +72,9 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
                     BJCommonImageCropHelper.openImageMulti(getActivity(), 20, builder.build(), new BJCommonImageCropHelper.OnHandlerResultCallback() {
                         @Override
                         public void onHandlerSuccess(List<PhotoInfo> list) {
+                            if (presenter != null) {
+                                return;
+                            }
                             List<String> pics = new ArrayList<>();
                             for (PhotoInfo photoInfo : list) {
                                 pics.add(photoInfo.getPhotoPath());
@@ -279,7 +282,7 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
                 } else {
                     viewHolder.tvStatus.setText("");
                 }
-//                viewHolder.tvStatus.setText(String.valueOf(presenter.getItem(position).getUploadPercent()));
+//                TextViewHolder.tvStatus.setText(String.valueOf(presenter.getItem(position).getUploadPercent()));
             }
         }
 

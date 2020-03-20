@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.baijiayun.glide.Glide;
 import com.baijiayun.live.ui.R;
+import com.baijiayun.live.ui.activity.LiveRoomBaseActivity;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager;
@@ -65,7 +66,8 @@ public class ChatUsersDialogFragment extends BaseFragment implements ChatUsersCo
     protected void init(Bundle savedInstanceState) {
         super.init(savedInstanceState);
         presenter = new ChatUsersPresenter(this);
-        presenter.setRouter((LiveRoomRouterListener) getActivity());
+        LiveRoomRouterListener roomRouterListener = ((LiveRoomBaseActivity) getActivity()).getRouterListener();
+        presenter.setRouter(roomRouterListener);
         presenter.loadMore();
         setPresenter(presenter);
         recyclerView = (RecyclerView) $.id(R.id.dialog_chat_user_recycler_view).view();

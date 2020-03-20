@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableString
@@ -188,7 +189,7 @@ class QADetailFragment : BasePadFragment() {
         spannableString.setSpan(ImageSpan(ctx, R.drawable.ic_pad_qa_question), 0, 5, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
         val textView = TextView(ctx)
         textView.text = spannableString
-        textView.setTextColor(ctx.resources.getColor(R.color.live_pad_title))
+        textView.setTextColor(ContextCompat.getColor(ctx,R.color.live_pad_title))
         container.addView(textView)
         if(routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant){
             textView.setOnClickListener {
@@ -204,7 +205,7 @@ class QADetailFragment : BasePadFragment() {
         spannableString.setSpan(ImageSpan(ctx, drawableId), 0, 5, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
         val textView = TextView(ctx)
         textView.text = spannableString
-        textView.setTextColor(ctx.resources.getColor(R.color.live_pad_title))
+        textView.setTextColor(ContextCompat.getColor(ctx,R.color.live_pad_title))
         container.addView(textView)
         if(routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant){
             textView.setOnClickListener {
@@ -228,8 +229,8 @@ class QADetailFragment : BasePadFragment() {
             width = anchorView.context.resources.getDimension(R.dimen.qa_item_popup_window_width).roundToInt()
             setDropDownGravity(Gravity.START)
             horizontalOffset = (containerWidth - width) / 2
-            setAdapter(ArrayAdapter<String>(anchorView.context, R.layout.item_pad_qa_menu, buildPopupWindowTipArray(status, anchorView.context)))
-            setOnItemClickListener { parent, view, position, id ->
+            setAdapter(ArrayAdapter(anchorView.context, R.layout.item_pad_qa_menu, buildPopupWindowTipArray(status, anchorView.context)))
+            setOnItemClickListener { _, _, position, _ ->
                 val quoteContent = if((status and QuestionStatus.QuestionReplied.status) > 0){
                     "${CommonUtils.getEncodePhoneNumber(item.from.user.name)} : ${item.content}"
                 } else {

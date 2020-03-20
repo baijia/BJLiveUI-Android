@@ -115,7 +115,7 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
             view.showSpeakApplyCanceled();
         } else if (speakApplyStatus == RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING) {
             //设置mediaViewModel.isHandUp=false
-            liveRoomRouterListener.getLiveRoom().getMediaViewModel().setCancelSpeak();
+            liveRoomRouterListener.getLiveRoom().getMediaViewModel().updateSpeakStatus(false);
             // 取消发言
             cancelStudentSpeaking();
         }
@@ -135,6 +135,7 @@ public class RightMenuPresenter implements RightMenuContract.Presenter {
     public void onSpeakInvite(int confirm) {
         liveRoomRouterListener.getLiveRoom().sendSpeakInvite(confirm);
         if (confirm == 1 && liveRoomRouterListener.checkCameraPermission()) {
+            liveRoomRouterListener.getLiveRoom().getMediaViewModel().updateSpeakStatus(true);
             //接受
             speakApplyStatus = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING;
             liveRoomRouterListener.getLiveRoom().getRecorder().publish();

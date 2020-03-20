@@ -12,6 +12,7 @@ import com.baijiayun.livecore.models.LPBJTimerModel;
 import com.baijiayun.livecore.models.LPJsonModel;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPRoomForbidChatResult;
+import com.baijiayun.livecore.models.LPUserModel;
 import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IMediaModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
@@ -269,4 +270,6 @@ public interface LiveRoomRouterListener {
     void dismissEvaDialog();
 
     void setShouldShowTecSupport(boolean showTecSupport);
+
+    void reportAttention(LPUserModel userModel);
 }

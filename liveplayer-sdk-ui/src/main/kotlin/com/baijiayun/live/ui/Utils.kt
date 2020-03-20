@@ -1,8 +1,10 @@
 package com.baijiayun.live.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
-import android.support.v4.content.ContextCompat
+import android.support.v4.app.Fragment
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.baijiayun.live.ui.speakerlist.item.Switchable
@@ -10,9 +12,7 @@ import com.baijiayun.live.ui.utils.DisplayUtils
 import com.baijiayun.livecore.context.LiveRoom
 import com.baijiayun.livecore.viewmodels.impl.LPSpeakQueueViewModel
 
-val ASPECT_RATIO_4_3: Double = 4.0 / 3
-val ASPECT_RATIO_16_9: Double = 16.0 / 9
-val ASPECT_RATIO_18_9 = 2.0
+private const val ASPECT_RATIO_16_9: Double = 16.0 / 9
 
 fun isPad(context: Context): Boolean {
     return context.resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK >= Configuration.SCREENLAYOUT_SIZE_LARGE
@@ -47,17 +47,63 @@ fun getScreentApectRatio(context: Context): Double {
     return 1.0 * getScreenWidth(context) / getScreenHeight(context)
 }
 
-fun isAspectRatio_16_9(context: Context): Boolean {
+/**
+ * 未加载view计算宽高
+ * @param view
+ * @return
+ */
+fun unDisplayViewSize(view: View): IntArray {
+    val size = IntArray(2)
+    val width = View.MeasureSpec.makeMeasureSpec(0,
+            View.MeasureSpec.UNSPECIFIED)
+    val height = View.MeasureSpec.makeMeasureSpec(0,
+            View.MeasureSpec.UNSPECIFIED)
+    view.measure(width, height)
+    size[0] = view.measuredWidth
+    size[1] = view.measuredHeight
+    return size
+}
+
+/**
+ * wrap_content view计算宽高
+ * @param view
+ * @return
+ */
+fun atMostViewSize(view: View): IntArray {
+    val size = IntArray(2)
+    val width = View.MeasureSpec.makeMeasureSpec(Int.MAX_VALUE shr 2,
+            View.MeasureSpec.AT_MOST)
+    val height = View.MeasureSpec.makeMeasureSpec(Int.MAX_VALUE shr 2,
+            View.MeasureSpec.AT_MOST)
+    view.measure(width, height)
+    size[0] = view.measuredWidth
+    size[1] = view.measuredHeight
+    return size
+}
+
+/**
+ * 16：9分辨率
+ */
+fun isAspectRatioNormal(context: Context): Boolean {
     return ASPECT_RATIO_16_9 == getScreentApectRatio(context)
 }
 
-fun isAspectRatio_18_9(context: Context): Boolean {
+/**
+ * >16:9
+ * 典型18：9
+ */
+fun isAspectRatioLarge(context: Context): Boolean {
     return getScreentApectRatio(context) > ASPECT_RATIO_16_9
 }
 
-fun isAspectRatio_16_10(context: Context): Boolean {
+/**
+ * <16:9
+ * 典型16：10
+ */
+fun isAspectRatioSmall(context: Context): Boolean {
     return getScreentApectRatio(context) < ASPECT_RATIO_16_9
 }
+
 //老师、ppt、辅助摄像头可以在mainVideo区域
 fun isMainVideoItem(switchable: Switchable?, liveRoom: LiveRoom): Boolean {
     return (liveRoom.teacherUser != null && (switchable?.identity == liveRoom.teacherUser.userId
@@ -65,13 +111,19 @@ fun isMainVideoItem(switchable: Switchable?, liveRoom: LiveRoom): Boolean {
             || switchable?.identity == LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID
 
 }
+
 //学生、ppt、辅助摄像头可在学生发言列表
 fun isSpeakVideoItem(switchable: Switchable?, liveRoom: LiveRoom): Boolean {
     return liveRoom.teacherUser != null && switchable?.identity != liveRoom.teacherUser.userId
             && switchable?.identity != LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID
 }
+
 fun removeSwitchableFromParent(switchable: Switchable) {
     val view = switchable.view ?: return
     val viewParent = view.parent ?: return
     (viewParent as ViewGroup).removeView(view)
 }
+
+fun Fragment.canShowDialog(): Boolean = activity?.run {
+    !isFinishing && !isDestroyed
+} ?: false

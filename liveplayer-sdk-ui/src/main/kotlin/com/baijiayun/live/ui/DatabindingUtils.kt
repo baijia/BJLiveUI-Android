@@ -1,5 +1,6 @@
 package com.baijiayun.live.ui
 
+import android.annotation.SuppressLint
 import android.databinding.BindingAdapter
 import android.widget.ImageView
 import com.baijiayun.glide.Glide
@@ -9,6 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class DatabindingUtils {
+    @SuppressLint("ConstantLocale")
     companion object {
 
         private val simpleDataFormat by lazy {

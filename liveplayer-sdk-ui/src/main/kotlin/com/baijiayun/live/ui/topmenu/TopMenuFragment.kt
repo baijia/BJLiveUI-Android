@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
-import com.baijiayun.live.ui.LiveRoomTripleActivity
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
@@ -52,7 +51,7 @@ class TopMenuFragment : BasePadFragment() {
         topMenuViewModel.recordStatus.observe(this, Observer {
             it?.let {
                 fragment_pad_top_menu_record.isChecked = it
-                if (routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant) {
+                if (routerViewModel.liveRoom.isTeacher) {
                     if (it && !topMenuViewModel.lastRecordStatus) {
                         showToastMessage(getString(R.string.live_cloud_record_start))
                     }
@@ -81,6 +80,9 @@ class TopMenuFragment : BasePadFragment() {
         if (routerViewModel.liveRoom.isAudition) {
             fragment_pad_top_menu_setting.visibility = View.GONE
         }
+        if (routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher) {
+            fragment_pad_top_menu_record.visibility = View.GONE
+        }
         routerViewModel.isShowShare.observe(this, Observer {
             it?.let {
                 fragment_pad_top_menu_share.visibility = if (it && routerViewModel.liveRoom.featureConfig?.isShareEnable == true) View.VISIBLE else View.GONE
@@ -108,8 +110,7 @@ class TopMenuFragment : BasePadFragment() {
         }
         fragment_pad_top_menu_share.setOnClickListener { routerViewModel.action2Share.value = Unit }
         fragment_pad_top_menu_record.setOnClickListener {
-            if (routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher &&
-                    routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Assistant) {
+            if (routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher) {
                 return@setOnClickListener
             }
             if (routerViewModel.isClassStarted.value != true) {

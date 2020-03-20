@@ -54,7 +54,7 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
         view.findViewById(R.id.fragment_question_answer_close).setOnClickListener(v -> presenter.closeFragment());
 
         EditText mEditText = view.findViewById(R.id.fragment_question_answer_input_edit);
-        mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(140)});
+        mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(280)});
 
         view.findViewById(R.id.fragment_question_answer_input_listener).setOnClickListener(v -> {
             view.findViewById(R.id.fragment_question_answer_input).setVisibility(View.GONE);
@@ -97,7 +97,7 @@ public class QuestionAnswerFragment extends BaseFragment implements QuestionAnsw
                 } else {
                     view.findViewById(R.id.fragment_question_answer_send).setEnabled(true);
                 }
-                inputTextNumber.setText(s.length() + "/140");
+                inputTextNumber.setText(s.length() + "/"+280);
             }
 
             @Override

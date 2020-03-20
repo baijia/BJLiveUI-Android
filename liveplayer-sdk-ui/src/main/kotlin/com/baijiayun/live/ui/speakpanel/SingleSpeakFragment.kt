@@ -10,6 +10,7 @@ import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
+import com.baijiayun.live.ui.speakerlist.item.LocalItem
 import com.baijiayun.live.ui.speakerlist.item.Switchable
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.models.LPUserModel
@@ -40,6 +41,17 @@ class SingleSpeakFragment : BasePadFragment() {
     }
     private val speakViewModel by lazy {
         getViewModel { SpeakViewModel(routerViewModel) }
+    }
+    private val kickOutObserver by lazy {
+        Observer<Unit> {
+            it?.let {
+                if (remoteVideoItem == null) {
+                    lifecycle.removeObserver(localVideoItem)
+                } else {
+                    lifecycle.removeObserver(remoteVideoItem!!)
+                }
+            }
+        }
     }
     private var remoteVideoItem: RemoteVideoItem? = null
 
@@ -191,6 +203,7 @@ class SingleSpeakFragment : BasePadFragment() {
                 it.refreshItemType()
             }
         })
+        routerViewModel.kickOut.observeForever(kickOutObserver)
     }
 
     private fun isAutoSpeak() = routerViewModel.liveRoom.roomType == LPConstants.LPRoomType.Single ||
@@ -264,6 +277,7 @@ class SingleSpeakFragment : BasePadFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         LPRxUtils.dispose(timeDisposable)
+        routerViewModel.kickOut.removeObserver(kickOutObserver)
         (view as ViewGroup).removeAllViews()
     }
 

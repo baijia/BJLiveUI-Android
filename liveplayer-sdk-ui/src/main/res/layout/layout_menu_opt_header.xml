@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/userAvatar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:scaleType="fitCenter"
+        tools:src="@drawable/ic_pad_camera_close" />
+
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="6dp"
+        android:layout_toStartOf="@+id/userRole"
+        android:layout_toEndOf="@+id/userAvatar"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#ff4a4a4a"
+        tools:text="郭德纲砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸砸缸 [助教]" />
+
+    <TextView
+        android:id="@+id/userRole"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/user_item_role_label_margin"
+        android:layout_marginEnd="@dimen/user_item_role_label_margin"
+        android:paddingStart="@dimen/user_item_role_label_padding"
+        android:paddingTop="2dp"
+        android:paddingEnd="@dimen/user_item_role_label_padding"
+        android:paddingBottom="2dp"
+        tools:background="@drawable/item_online_user_assistant_bg"
+        tools:text="助教" />
+</RelativeLayout>
+

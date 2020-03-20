@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView
         android:id="@+id/chat_no_message_tv"
         android:layout_width="wrap_content"
@@ -94,9 +94,20 @@
             android:padding="5dp"
             android:text="输入聊天内容"
             android:maxLines="1"
+            android:textSize="@dimen/common_text_size"
             android:ellipsize="end"
             android:textColor="#ff9b9b9b" />
-
+        <TextView
+            android:id="@+id/chat_private_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/live_item_chat_linearlayout"
+            android:padding="5dp"
+            android:text="@string/private_chat"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/primary_dark" />
         <ImageView
             android:id="@+id/chat_notice_btn"
             android:layout_width="24dp"
@@ -106,4 +117,83 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/fragment_chat_private_status_container"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:background="@color/live_white_transparent_dim"
+        android:visibility="gone"
+        tools:visibility="visible">
+        <TextView
+            android:id="@+id/fragment_chat_private_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="4dp"
+            android:textSize="@dimen/common_text_size"
+            android:layout_toStartOf="@id/fragment_chat_private_end_btn"
+            android:textColor="@color/primary_dark" />
+        <TextView
+            android:id="@+id/fragment_chat_private_end_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/live_text_color_mid_light"
+            android:background="@drawable/selector_btn_private_chat"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="@string/live_cancel_private_chat"
+            android:textSize="@dimen/common_text_size"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/fragment_chat_filter"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:background="@color/live_white_transparent_dim"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/live_chat_filtered"
+            android:layout_toStartOf="@id/fragment_chat_filter_close"
+            android:layout_marginEnd="4dp"
+            android:textSize="@dimen/common_text_size"
+            android:layout_centerVertical="true"
+            android:textColor="@color/live_blue" />
+
+        <TextView
+            android:id="@+id/fragment_chat_filter_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/live_text_color_mid_light"
+            android:background="@drawable/selector_btn_private_chat"
+            android:layout_gravity="center_vertical"
+            android:layout_alignParentEnd="true"
+            android:text="@string/live_cancel"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/common_text_size"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            />
+    </RelativeLayout>
 </RelativeLayout>

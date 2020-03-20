@@ -245,7 +245,7 @@ public class QuizDialogFragment extends BaseDialogFragment implements QuizDialog
         super.setBasePresenter(presenter);
         this.presenter = presenter;
         presenter.getCurrentUser();
-        roomToken = presenter.getRoomToken();
+        roomToken = TextUtils.isEmpty(presenter.getRoomToken()) ? "" : presenter.getRoomToken();
     }
 
     @Override

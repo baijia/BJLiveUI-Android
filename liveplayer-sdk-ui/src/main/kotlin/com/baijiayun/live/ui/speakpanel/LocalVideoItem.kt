@@ -21,6 +21,7 @@ import com.baijiayun.live.ui.speakerlist.item.Playable
 import com.baijiayun.live.ui.speakerlist.item.SpeakItemType
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.models.imodels.IUserModel
+import com.baijiayun.livecore.utils.LPRxUtils
 import com.baijiayun.livecore.viewmodels.impl.LPSpeakQueueViewModel
 import com.baijiayun.livecore.wrapper.impl.LPCameraView
 import kotlinx.android.synthetic.main.layout_item_video.view.*
@@ -50,8 +51,6 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
     private val videoStatusIv by lazy {
         container.findViewById<ImageView>(R.id.item_status_placeholder_iv)
     }
-    private var shouldStreamVideo = false
-    private var shouldStreamAudio = false
     private var dialog: Dialog? = null
     private var isZOrderMediaOverlay = false
 
@@ -83,31 +82,9 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
         }
     }
 
-    private var attachVideoOnResume: Boolean = false
-    private var attachAudioOnResume: Boolean = false
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    override fun onResume() {
-        if (attachAudioOnResume) {
-            streamAudio()
-            attachAudioOnResume = false
-        }
-        if (attachVideoOnResume) {
-            streamVideo()
-            attachVideoOnResume = false
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    override fun onPause() {
-        attachAudioOnResume = isAudioStreaming
-        attachVideoOnResume = isVideoStreaming
-        stopStreaming()
-    }
-
-
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy() {
+    override fun onDestroy() {
+        super.onDestroy()
         if (dialog?.isShowing == true) {
             dialog?.dismiss()
         }
@@ -117,18 +94,11 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
         onDestroy()
     }
 
-    private fun streamAudio() {
-        if (!recorder.isPublishing) {
-            recorder.publish()
-        }
-        recorder.attachAudio()
-    }
-
     fun setZOrderMediaOverlay(isZOrderMediaOverlay: Boolean) {
         this.isZOrderMediaOverlay = isZOrderMediaOverlay
     }
 
-    private fun streamVideo() {
+    override fun streamVideo() {
         if (cameraView == null) {
             cameraView = LPCameraView(context)
         }
@@ -225,7 +195,10 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
     }
 
     private fun showSwitchDialog() {
-        if ((context as LiveRoomBaseActivity).supportFragmentManager?.isStateSaved == true) {
+        if (context == null || context !is LiveRoomBaseActivity) {
+            return
+        }
+        if (context.isFinishing || context.isDestroyed) {
             return
         }
         context.let {
@@ -243,21 +216,7 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
         }
     }
 
-    override fun getIdentity() = liveRoom.currentUser.userId
-
-    override fun getItemType() = SpeakItemType.Record
-
     override fun getView() = container
-
-    override fun hasVideo() = shouldStreamVideo
-
-    override fun hasAudio() = shouldStreamAudio
-
-    override fun isVideoStreaming() = recorder.isVideoAttached
-
-    override fun isAudioStreaming() = recorder.isAudioAttached
-
-    override fun isStreaming() = recorder.isPublishing
 
     override fun stopStreaming() {
         showVideoClose()
@@ -274,11 +233,14 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
 
     override fun refreshPlayable() {
         if (shouldStreamVideo || shouldStreamAudio) {
-            if (shouldStreamVideo) {
-                streamVideo()
-            } else {
-                recorder.detachVideo()
-                showVideoClose()
+            //attention app处于后台状态不再允许操作视频推拉流（本来就已经停止推流了，处于后台开关摄像头不生效）
+            if(!isInBackgroundStatus){
+                if (shouldStreamVideo) {
+                    streamVideo()
+                } else {
+                    recorder.detachVideo()
+                    showVideoClose()
+                }
             }
             if (shouldStreamAudio) {
                 streamAudio()
@@ -288,16 +250,6 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
         } else {
             stopStreaming()
         }
-    }
-
-    override fun getUser(): IUserModel = liveRoom.currentUser
-
-    override fun setShouldStreamAudio(shouldStreamAudio: Boolean) {
-        this.shouldStreamAudio = shouldStreamAudio
-    }
-
-    override fun setShouldStreamVideo(shouldStreamVideo: Boolean) {
-        this.shouldStreamVideo = shouldStreamVideo
     }
 
     private fun getString(@StringRes resId: Int): String {

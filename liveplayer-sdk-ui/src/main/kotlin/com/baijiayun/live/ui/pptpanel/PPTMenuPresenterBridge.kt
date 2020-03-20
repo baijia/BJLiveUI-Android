@@ -85,7 +85,7 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
             liveRoomRouterListener.liveRoom.speakQueueVM.cancelSpeakApply()
             view.showSpeakApplyCanceled()
         } else if (routerViewModel.speakApplyStatus.value == RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING) {
-            liveRoomRouterListener.liveRoom.mediaViewModel.setCancelSpeak()
+            liveRoomRouterListener.liveRoom.mediaViewModel.updateSpeakStatus(false)
             // 取消发言
             cancelStudentSpeaking()
         }
@@ -112,6 +112,7 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
     override fun onSpeakInvite(confirm: Int) {
         liveRoomRouterListener.liveRoom.sendSpeakInvite(confirm)
         if (confirm == 1) {
+            liveRoomRouterListener.liveRoom.mediaViewModel.updateSpeakStatus(true)
             //接受
             routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING
             liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.publish()

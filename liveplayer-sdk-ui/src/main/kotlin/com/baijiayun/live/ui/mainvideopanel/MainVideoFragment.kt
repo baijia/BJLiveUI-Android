@@ -1,6 +1,7 @@
 package com.baijiayun.live.ui.mainvideopanel
 
 import android.annotation.SuppressLint
+import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.Observer
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.isMainVideoItem
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
 import com.baijiayun.live.ui.removeSwitchableFromParent
+import com.baijiayun.live.ui.speakerlist.item.LocalItem
 import com.baijiayun.live.ui.speakerlist.item.SpeakItem
 import com.baijiayun.live.ui.speakerlist.item.Switchable
 import com.baijiayun.live.ui.speakpanel.LocalVideoItem
@@ -45,10 +47,21 @@ class MainVideoFragment : BasePadFragment() {
     private val placeholderItem by lazy {
         LayoutInflater.from(context).inflate(R.layout.layout_item_video, container, false) as ViewGroup
     }
-
+    private val kickOutObserver by lazy {
+        Observer<Unit> {
+            it?.let {
+                speakItems.forEach { (_, item) ->
+                    if (item is LifecycleObserver) {
+                        lifecycle.removeObserver(item)
+                    }
+                }
+            }
+        }
+    }
     private var disposableOfCloudRecordAllowed: Disposable? = null
     private var disposableOfCloudRecord: Disposable? = null
     private var isCloudRecording = false
+    //item集合：合流时老师可能有多个流
     private var speakItems = HashMap<String, SpeakItem>()
     private var lastMixOn = false
 
@@ -73,7 +86,9 @@ class MainVideoFragment : BasePadFragment() {
         if (liveRoom.currentUser.type != LPConstants.LPUserType.Teacher) {
             return
         }
-        liveRoom.getRecorder<LPRecorder>().publish()
+        if (!liveRoom.getRecorder<LPRecorder>().isPublishing) {
+            liveRoom.getRecorder<LPRecorder>().publish()
+        }
         if (checkCameraAndMicPermission()) {
             val localVideoItem = createLocalPlayableItem()
             speakItems[routerViewModel.liveRoom.currentUser.userId] = localVideoItem
@@ -82,7 +97,7 @@ class MainVideoFragment : BasePadFragment() {
                 setShouldStreamVideo(shouldStreamVideo)
                 refreshPlayable()
             }
-            container.removeAllViews()
+            removeAllViews()
             container.addView(localVideoItem.view)
             routerViewModel.mainVideoItem.value = localVideoItem
         }
@@ -118,7 +133,7 @@ class MainVideoFragment : BasePadFragment() {
             }
             speakItems.clear()
         }
-        container.removeAllViews()
+        removeAllViews()
         container.addView(placeholderItem)
     }
 
@@ -129,12 +144,12 @@ class MainVideoFragment : BasePadFragment() {
         val teacherLabel = liveRoom.customizeTeacherLabel ?: getString(R.string.live_teacher_hint)
         placeholderItem.item_local_speaker_name.text = liveRoom.currentUser.name + teacherLabel
         placeholderItem.visibility = View.VISIBLE
-        container.removeAllViews()
+        removeAllViews()
         container.addView(placeholderItem)
     }
 
     private fun initSuccess() {
-        container.removeAllViews()
+        removeAllViews()
         container.addView(placeholderItem)
         if (!routerViewModel.liveRoom.isTeacher) {
             showRemoteStatus(false)
@@ -156,16 +171,13 @@ class MainVideoFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.classEnd.observe(this, Observer {
-            it?.let {
-                speakItems.clear()
-            }
-        })
-
         routerViewModel.notifyRemotePlayableChanged.observe(this, Observer<IMediaModel> {
             it?.let {
                 //合流会出现userId,userNumber 都为空的问题
                 if (it.user.userId == null) {
+                    return@Observer
+                }
+                if (routerViewModel.isTeacherIn.value != true) {
                     return@Observer
                 }
                 val isMixStream = it.user.userId == LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID
@@ -176,15 +188,20 @@ class MainVideoFragment : BasePadFragment() {
                                 || it.mediaSourceType == LPConstants.MediaSourceType.ExtScreenShare)) {
                     return@Observer
                 }
-                //合流只显示userId = -1的流
+                //合流只显示userId = -1的流，之前播放的流关闭
                 if (routerViewModel.liveRoom.isMixModeOn && !isMixStream) {
+                    val speakItem = speakItems[it.user.userId]
+                    if (speakItem is RemoteVideoItem) {
+                        speakItem.stopStreamingOnly(it)
+                    }
                     return@Observer
                 }
-                //非合流
+                //非合流，之前合流关闭
                 if (!routerViewModel.liveRoom.isMixModeOn && isMixStream) {
-                    return@Observer
-                }
-                if (routerViewModel.isTeacherIn.value != true) {
+                    val speakItem = speakItems[it.user.userId]
+                    if (speakItem is RemoteVideoItem) {
+                        speakItem.stopStreamingOnly(it)
+                    }
                     return@Observer
                 }
                 var remoteVideoItem = speakItems[it.user.userId]
@@ -200,7 +217,7 @@ class MainVideoFragment : BasePadFragment() {
                         }
                         remoteVideoItem.switchToFullScreen()
                     } else {
-                        container.removeAllViews()
+                        removeAllViews()
                         container.addView(remoteVideoItem.view)
                     }
                     speakItems[it.user.userId] = remoteVideoItem
@@ -267,6 +284,8 @@ class MainVideoFragment : BasePadFragment() {
             }
         })
 
+        routerViewModel.kickOut.observeForever(kickOutObserver)
+
         disposableOfCloudRecord = liveRoom.observableOfCloudRecordStatus.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     isCloudRecording = it
@@ -274,7 +293,7 @@ class MainVideoFragment : BasePadFragment() {
 
         container.postDelayed({
             if ((liveRoom as LiveRoomImpl).roomLoginModel.started) {
-                doRequestCloudRecord()
+                autoRequestCloudRecord()
             }
         }, 500)
     }
@@ -282,7 +301,18 @@ class MainVideoFragment : BasePadFragment() {
     private fun addView(child: View) {
         container.addView(child, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
     }
+    private fun removeAllViews() {
+        speakItems.forEach { (_, speakItem) ->
+            if (speakItem is LifecycleObserver) {
+                lifecycle.removeObserver(speakItem)
+            }
+        }
+        container.removeAllViews()
+    }
 
+    /**
+     * 三分屏仅允许老师开启录制
+     */
     private fun autoRequestCloudRecord() {
         if (liveRoom.autoStartCloudRecordStatus == 1) {
             doRequestCloudRecord()
@@ -290,7 +320,7 @@ class MainVideoFragment : BasePadFragment() {
     }
 
     private fun doRequestCloudRecord() {
-        if (routerViewModel.liveRoom.isTeacherOrAssistant && !isCloudRecording) {
+        if (routerViewModel.liveRoom.isTeacher && !isCloudRecording) {
             LPRxUtils.dispose(disposableOfCloudRecordAllowed)
             disposableOfCloudRecordAllowed = liveRoom.requestIsCloudRecordAllowed()
                     .subscribe { lpCheckRecordStatusModel ->
@@ -305,7 +335,8 @@ class MainVideoFragment : BasePadFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        container.removeAllViews()
+        routerViewModel.kickOut.removeObserver(kickOutObserver)
+        removeAllViews()
         speakItems.clear()
         LPRxUtils.dispose(disposableOfCloudRecordAllowed)
         LPRxUtils.dispose(disposableOfCloudRecord)

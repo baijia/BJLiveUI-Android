@@ -24,6 +24,8 @@ import com.baijiayun.livecore.wrapper.LPRecorder
  * Created by Shubo on 2019-10-16.
  */
 class OldLiveRoomRouterListenerBridge(private val routerViewModel: RouterViewModel) : LiveRoomRouterListener {
+    override fun reportAttention(userModel: LPUserModel?) {
+    }
 
     override fun getLiveRoom(): LiveRoom {
         return routerViewModel.liveRoom
@@ -343,12 +345,12 @@ class OldLiveRoomRouterListenerBridge(private val routerViewModel: RouterViewMod
     }
 
     override fun onPrivateChatUserChange(iUserModel: IUserModel?) {
-
+        routerViewModel.privateChatUser.value = iUserModel
     }
 
-    override fun getPrivateChatUser(): IUserModel = liveRoom.currentUser
+    override fun getPrivateChatUser(): IUserModel? = routerViewModel.privateChatUser.value
 
-    override fun isPrivateChat(): Boolean = false
+    override fun isPrivateChat(): Boolean = routerViewModel.privateChatUser.value != null
 
     override fun changeNewChatMessageReminder(isNeedShow: Boolean, newMessageNumber: Int) {
 

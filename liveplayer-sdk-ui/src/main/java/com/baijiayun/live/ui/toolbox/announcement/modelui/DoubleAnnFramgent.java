@@ -1,7 +1,5 @@
 package com.baijiayun.live.ui.toolbox.announcement.modelui;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
@@ -12,6 +10,7 @@ import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.toolbox.announcement.AnnouncementContract;
 import com.baijiayun.live.ui.base.BaseFragment;
 import com.baijiayun.livecore.models.imodels.IAnnouncementModel;
+import com.baijiayun.livecore.utils.CommonUtils;
 
 /**
  * 分组老师与学生信息展示
@@ -165,16 +164,7 @@ public class DoubleAnnFramgent extends BaseFragment implements DoubleAnnContract
         if (TextUtils.isEmpty(url)) {
             view.setOnClickListener(null);
         } else {
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent();
-                    intent.setAction("android.intent.action.VIEW");
-                    Uri uri = Uri.parse(url);
-                    intent.setData(uri);
-                    startActivity(intent);
-                }
-            });
+            view.setOnClickListener(v -> CommonUtils.startActivityByUrl(getContext(),url));
         }
     }
 }

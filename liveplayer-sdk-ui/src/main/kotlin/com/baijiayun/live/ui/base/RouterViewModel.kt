@@ -17,14 +17,14 @@ import com.baijiayun.livecore.ppt.PPTView
  * Created by Shubo on 2019-10-10.
  */
 class RouterViewModel : ViewModel() {
-    enum class QuizStatus{
-        NOT_INIT,START,RES,END,SOLUTION,CLOSE
+    enum class QuizStatus {
+        NOT_INIT, START, RES, END, SOLUTION, CLOSE
     }
+
     lateinit var liveRoom: LiveRoom
 
     val action2PPTError = MutableLiveData<Pair<Int, String?>>()
 
-    var checkUnique = true
 
     var mainVideoItem = MutableLiveData<Switchable>()
 
@@ -93,7 +93,7 @@ class RouterViewModel : ViewModel() {
     val pptViewData = MutableLiveData<PPTView>()
 
     //辅助摄像头，默认全屏，切换位置当做ppt处理
-    val extCameraData = MutableLiveData<Pair<String,Switchable>>()
+    val extCameraData = MutableLiveData<Pair<String, Switchable>>()
 
     val actionNavigateToPPTDrawing = MutableLiveData<Boolean>()
 
@@ -117,7 +117,7 @@ class RouterViewModel : ViewModel() {
 
     val action2Award = MutableLiveData<String>()
 
-    val awardRecord = HashMap<String,LPAwardUserInfo>()
+    val awardRecord = HashMap<String, LPAwardUserInfo>()
 
     val isTeacherIn = MutableLiveData<Boolean>()
 
@@ -134,11 +134,22 @@ class RouterViewModel : ViewModel() {
     val shouldShowTecSupport = MutableLiveData<Boolean>()
 
     val action2Chat = MutableLiveData<Boolean>()
-    
+
+    val privateChatUser = MutableLiveData<IUserModel>()
+
+    val timeOutStart = MutableLiveData<Pair<String,Boolean>>()
+
+    val kickOut = MutableLiveData<Unit>()
+
+    var checkUnique = true
+
     var penChecked = false
 
-    override fun onCleared() {
-        super.onCleared()
-        liveRoom.quitRoom()
-    }
+    var chatLabelVisiable = false
+
+    var choosePrivateChatUser = false
+
+    var forbidChatUserNums = HashSet<String>()
+
+    var invitingUserIds = HashSet<String>()
 }

@@ -18,12 +18,18 @@ import com.baijiayun.live.ui.speakerlist.SpeakersContract;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LiveRoom;
+import com.baijiayun.livecore.models.imodels.IMediaControlModel;
 import com.baijiayun.livecore.models.imodels.IUserModel;
+import com.baijiayun.livecore.utils.LPRxUtils;
 import com.baijiayun.livecore.wrapper.LPRecorder;
 import com.baijiayun.livecore.wrapper.impl.LPCameraView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by Shubo on 2019-07-25.
@@ -38,7 +44,9 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
     protected LPCameraView cameraView;
     private RelativeLayout container;
     private FrameLayout videoContainer;
-    private boolean shouldStreamVideo, shouldStreamAudio;
+    protected boolean shouldStreamVideo, shouldStreamAudio;
+    //是否处于后台状态
+    protected boolean isInBackgroundStatus = false;
 
     public LocalItem(ViewGroup rootView, SpeakersContract.Presenter presenter) {
         super(presenter);
@@ -75,10 +83,11 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
         }
     }
 
-    private boolean attachVideoOnResume, attachAudioOnResume;
+    protected boolean attachVideoOnResume, attachAudioOnResume;
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void onResume() {
+        isInBackgroundStatus = false;
         if (attachAudioOnResume) {
             streamAudio();
             attachAudioOnResume = false;
@@ -87,13 +96,21 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
             streamVideo();
             attachVideoOnResume = false;
         }
+        LPRxUtils.dispose(disposableOfMediaRemoteControl);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void onPause() {
+        isInBackgroundStatus = true;
         attachAudioOnResume = isAudioStreaming();
         attachVideoOnResume = isVideoStreaming();
         stopStreaming();
+        subscribeBackgroundMediaRemoteControl();
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void onDestroy(){
+        LPRxUtils.dispose(disposableOfMediaRemoteControl);
     }
 
     @Override
@@ -171,13 +188,13 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
         return recorder.isPublishing();
     }
 
-    private void streamAudio() {
+    protected void streamAudio() {
         if (!recorder.isPublishing())
             recorder.publish();
         recorder.attachAudio();
     }
 
-    private void streamVideo() {
+    protected void streamVideo() {
         if (cameraView == null) {
             cameraView = new LPCameraView(context);
             cameraView.setZOrderMediaOverlay(true);
@@ -199,10 +216,13 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
     @Override
     public void refreshPlayable() {
         if (shouldStreamVideo || shouldStreamAudio) {
-            if (shouldStreamVideo) {
-                streamVideo();
-            } else {
-                recorder.detachVideo();
+            //attention app处于后台状态不再允许操作视频推流（本来就已经停止推流了，处于后台开关摄像头不生效)，后台操作需在onResume之后恢复
+            if(!isInBackgroundStatus){
+                if (shouldStreamVideo) {
+                    streamVideo();
+                } else {
+                    recorder.detachVideo();
+                }
             }
             if (shouldStreamAudio) {
                 streamAudio();
@@ -262,5 +282,23 @@ public class LocalItem extends BaseSwitchItem implements Playable, LifecycleObse
     @Override
     public View getView() {
         return container;
+    }
+
+    protected Disposable disposableOfMediaRemoteControl;
+
+    /**
+     * 退到后台监听remote_media_control
+     */
+    protected void subscribeBackgroundMediaRemoteControl(){
+        disposableOfMediaRemoteControl = liveRoom.getSpeakQueueVM()
+                .getObservableOfMediaControl()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<IMediaControlModel>(){
+                    @Override
+                    public void accept(IMediaControlModel iMediaControlModel) throws Exception {
+                        attachVideoOnResume = iMediaControlModel.isVideoOn();
+                        attachAudioOnResume = iMediaControlModel.isAudioOn();
+                    }
+                });
     }
 }

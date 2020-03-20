@@ -33,6 +33,7 @@
     <color name="live_top_bar_gradient_end">#00000000</color>
     <color name="live_half_transparent">#88000000</color>
     <color name="live_half_transparent_white">#88FFFFFF</color>
+    <color name="live_white_transparent_dim">#DAFFFFFF</color>
     <color name="live_half_transparent_mask">#33000000</color>
 
     <color name="live_blue">#37A4F5</color>
@@ -75,10 +76,11 @@
     <color name="live_pad_agree">#1795FF</color>
     <color name="live_pad_start">#33C7FF</color>
     <color name="live_pad_stroke_grey">#EDEDEE</color>
+    <color name="live_pad_menu_bg">#eeeeee</color>
     <color name="live_pad_stroke_grey_single">#d0d0d0</color>
 
 
-    <color name="live_pad_bg_color">#000000</color>
+    <color name="live_pad_bg_color">#666666</color>
     <color name="live_pad_grey">#FF4A4A4A</color>
     <color name="live_pad_selected_tab_blue">#FF1795FF</color>
     <color name="live_pad_orange">#F5A623</color>
@@ -86,4 +88,5 @@
     <color name="pad_class_net_normal">#1199ff</color>
     <color name="pad_class_net_bad">#ffbb33</color>
     <color name="pad_class_net_terrible">#ff0000</color>
+    <color name="pad_message_text_color">#ff4a4a4a</color>
 </resources>

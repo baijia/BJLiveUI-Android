@@ -40,7 +40,7 @@ class TopMenuViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
                 .subscribe(object : DisposingObserver<Int>() {
                     override fun onNext(t: Int) {
                         RxUtils.dispose(disposableOfCount)
-                        if (liveRoom.currentUser.type == LPConstants.LPUserType.Teacher || liveRoom.currentUser.type == LPConstants.LPUserType.Assistant) {
+                        if (liveRoom.currentUser.type == LPConstants.LPUserType.Teacher) {
                             liveRoom.requestCloudRecord(false)
                         }
                         classStarTimeCount.value = defaultStartTimeStr

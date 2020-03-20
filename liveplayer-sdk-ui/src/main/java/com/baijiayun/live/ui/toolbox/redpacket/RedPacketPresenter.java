@@ -6,12 +6,12 @@ import android.os.Handler;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.toolbox.redpacket.widget.MoveModel;
 import com.baijiayun.live.ui.utils.RxUtils;
+import com.baijiayun.livecore.alilog.AliYunLogHelper;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.models.LPRedPacketModel;
 import com.baijiayun.livecore.models.LPShortResult;
 import com.baijiayun.livecore.utils.LPJsonUtils;
 import com.baijiayun.livecore.utils.LPLogger;
-import com.baijiayun.log.BJFileLog;
 import com.google.gson.JsonObject;
 
 import java.util.concurrent.TimeUnit;
@@ -93,7 +93,7 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
             .subscribe(lpShortResult -> {
                 if (model == null || !model.isRob)
                     return;
-                BJFileLog.d(RedPacketPresenter.class, TAG, "requestCloudRobRedPacket " + lpShortResult.data);
+                AliYunLogHelper.getInstance().addDebugLog("requestCloudRobRedPacket " + lpShortResult.data);
                 RobRedPacketModel robModel = LPJsonUtils.parseJsonObject((JsonObject) lpShortResult.data, RobRedPacketModel.class);
                 if (robModel.status == 0) {
                     //抢成功
@@ -106,7 +106,7 @@ public class RedPacketPresenter implements RedPacketContract.Presenter {
                     model.isOpen = true;
                 }
             }, throwable -> {
-                BJFileLog.d(RedPacketPresenter.class, TAG, "requestCloudRobRedPacket : error " + throwable.getMessage());
+                AliYunLogHelper.getInstance().addErrorLog("requestCloudRobRedPacket : error " + throwable.getMessage());
                 LPLogger.d(TAG, "requestCloudRobRedPacket : error");
             });
         mCompositeDisposable.add(robDisposable);

@@ -7,11 +7,12 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
+
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName getVersion()
     }
     dataBinding{
         enabled true
@@ -33,6 +34,18 @@ android {
     }
 }
 
+def getVersion() {
+    def versionFile = file('gradle.properties')
+    if (versionFile.exists()) {
+        Properties versionProps = new Properties()
+        versionProps.load(new FileInputStream(versionFile))
+        def versionName = versionProps['VERSION_NAME'].toString()
+        return versionName
+    } else {
+        throw new GradleException("Could not find version.properties!")
+    }
+}
+
 dependencies {
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
@@ -51,10 +64,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
     implementation 'com.google.code.gson:gson:2.8.2'
-
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.1.7'
-
-
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.2.0'
 //    api (project(path: ':liveplayer-sdk-core')){
 //        exclude group:"com.android.support"
 //    }

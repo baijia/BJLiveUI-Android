@@ -1,6 +1,5 @@
 package com.baijiayun.live.ui
 
-import android.annotation.SuppressLint
 import android.arch.lifecycle.MutableLiveData
 import android.text.TextUtils
 import com.baijiayun.live.ui.base.BaseViewModel
@@ -10,14 +9,9 @@ import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.context.LPError
 import com.baijiayun.livecore.listener.OnPhoneRollCallListener
 import com.baijiayun.livecore.models.*
-import com.baijiayun.livecore.models.imodels.IAnnouncementModel
-import com.baijiayun.livecore.models.imodels.IMediaModel
-import com.baijiayun.livecore.models.imodels.IUserInModel
-import com.baijiayun.livecore.models.imodels.IUserModel
+import com.baijiayun.livecore.models.imodels.*
 import com.baijiayun.livecore.models.responsedebug.LPResRoomDebugModel
-import com.baijiayun.livecore.utils.LPLogger
-import com.baijiayun.livecore.wrapper.LPRecorder
-import com.baijiayun.livecore.wrapper.impl.LPCameraView
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
@@ -30,12 +24,36 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
     val showRollCall = MutableLiveData<Pair<Int,OnPhoneRollCallListener.RollCall>>()
     val dismissRollCall = MutableLiveData<Unit>()
     val showToast = MutableLiveData<String>()
+    val reportAttention = MutableLiveData<Unit>()
     var teacherVideoOn = false
     var teacherAudioOn = false
-    @SuppressLint("StaticFieldLeak")
-    var cameraView: LPCameraView? = null
     var counter = 0
-    private var isBackstage: Boolean = false
+    //进教室之前监听
+    fun observeActions() {
+        with(routerViewModel) {
+            liveRoom.observableOfDebug.observeOn(AndroidSchedulers.mainThread())
+                    .filter { it.data != null && !JsonObjectUtil.isJsonNull(it.data,"command_type")}
+                    .subscribe(object : DisposingObserver<LPResRoomDebugModel>() {
+                        override fun onNext(lpResRoomDebugModel: LPResRoomDebugModel) {
+                            val commandType = lpResRoomDebugModel.data.get("command_type").asString
+                            if ("logout" == commandType) {
+                                if (lpResRoomDebugModel.data.has("code")) {
+                                    val code = lpResRoomDebugModel.data.get("code").asInt
+                                    if (code == 2) {
+                                        val tip = liveRoom.auditionTip
+                                        actionShowError.value = LPError.getNewError(LPError.CODE_ERROR_LOGIN_AUDITION, tip[0], tip[1])
+                                    } else {
+                                        actionShowError.value = LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong(), "用户被请出房间")
+                                    }
+
+                                } else {
+                                    actionShowError.value = LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong(), "用户被请出房间")
+                                }
+                            }
+                        }
+                    })
+        }
+    }
     override fun subscribe() {
         with(routerViewModel) {
             liveRoom.observableOfClassStart.observeOn(AndroidSchedulers.mainThread()).subscribe(object : DisposingObserver<Int>() {
@@ -192,28 +210,6 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
                                 quizStatus.value = RouterViewModel.QuizStatus.SOLUTION to lpJsonModel
                             }
                         })
-                //debug信息
-                liveRoom.observableOfDebug.observeOn(AndroidSchedulers.mainThread())
-                        .filter { it.data != null && !JsonObjectUtil.isJsonNull(it.data,"command_type")}
-                        .subscribe(object : DisposingObserver<LPResRoomDebugModel>() {
-                            override fun onNext(lpResRoomDebugModel: LPResRoomDebugModel) {
-                                val commandType = lpResRoomDebugModel.data.get("command_type").asString
-                                if ("logout" == commandType) {
-                                    if (lpResRoomDebugModel.data.has("code")) {
-                                        val code = lpResRoomDebugModel.data.get("code").asInt
-                                        if (code == 2) {
-                                            val tip = liveRoom.auditionTip
-                                            actionShowError.value = LPError.getNewError(LPError.CODE_ERROR_LOGIN_AUDITION, tip[0], tip[1])
-                                        } else {
-                                            actionShowError.value = LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong(), "用户被请出房间")
-                                        }
-
-                                    } else {
-                                        actionShowError.value = LPError.getNewError(LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong(), "用户被请出房间")
-                                    }
-                                }
-                            }
-                        })
                 liveRoom.toolBoxVM.observableOfAnswerStart
                         .filter { !liveRoom.isTeacherOrAssistant && !liveRoom.isGroupTeacherOrAssistant }
                         .subscribe(object : DisposingObserver<LPAnswerModel>() {
@@ -243,11 +239,18 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
                                 showTimer.value= false to LPBJTimerModel()
                             }
                         })
+                liveRoom.toolBoxVM.observableOfAttentionDetection
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object :DisposingObserver<LPJsonModel>(){
+                            override fun onNext(t: LPJsonModel) {
+                                reportAttention.value = Unit
+                            }
+                        })
                 liveRoom.toolBoxVM.observableOfAttentionAlert
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(object : DisposingObserver<LPAttentionAlertModel>() {
-                            override fun onNext(lpAttentionAlertModel: LPAttentionAlertModel) {
-                                showToast.value = lpAttentionAlertModel.content
+                        .subscribe(object : DisposingObserver<String>() {
+                            override fun onNext(content: String) {
+                                showToast.value = content
                             }
                         })
             }
@@ -295,33 +298,55 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
                             }
                         }
                     })
+            if (liveRoom.currentUser.type == LPConstants.LPUserType.Teacher || liveRoom.currentUser.type == LPConstants.LPUserType.Assistant) {
+                liveRoom.observableOfSpeakInvite.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object :DisposingObserver<LPSpeakInviteModel>(){
+                            override fun onNext(t: LPSpeakInviteModel) {
+                                if (t.invite == 1) {
+                                    routerViewModel.invitingUserIds.add(t.to)
+                                } else {
+                                    routerViewModel.invitingUserIds.remove(t.to)
+                                    routerViewModel.timeOutStart.value = t.to to false
+                                }
+                            }
+                        })
+                liveRoom.observableOfSpeakInviteRes.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object :DisposingObserver<LPSpeakInviteConfirmModel>(){
+                            override fun onNext(t: LPSpeakInviteConfirmModel) {
+                                routerViewModel.invitingUserIds.remove(t.userId)
+                                routerViewModel.timeOutStart.value = t.userId to false
+                            }
+                        })
+                liveRoom.observableOfForbidList.observeOn(AndroidSchedulers.mainThread())
+                        .map { it.userList }
+                        .flatMap { Observable.fromIterable(it) }
+                        .subscribe(object :DisposingObserver<LPForbidUserModel>(){
+                            override fun onNext(lpForbidUserModel: LPForbidUserModel) {
+                                if (lpForbidUserModel.duration > 0) {
+                                    routerViewModel.forbidChatUserNums.add(lpForbidUserModel.number)
+                                } else {
+                                    routerViewModel.forbidChatUserNums.remove(lpForbidUserModel.number)
+                                }
+                            }
+                        })
+                liveRoom.observableOfForbidChat.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object :DisposingObserver<IForbidChatModel>(){
+                            override fun onNext(t: IForbidChatModel) {
+                                if (t.duration > 0) {
+                                    routerViewModel.forbidChatUserNums.add(t.forbidUser.number)
+                                } else {
+                                    routerViewModel.forbidChatUserNums.remove(t.forbidUser.number)
+                                }
+                            }
+                        })
+                liveRoom.requestForbidList()
+            }
         }
     }
 
     fun setTeacherMedia(media: IMediaModel) {
         teacherVideoOn = media.isVideoOn
         teacherAudioOn = media.isAudioOn
-    }
-    fun switchBackstage(isBackstage: Boolean) {
-        if (routerViewModel.liveRoom.getRecorder<LPRecorder>() == null) return
-        if (isBackstage) {
-            //后台
-            if (routerViewModel.liveRoom.getRecorder<LPRecorder>().isPublishing) {
-                LPLogger.d("LiveRoomViewModel", "switchBackstage : stopPublishing")
-                cameraView = routerViewModel.liveRoom.getRecorder<LPRecorder>().cameraView
-                routerViewModel.liveRoom.getRecorder<LPRecorder>().stopPublishing()
-            }
-        } else {
-            //前台
-            if (cameraView != null && !routerViewModel.liveRoom.getRecorder<LPRecorder>().isPublishing) {
-                LPLogger.d("LiveRoomViewModel", "switchBackstage : startPublishing")
-                if (routerViewModel.liveRoom.isUseWebRTC) {
-                    routerViewModel.liveRoom.getRecorder<LPRecorder>().setPreview(cameraView)
-                }
-                routerViewModel.liveRoom.getRecorder<LPRecorder>().publish()
-                cameraView = null
-            }
-        }
     }
 
     enum class MediaStatus {

@@ -103,7 +103,7 @@ class QuestionSendFragment : BaseDialogFragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 sendBtn.isEnabled = !s.isNullOrBlank()
-                wordsTipTv.text = "${s?.length ?: 0}/140"
+                wordsTipTv.text = "${s?.length ?: 0}/280"
             }
         })
 

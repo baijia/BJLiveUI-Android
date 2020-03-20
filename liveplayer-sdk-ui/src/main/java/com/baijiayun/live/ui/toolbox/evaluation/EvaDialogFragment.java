@@ -282,7 +282,7 @@ public class EvaDialogFragment extends BaseDialogFragment implements EvaDialogCo
         super.setBasePresenter(presenter);
         this.presenter = presenter;
         presenter.getCurrentUser();
-        roomToken = presenter.getRoomToken();
+        roomToken = TextUtils.isEmpty(presenter.getRoomToken()) ? "" : presenter.getRoomToken();
         roomId = String.valueOf(presenter.getRoomId());
     }
 

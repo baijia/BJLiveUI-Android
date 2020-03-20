@@ -57,7 +57,7 @@ abstract class BasePadFragment : Fragment() {
                         .content(mapType2String(type))
                         .positiveText(getString(R.string.live_quiz_dialog_confirm))
                         .positiveColor(ContextCompat.getColor(it, R.color.live_blue))
-                        .onPositive({ materialDialog, _ -> materialDialog.dismiss() })
+                        .onPositive { materialDialog, _ -> materialDialog.dismiss() }
                         .canceledOnTouchOutside(true)
                         .build()
                         .show()
@@ -197,15 +197,21 @@ abstract class BasePadFragment : Fragment() {
         return false
     }
 
+    private fun isActivityFinish() = activity?.run {
+        isFinishing || isDestroyed
+    }?:true
+
+
     protected fun showDialogFragment(dialogFragment: BaseDialogFragment) {
-        if (childFragmentManager.isStateSaved) {
+        //添加activity判断，保证fragment中mHost!=null
+        if (isActivityFinish()) {
             return
         }
         val ft = childFragmentManager.beginTransaction()
         dialogFragment.show(ft, dialogFragment.javaClass.simpleName + dialogFragment.hashCode())
         childFragmentManager.executePendingTransactions()
         dialogFragment.dialog.setOnDismissListener(DialogInterface.OnDismissListener {
-            if (childFragmentManager.isDestroyed) return@OnDismissListener
+            if (isActivityFinish() || isDetached) return@OnDismissListener
             val prev = childFragmentManager.findFragmentByTag(dialogFragment.javaClass.simpleName + dialogFragment.hashCode())
             val ftm = childFragmentManager.beginTransaction()
             prev?.let {
@@ -234,7 +240,7 @@ abstract class BasePadFragment : Fragment() {
     protected open fun observeActions() {
     }
 
-    protected fun addFragment(layoutId: Int, fragment: Fragment, addToBackStack: Boolean = false, fragmentTag: String? = null) {
+    protected fun addFragment(layoutId: Int, fragment: Fragment, fragmentTag: String? = null) {
         val transaction = childFragmentManager.beginTransaction()
         if (fragmentTag == null) {
             transaction.add(layoutId, fragment)

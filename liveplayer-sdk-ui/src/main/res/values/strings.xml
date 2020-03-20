@@ -163,6 +163,7 @@
     <string name="live_room_switch">正在切换教室，请等候…</string>
     <string name="live_room_x86_not_supported">暂不支持x86平台的设备</string>
     <string name="live_room_private_chat_with_name">正在和 %1$s 私聊中…</string>
+    <string name="live_room_private_chat_cancel">私聊已取消</string>
     <string name="live_room_new_chat_message">%1$d 条新消息</string>
     <string name="live_no_online_chat">没有可以私聊的同学哦</string>
     <string name="live_cancel_private_chat">取消私聊</string>
@@ -277,5 +278,7 @@
     <string name="live_pad_sync_video_ppt">切换视频窗口与白板位置，学生端是否同步切换？</string>
     <string name="live_pad_switch_sync">同步切换</string>
     <string name="live_pad_switch_local">仅本地切换</string>
+    <string name="live_pad_kickout">踢出</string>
+    <string name="live_pad_kickout_tip">踢出教室后该用户本节课不能再次进入教室</string>
 </resources>
 

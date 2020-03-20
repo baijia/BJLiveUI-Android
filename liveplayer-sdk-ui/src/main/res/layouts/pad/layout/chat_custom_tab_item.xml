@@ -24,11 +24,12 @@
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="12dp"
-        tools:text="1"
+        tools:text="87"
         android:gravity="center"
-        android:textSize="10sp"
+        android:textSize="10dp"
         android:textColor="#ffffffff"
+        tools:visibility="visible"
         android:visibility="gone"
-        />
+        tools:ignore="SpUsage" />
 
 </FrameLayout>

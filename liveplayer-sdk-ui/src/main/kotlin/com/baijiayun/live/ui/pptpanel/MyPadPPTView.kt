@@ -198,7 +198,11 @@ class MyPadPPTView(context: Context, val routerViewModel: RouterViewModel, attr:
     }
 
     private fun showSwitchDialog() {
-        if ((context as LiveRoomBaseActivity).supportFragmentManager?.isStateSaved == true) {
+        if (context == null || context !is LiveRoomBaseActivity) {
+            return
+        }
+        val cxt = context as LiveRoomBaseActivity
+        if (cxt.isFinishing ||cxt.isDestroyed) {
             return
         }
         context.let {

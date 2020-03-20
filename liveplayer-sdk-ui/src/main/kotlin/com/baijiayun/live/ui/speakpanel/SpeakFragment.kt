@@ -1,5 +1,6 @@
 package com.baijiayun.live.ui.speakpanel
 
+import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.Observer
 import android.content.Context
 import android.view.View
@@ -14,15 +15,13 @@ import com.baijiayun.live.ui.getSpeaksVideoParams
 import com.baijiayun.live.ui.isSpeakVideoItem
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
 import com.baijiayun.live.ui.speakerlist.ItemPositionHelper
-import com.baijiayun.live.ui.speakerlist.item.Playable
-import com.baijiayun.live.ui.speakerlist.item.RemoteItem
-import com.baijiayun.live.ui.speakerlist.item.SpeakItem
-import com.baijiayun.live.ui.speakerlist.item.Switchable
+import com.baijiayun.live.ui.speakerlist.item.*
 import com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.models.LPAwardUserInfo
 import com.baijiayun.livecore.models.imodels.IMediaModel
 import com.baijiayun.livecore.utils.CommonUtils
+import com.baijiayun.livecore.utils.LPLogger
 import com.baijiayun.livecore.viewmodels.impl.LPSpeakQueueViewModel
 import com.baijiayun.livecore.wrapper.LPRecorder
 
@@ -39,6 +38,18 @@ class SpeakFragment : BasePadFragment() {
     }
     private val liveRoom by lazy {
         routerViewModel.liveRoom
+    }
+    private val kickOutObserver by lazy {
+        Observer<Unit> {
+            it?.let {
+                val speakItems = positionHelper.speakItems
+                for (speakItem in speakItems) {
+                    if (speakItem is LifecycleObserver) {
+                        lifecycle.removeObserver(speakItem)
+                    }
+                }
+            }
+        }
     }
 
     private lateinit var scrollView: BJTouchHorizontalScrollView
@@ -204,7 +215,8 @@ class SpeakFragment : BasePadFragment() {
             it?.let {
                 if (it) {
                     val fullScreenItem = routerViewModel.switch2FullScreen.value
-                    if (fullScreenItem?.identity != routerViewModel.liveRoom.teacherUser.userId && fullScreenItem?.identity != LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID) {
+                    if (routerViewModel.liveRoom.teacherUser != null && fullScreenItem?.identity != routerViewModel.liveRoom.teacherUser.userId
+                            && fullScreenItem?.identity != LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID) {
                         val speakItem = positionHelper.getSpeakItemByIdentity(routerViewModel.liveRoom.teacherUser.userId)
                         if (speakItem is RemoteItem) {
                             if (speakItem.isVideoClosedByUser) {
@@ -221,7 +233,7 @@ class SpeakFragment : BasePadFragment() {
         routerViewModel.switch2BackList.observe(this, Observer {
             it?.let {
                 context?.run {
-                    if (!isSpeakVideoItem(it,liveRoom)) {
+                    if (!isSpeakVideoItem(it, liveRoom)) {
                         return@let
                     }
                     val index = positionHelper.getItemSwitchBackPosition(it)
@@ -233,7 +245,7 @@ class SpeakFragment : BasePadFragment() {
 
         routerViewModel.notifyCloseRemoteVideo.observe(this, Observer {
             it?.let {
-                if (!isSpeakVideoItem(it,liveRoom)) {
+                if (!isSpeakVideoItem(it, liveRoom)) {
                     return@Observer
                 }
                 closeRemoteVideo(it)
@@ -243,7 +255,7 @@ class SpeakFragment : BasePadFragment() {
         routerViewModel.notifyAward.observe(this, Observer {
             it?.let { awardModel ->
                 if (awardModel.isFromCache && awardModel.value.recordAward != null) {
-                    awardModel.value.recordAward.forEach{ entry ->
+                    awardModel.value.recordAward.forEach { entry ->
                         val playable: Playable? = positionHelper.getPlayableItemByUserNumber(entry.key)
                         playable?.notifyAwardChange(entry.value.count)
                     }
@@ -259,6 +271,7 @@ class SpeakFragment : BasePadFragment() {
                 }
             }
         })
+        routerViewModel.kickOut.observeForever(kickOutObserver)
     }
 
     private fun handleExtMedia(iMediaModel: IMediaModel) {
@@ -348,6 +361,9 @@ class SpeakFragment : BasePadFragment() {
             for (action in actions) {
                 when (action.action) {
                     ItemPositionHelper.ActionType.ADD -> {
+                        if (action.speakItem is Switchable) {
+                            removeSwitchableFromParent(action.speakItem as Switchable)
+                        }
                         val value = action.value
                         addView(action.speakItem.view, value)
                         routerViewModel.speakListCount.value = container.childCount
@@ -357,6 +373,9 @@ class SpeakFragment : BasePadFragment() {
                             (action.speakItem as LocalVideoItem).destroy()
                         } else if (action.speakItem is RemoteVideoItem) {
                             (action.speakItem as RemoteVideoItem).destroy()
+                        }
+                        if(action.speakItem is LifecycleObserver){
+                            lifecycle.removeObserver(action.speakItem as LifecycleObserver)
                         }
                         container.removeView(action.speakItem.view)
                         routerViewModel.speakListCount.value = container.childCount
@@ -371,6 +390,7 @@ class SpeakFragment : BasePadFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        routerViewModel.kickOut.removeObserver(kickOutObserver)
         (view as ViewGroup).removeAllViews()
     }
 
@@ -385,6 +405,6 @@ class SpeakFragment : BasePadFragment() {
     }
 
     private fun getAwardCount(number: String?): Int {
-        return routerViewModel.awardRecord[number]?.count ?:0
+        return routerViewModel.awardRecord[number]?.count ?: 0
     }
 }

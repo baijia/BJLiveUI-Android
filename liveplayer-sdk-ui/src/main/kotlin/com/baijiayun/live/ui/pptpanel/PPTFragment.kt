@@ -13,7 +13,9 @@ import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
+import com.baijiayun.live.ui.canShowDialog
 import com.baijiayun.live.ui.databinding.LayoutPptMenuBinding
+import com.baijiayun.live.ui.isPad
 import com.baijiayun.live.ui.menu.rightmenu.RightMenuContract
 import com.baijiayun.live.ui.pptpanel.handsuplist.HandsUpListFragment
 import com.baijiayun.live.ui.speakerlist.item.Switchable
@@ -53,7 +55,6 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
     private val disposables by lazy {
         CompositeDisposable()
     }
-    private var isInit = false
     private var menuDataBinding: LayoutPptMenuBinding? = null
     private var disposeOfClickable: Disposable? = null
     private var speakInviteDlg: MaterialDialog? = null
@@ -70,8 +71,7 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             it.lifecycleOwner = this@PPTFragment
         }
         toolBars.run {
-            val screenType = resources.getString(R.string.screen_type)
-            if (screenType == "phone" && !pptViewModel.isTeacherOrAssistant()) {
+            if (!isPad(context) && !pptViewModel.isTeacherOrAssistant()) {
                 if (llAVideo.layoutParams is ConstraintLayout.LayoutParams) {
                     val layoutParams = llAVideo.layoutParams as ConstraintLayout.LayoutParams
                     layoutParams.bottomToTop = R.id.rlSpeakWrapper
@@ -147,7 +147,6 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
         }
         routerViewModel.switch2FullScreen.value = pptView
         menuContainer.addView(toolBars, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-        isInit = true
     }
 
     override fun observeActions() {
@@ -264,12 +263,12 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             })
             action2PPTError.observe(this@PPTFragment, Observer {
                 it?.let {
-                    if (isStateSaved) return@Observer
+                    if (!canShowDialog()) return@Observer
                     try {
                         context?.run {
                             var title = getString(R.string.live_room_ppt_load_error, it.first)
                             if(it.first == -10086){
-                                title = it.second
+                                title = it.second ?: ""
                             }
                             MaterialDialog.Builder(this)
                                     .title(title)
@@ -317,12 +316,19 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             tvPen.visibility = View.GONE
             tvPenClear.visibility = View.GONE
             tvCountDown.visibility = View.INVISIBLE
+            llAVideo.visibility = View.GONE
         }
     }
 
     override fun showForceSpeakDenyByServer() {
         showToastMessage(getString(R.string.live_force_speak_closed_by_server))
-        toolBars.tvCountDown.visibility = View.INVISIBLE
+        with(toolBars) {
+            tvSpeakApply.isChecked = false
+            tvPen.visibility = View.GONE
+            tvPenClear.visibility = View.GONE
+            tvCountDown.visibility = View.INVISIBLE
+            llAVideo.visibility = View.GONE
+        }
     }
 
     override fun showDrawingStatus(isEnable: Boolean) {
@@ -543,14 +549,14 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
                     }
                     .build()
 
-            if (!isStateSaved) {
+            if (canShowDialog()) {
                 speakInviteDlg?.show()
             }
         }
     }
 
     override fun showForceSpeakDlg(tipRes: Int) {
-        if (!isStateSaved) {
+        if (canShowDialog()) {
             context?.let {
                 MaterialDialog.Builder(it)
                         .content(tipRes)
