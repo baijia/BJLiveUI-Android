@@ -72,7 +72,7 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
                     BJCommonImageCropHelper.openImageMulti(getActivity(), 20, builder.build(), new BJCommonImageCropHelper.OnHandlerResultCallback() {
                         @Override
                         public void onHandlerSuccess(List<PhotoInfo> list) {
-                            if (presenter != null) {
+                            if (presenter == null) {
                                 return;
                             }
                             List<String> pics = new ArrayList<>();
