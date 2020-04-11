@@ -34,6 +34,8 @@ import com.baijiayun.live.ui.ppt.quickswitchppt.SwitchPPTFragmentPresenter
 import com.baijiayun.live.ui.pptpanel.PPTFragment
 import com.baijiayun.live.ui.rollcall.RollCallDialogFragment
 import com.baijiayun.live.ui.rollcall.RollCallDialogPresenter
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.setting.SettingDialogFragment
 import com.baijiayun.live.ui.setting.SettingPresenter
 import com.baijiayun.live.ui.share.LPShareDialog
@@ -53,6 +55,7 @@ import com.baijiayun.live.ui.toolbox.redpacket.RedPacketFragment
 import com.baijiayun.live.ui.toolbox.redpacket.RedPacketPresenter
 import com.baijiayun.live.ui.toolbox.timer.TimerFragment
 import com.baijiayun.live.ui.toolbox.timer.TimerPresenter
+import com.baijiayun.live.ui.toolbox.timer.TimerShowyFragment
 import com.baijiayun.live.ui.topmenu.TopMenuFragment
 import com.baijiayun.live.ui.utils.DisplayUtils
 import com.baijiayun.live.ui.utils.JsonObjectUtil
@@ -88,6 +91,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
     private lateinit var chatViewModel: ChatViewModel
     private lateinit var oldBridge: OldLiveRoomRouterListenerBridge
     private var pptManagePresenter: PPTManagePresenter? = null
+    private var showyTimerPresenter : TimerPresenter? = null
     private var quickSwitchPPTPresenter: SwitchPPTFragmentPresenter? = null
     private var rollCallDialogFragment: RollCallDialogFragment? = null
     private var rollCallDialogPresenter: RollCallDialogPresenter? = null
@@ -99,6 +103,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
     private var redPacketFragment: RedPacketFragment? = null
     private var redPacketPresenter: RedPacketPresenter? = null
     private var timerFragment: TimerFragment? = null
+    private var timerShowyFragment: TimerShowyFragment? = null
     private var lpAnswerModel: LPAnswerModel? = null
     private var evaDialogFragment: EvaDialogFragment? = null
     private var mobileNetworkDialogShown = false
@@ -106,10 +111,16 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
     private var disposeOfTeacherAbsent: Disposable? = null
     private var disposeOfLoginConflict: Disposable? = null
     private var disposeOfMarquee: Disposable? = null
+    private var disposeOfActionMain: Disposable? = null
     private var marqueeAnimator: ObjectAnimator? = null
 
     private val timerObserver by lazy {
-        Observer<Pair<Boolean, LPBJTimerModel>> { it?.let { if (it.first) showTimer(it.second) else closeTimer() } }
+        Observer<Pair<Boolean, LPBJTimerModel>> { it?.let { if (it.first && it.second.action != TimerPresenter.stop_timer) {
+            if (routerListener.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher || it.second.action != null)
+                showTimerShowy(it.second)
+            else
+                showTimer(it.second)
+        } else closeTimer() }  }
     }
     private val answerObserver by lazy {
         Observer<LPAnswerModel> { it?.let { answerStart(it) } }
@@ -124,21 +135,23 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         Observer<String> { it?.let { showMessage(it) } }
     }
     private val reportObserver by lazy {
-        Observer<Unit> {routerViewModel.liveRoom.toolBoxVM.requestAttentionReport(
-                CommonUtils.isAppForeground(this),routerViewModel.liveRoom.currentUser as LPUserModel)}
+        Observer<Unit> {
+            routerViewModel.liveRoom.toolBoxVM.requestAttentionReport(
+                    CommonUtils.isAppForeground(this), routerViewModel.liveRoom.currentUser as LPUserModel)
+        }
     }
     private val showErrorObserver by lazy {
-       Observer<LPError>{
-           when (it?.code) {
-               LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong() -> showKickOutDlg(it) //被踢出房间后的登录
-               LPError.CODE_ERROR_LOGIN_AUDITION.toLong() -> showAuditionEndDlg(it) // 试听结束
-               else -> {
-                   if (loadingFragment.isAdded) removeFragment(loadingFragment)
-                   if (errorFragment.isAdded || findFragment(fullContainer.id) is ErrorPadFragment) return@Observer
-                   showErrorDlg(it)
-               }
-           }
-       }
+        Observer<LPError> {
+            when (it?.code) {
+                LPError.CODE_ERROR_LOGIN_KICK_OUT.toLong() -> showKickOutDlg(it) //被踢出房间后的登录
+                LPError.CODE_ERROR_LOGIN_AUDITION.toLong() -> showAuditionEndDlg(it) // 试听结束
+                else -> {
+                    if (loadingFragment.isAdded) removeFragment(loadingFragment)
+                    if (errorFragment.isAdded || findFragment(fullContainer.id) is ErrorPadFragment) return@Observer
+                    showErrorDlg(it)
+                }
+            }
+        }
     }
     //试听码dialog提示
     private var mAuditionEndDialog: SimpleTextDialog? = null
@@ -193,16 +206,21 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
                 .commitNowAllowingStateLoss()
     }
 
-    private fun enterRoom() {
+    private fun enterRoom(liveRoom: LiveRoom? = null) {
         replaceFragment(fullContainer.id, loadingFragment)
         fullContainer.visibility = View.VISIBLE
         routerViewModel = getViewModel { RouterViewModel() }
         liveRoomViewModel = getViewModel { LiveRoomViewModel(routerViewModel) }
         oldBridge = OldLiveRoomRouterListenerBridge(routerViewModel)
-        routerViewModel.liveRoom = if (!code.isNullOrEmpty()) {
-            LiveSDK.enterRoom(this, code, name, null, avatar, loadingFragment.launchListener)
+        if (liveRoom == null) {
+            routerViewModel.liveRoom = if (!code.isNullOrEmpty()) {
+                LiveSDK.enterRoom(this, code, name, null, avatar, loadingFragment.launchListener)
+            } else {
+                LiveSDK.enterRoom(this, roomId, enterUser, sign, loadingFragment.launchListener)
+            }
         } else {
-            LiveSDK.enterRoom(this, roomId, enterUser, sign, loadingFragment.launchListener)
+            routerViewModel.liveRoom = liveRoom
+            liveRoom.reconnect(loadingFragment.launchListener)
         }
         observeActions()
         initView()
@@ -220,27 +238,28 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         actionExit.observe(this@LiveRoomSingleActivity, Observer {
             it?.let { showExitDialog() }
         })
+        disposeOfActionMain = Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initLiveRoom()
+                    navigateToMain()
+                    observeSuccess()
+                }
 
-        actionNavigateToMain.observe(this@LiveRoomSingleActivity, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            initSuccess()
-        })
         actionShowError.observeForever(showErrorObserver)
         actionDismissError.observe(this@LiveRoomSingleActivity, Observer {
             it?.let {
-                fullContainer.visibility = View.GONE
+                errorContainer.visibility = View.GONE
             }
         })
+
         actionReEnterRoom.observe(this@LiveRoomSingleActivity, Observer {
             it?.let {
-                doReEnterRoom(it)
+                doReEnterRoom(it.first, it.second)
             }
         })
         action2Setting.observe(this@LiveRoomSingleActivity, Observer {
             it?.let {
-                val settingFragment = SettingDialogFragment.newInstance()
+                val settingFragment = SettingDialogFragment.newInstance(pptViewData.value?.didRoomContainsH5PPT()?:false)
                 val settingPresenter = SettingPresenter(settingFragment)
                 bindVP(settingFragment, settingPresenter)
                 showDialogFragment(settingFragment)
@@ -295,15 +314,6 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         })
     }
 
-    /**
-     * 进入房间成功，此处room(core层)初始化完成
-     */
-    private fun initSuccess() {
-        initLiveRoom()
-        navigateToMain()
-        observeSuccess()
-    }
-
     private fun initLiveRoom() {
         LPSdkVersionUtils.setSdkVersion(LPSdkVersionUtils.MULTI_CLASS_UI + BuildConfig.VERSION_NAME)
         routerViewModel.liveRoom.setOnLiveRoomListener { error ->
@@ -353,10 +363,16 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
     }
 
     //重进房间
-    private fun doReEnterRoom(checkTeacherUnique: Boolean) {
+    private fun doReEnterRoom(checkTeacherUnique: Boolean, reEnterRoom: Boolean = false) {
         LiveSDK.checkTeacherUnique = checkTeacherUnique
-        release(true)
-        enterRoom()
+        if (reEnterRoom) {
+            release(true)
+            enterRoom()
+        } else {
+            val liveRoom = routerViewModel.liveRoom
+            release()
+            enterRoom(liveRoom)
+        }
     }
 
     private fun observeSuccess() {
@@ -458,6 +474,9 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
                 }
             })
             showTimer.observeForever(timerObserver)
+            showTimerShowy.observe(this@LiveRoomSingleActivity , Observer {
+                it?.let { if(it.first) showTimerShowy(it.second) }
+            })
             removeAnswer.observe(this@LiveRoomSingleActivity, Observer {
                 it?.let { removeAnswer() }
             })
@@ -507,7 +526,9 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
             }
 
             override fun onLaunchSuccess(liveRoom: LiveRoom) {
-                routerViewModel.actionNavigateToMain.value = true
+                Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                    .onNext(Unit)
+            routerViewModel.actionNavigateToMain = true
             }
         })
     }
@@ -516,6 +537,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         LPRxUtils.dispose(disposeOfTeacherAbsent)
         LPRxUtils.dispose(disposeOfLoginConflict)
         LPRxUtils.dispose(disposeOfMarquee)
+        LPRxUtils.dispose(disposeOfActionMain)
         marqueeAnimator?.cancel()
         removeAllFragment()
         supportFragmentManager.executePendingTransactions()
@@ -524,6 +546,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         }
         removeObservers()
         viewModelStore.clear()
+        Router.instance.release()
     }
 
     private fun navigateToMain() {
@@ -828,42 +851,56 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
     }
 
     private fun showTimer(lpbjTimerModel: LPBJTimerModel) {
+        var lpbjTimerModel_t : LPBJTimerModel = lpbjTimerModel
+        if(timerShowyFragment != null && showyTimerPresenter != null) {
+            lpbjTimerModel_t = showyTimerPresenter!!.lpbjTimerModel
+        }
+
+        timerFragment = TimerFragment()
         val timerPresenter = TimerPresenter()
         timerPresenter.setRouter(oldBridge)
-        timerPresenter.setTimerModel(lpbjTimerModel)
-        timerFragment = TimerFragment()
+        timerPresenter.setTimerModel(lpbjTimerModel_t)
+        timerPresenter.setRouterViewModel(routerViewModel)
+        timerPresenter.setIsSetting(true)
         timerPresenter.setView(timerFragment)
         bindVP(timerFragment!!, timerPresenter)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).visibility = View.VISIBLE
-        val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).layoutParams = layoutParams
-        addFragment(R.id.activity_dialog_timer_pad, timerFragment)
-        showFragment(timerFragment)
+        showDialogFragment(timerFragment)
     }
 
-    private fun showTimer() {
-        if (timerFragment != null) {
+    private fun showTimerShowy(lpbjTimerModel: LPBJTimerModel) {
+        if (timerFragment != null && timerFragment?.isAdded == true){
+            removeFragment(timerFragment)
+            timerFragment = null
+        }
+        if (timerShowyFragment != null && timerShowyFragment?.isVisible == true) {
             return
         }
-        val timerPresenter = TimerPresenter()
-        timerPresenter.setRouter(oldBridge)
-        timerFragment = TimerFragment()
-        timerPresenter.setView(timerFragment)
-        bindVP(timerFragment!!, timerPresenter)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).visibility = View.VISIBLE
+        showyTimerPresenter = TimerPresenter()
+        timerShowyFragment = TimerShowyFragment()
+        showyTimerPresenter!!.setRouter(oldBridge)
+        showyTimerPresenter!!.setRouterViewModel(routerViewModel)
+        showyTimerPresenter!!.setTimerModel(lpbjTimerModel)
+        showyTimerPresenter!!.setView(timerShowyFragment)
+        bindVP(timerShowyFragment!!, showyTimerPresenter!!)
+
+        val showy = findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad);
+        showy.visibility = View.VISIBLE
         val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).layoutParams = layoutParams
-        addFragment(R.id.activity_dialog_timer_pad, timerFragment)
-        showFragment(timerFragment)
+//        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+        layoutParams.marginStart = DisplayUtils.dip2px(this ,16f)
+        layoutParams.topMargin = DisplayUtils.dip2px(this ,34f)
+        showy.layoutParams = layoutParams
+        showy.assignParent(findViewById(R.id.activity_live_room_pad_background));
+        addFragment(R.id.activity_dialog_timer_pad, timerShowyFragment)
+        showFragment(timerShowyFragment)
     }
 
     private fun closeTimer() {
-        if (timerFragment?.isAdded == true) {
-            removeFragment(timerFragment)
+        if (timerShowyFragment?.isAdded == true) {
+            removeFragment(timerShowyFragment)
             findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).visibility = View.GONE
-            timerFragment = null
+            timerShowyFragment!!.onDestroy()
+            timerShowyFragment = null
         }
     }
 
@@ -907,31 +944,32 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
     }
 
     private fun showExitDialog() = when {
-        routerViewModel.liveRoom.isClassStarted && routerViewModel.liveRoom.isTeacher -> MaterialDialog.Builder(this)
-                .apply {
-                    title(getString(R.string.live_exit_hint_title))
-                    content(getString(R.string.live_exit_hint_content))
-                    contentColorRes(R.color.live_text_color_light)
-                }
-                .apply {
-                    positiveText(getString(R.string.live_exit_hint_end_class_and_exit))
-                    positiveColorRes(R.color.live_red)
-                    onPositive { _, _ ->
-                        routerViewModel.liveRoom.requestClassEnd()
-                        finish()
+        routerViewModel.liveRoom.isClassStarted && (routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant) ->
+            MaterialDialog.Builder(this)
+                    .apply {
+                        title(getString(R.string.live_exit_hint_title))
+                        content(getString(R.string.live_exit_hint_content))
+                        contentColorRes(R.color.live_text_color_light)
                     }
-                }
-                .apply {
-                    negativeText(getString(R.string.live_exit_hint_confirm))
-                    negativeColorRes(R.color.live_blue)
-                    onNegative { _, _ -> finish() }
-                }
-                .apply {
-                    neutralText(getString(R.string.live_cancel))
-                    neutralColorRes(R.color.live_blue)
-                    onNeutral { dialog, _ -> dialog.dismiss() }
-                }
-                .build().show()
+                    .apply {
+                        positiveText(getString(R.string.live_exit_hint_end_class_and_exit))
+                        positiveColorRes(R.color.live_red)
+                        onPositive { _, _ ->
+                            routerViewModel.liveRoom.requestClassEnd()
+                            finish()
+                        }
+                    }
+                    .apply {
+                        negativeText(getString(R.string.live_exit_hint_confirm))
+                        negativeColorRes(R.color.live_blue)
+                        onNegative { _, _ -> finish() }
+                    }
+                    .apply {
+                        neutralText(getString(R.string.live_cancel))
+                        neutralColorRes(R.color.live_blue)
+                        onNeutral { dialog, _ -> dialog.dismiss() }
+                    }
+                    .build().show()
         else -> MaterialDialog.Builder(this)
                 .apply {
                     title(getString(R.string.live_exit_hint_title))
@@ -963,7 +1001,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         dialog.setCancelable(false)
         if (!isFinishing) {
             dialog.show()
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this,R.color.live_blue))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.live_blue))
         }
     }
 
@@ -977,7 +1015,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
                 mAuditionEndDialog = null
 
                 //跳转link
-                CommonUtils.startActivityByUrl(this,url)
+                CommonUtils.startActivityByUrl(this, url)
                 this.finish()
             }
         }
@@ -1001,6 +1039,9 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
             LPError.CODE_ERROR_HOST_UNKNOW -> {
                 errorModel.init(ErrorPadFragment.ErrorType.ERROR_HANDLE_REENTER, false, getString(R.string.live_host_unknow), it.message)
             }
+            LPError.CODE_ERROR_CLASS_EXPIRED -> {
+                errorModel.init(ErrorPadFragment.ErrorType.ERROR_HANDLE_FINISH, false, getString(R.string.live_enter_deny), it.message)
+            }
             else -> errorModel.init(ErrorPadFragment.ErrorType.ERROR_HANDLE_REENTER, true, getString(R.string.live_override_error), it!!.message)
         }
         replaceFragment(errorContainer.id, errorFragment)
@@ -1022,7 +1063,7 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         super.onResume()
         if (roomLifeCycleListener != null) {
             roomLifeCycleListener.onResume(this) { _, _ ->
-                doReEnterRoom(LiveSDK.checkTeacherUnique)
+                doReEnterRoom(LiveSDK.checkTeacherUnique, true)
             }
         }
     }
@@ -1035,8 +1076,10 @@ class LiveRoomSingleActivity : LiveRoomBaseActivity() {
         LPRxUtils.dispose(disposeOfTeacherAbsent)
         LPRxUtils.dispose(disposeOfLoginConflict)
         LPRxUtils.dispose(disposeOfMarquee)
+        LPRxUtils.dispose(disposeOfActionMain)
         marqueeAnimator?.cancel()
         viewModelStore.clear()
+        Router.instance.release()
     }
 }
 

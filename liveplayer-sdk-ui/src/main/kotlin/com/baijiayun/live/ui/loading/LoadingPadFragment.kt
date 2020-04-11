@@ -1,13 +1,16 @@
 package com.baijiayun.live.ui.loading
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ProgressBar
 import com.baijiayun.live.ui.R
+import com.baijiayun.live.ui.router.Router
 import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.databinding.FragmentLoadingPadBinding
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.context.LPError
 import com.baijiayun.livecore.context.LiveRoom
@@ -50,7 +53,8 @@ class LoadingPadFragment : BasePadFragment(){
         override fun onLaunchSuccess(liveRoom: LiveRoom?) {
             liveRoom?.also {
                 if(liveRoom.isUseWebRTC){
-                    if(liveRoom.isTeacher){
+                    //webrtc推流前必须要有视频权限
+                    if(liveRoom.isTeacherOrAssistant){
                         if(checkTeacherCameraPermission()){
                             navigateToMain()
                         }
@@ -70,15 +74,20 @@ class LoadingPadFragment : BasePadFragment(){
         }
 
         fun navigateToMain(){
-            routerViewModel.actionNavigateToMain.value = true
+            Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                    .onNext(Unit)
+            routerViewModel.actionNavigateToMain = true
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun init(view : View) {
         val dataBinding = FragmentLoadingPadBinding.bind(view)
         dataBinding.lifecycleOwner = this
         dataBinding.loadingFragment = this
         progressBar = view.findViewById(R.id.fragment_loading_pb)
+        view.setOnTouchListener { _, _ -> true }
+        fragment_loading_back.setOnClickListener { activity?.finish() }
     }
 
     fun showTechSupport() = LiveRoomBaseActivity.getShowTechSupport()

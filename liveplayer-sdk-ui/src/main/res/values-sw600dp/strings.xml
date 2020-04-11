@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="screen_type">pad</string>
+    <string name="timer_type">计时方式</string>
 </resources>

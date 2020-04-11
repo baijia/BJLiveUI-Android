@@ -1,14 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:elevation="10dp">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp">
+
+        <ImageView
+            android:id="@+id/qa_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="4dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_pad_qa_title"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/live_pad_title"
+            android:layout_toRightOf="@+id/qa_iv"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="4dp"
+            android:text="@string/live_room_question_answer_text"/>
+    </RelativeLayout>
     <android.support.v4.view.ViewPager
         android:id="@+id/qa_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <android.support.design.widget.TabLayout
             android:id="@+id/qa_tablayout"
@@ -20,6 +43,7 @@
             app:tabMode="fixed"
             app:tabSelectedTextColor="#FF1795FF"
             app:tabTextColor="@color/live_pad_grey"
+            app:tabTextAppearance="@style/TabLayoutTextStyle"
             >
 
             <android.support.design.widget.TabItem
@@ -36,16 +60,19 @@
         </android.support.design.widget.TabLayout>
     </android.support.v4.view.ViewPager>
 
-    <ImageView
+    <TextView
         android:id="@+id/send_qa_btn"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="@dimen/qa_send_button_margin_end"
-        android:layout_marginBottom="@dimen/qa_send_button_margin_bottom"
-        android:scaleType="fitCenter"
-        android:visibility="visible"
-        android:src="@drawable/ic_pad_qa_send_question" />
-
-</RelativeLayout>
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/live_item_chat_linearlayout"
+        android:padding="5dp"
+        android:text="问点啥吧"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textSize="@dimen/common_text_size"
+        android:ellipsize="end"
+        android:textColor="#ff9b9b9b" />
+</LinearLayout>

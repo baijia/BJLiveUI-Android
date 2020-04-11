@@ -11,23 +11,31 @@ import android.widget.FrameLayout
 import com.afollestad.materialdialogs.MaterialDialog
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
+import com.baijiayun.live.ui.activity.LiveRoomRouterListener
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
 import com.baijiayun.live.ui.canShowDialog
 import com.baijiayun.live.ui.databinding.LayoutPptMenuBinding
+import com.baijiayun.live.ui.interactivepanel.InteractiveFragment
 import com.baijiayun.live.ui.isPad
 import com.baijiayun.live.ui.menu.rightmenu.RightMenuContract
 import com.baijiayun.live.ui.pptpanel.handsuplist.HandsUpListFragment
+import com.baijiayun.live.ui.removeSwitchableFromParent
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.speakerlist.item.Switchable
 import com.baijiayun.live.ui.utils.RxUtils
 import com.baijiayun.livecore.context.LPConstants
+import com.baijiayun.livecore.models.LPBJTimerModel
 import com.baijiayun.livecore.ppt.listener.OnPPTStateListener
 import com.baijiayun.livecore.utils.LPRxUtils
+import com.baijiayun.livecore.wrapper.LPRecorder
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_pad_ppt.*
+import kotlinx.android.synthetic.main.layout_ppt_menu.*
 import kotlinx.android.synthetic.main.layout_ppt_menu.view.*
 import java.util.concurrent.TimeUnit
 
@@ -71,10 +79,11 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             it.lifecycleOwner = this@PPTFragment
         }
         toolBars.run {
-            if (!isPad(context) && !pptViewModel.isTeacherOrAssistant()) {
+            //学生没有同意举手的按钮,把音视频按钮放举手左边
+            if (!pptViewModel.isTeacherOrAssistant()) {
                 if (llAVideo.layoutParams is ConstraintLayout.LayoutParams) {
                     val layoutParams = llAVideo.layoutParams as ConstraintLayout.LayoutParams
-                    layoutParams.bottomToTop = R.id.rlSpeakWrapper
+                    layoutParams.rightToLeft = R.id.rlSpeakWrapper
                 }
             }
             ivHandsUpImg.setOnClickListener {
@@ -87,8 +96,24 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             tvPPTFiles.setOnClickListener {
                 routerViewModel.actionShowPPTManager.value = Unit
             }
+            tvTimerEntrance.setOnClickListener {
+                routerViewModel.showTimer.value = true to LPBJTimerModel()
+            }
             tvPen.setOnClickListener {
                 presenter.changeDrawing()
+            }
+            ivNotice.setOnClickListener {
+                routerViewModel.actionShowAnnouncementFragment.value = true
+            }
+            ivQa.visibility = if (enableQaBtn()) View.VISIBLE else View.GONE
+            ivQa.setOnClickListener {
+                routerViewModel.actionShowQAInteractiveFragment.value = Unit
+                routerViewModel.hasNewQa.value = false
+            }
+            ivNotice.visibility = if (enableNoticeBtn())View.VISIBLE else View.GONE
+            //学生隐藏操作摄像头按钮
+            if (liveHideStudentCamera()) {
+                tvVideo.visibility = View.GONE
             }
             disposables.add(RxUtils.clicks(tvVideo).throttleFirst(1, TimeUnit.SECONDS)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -127,19 +152,21 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
                             showToastMessage(getString(R.string.live_frequent_error))
                         } else {
                             if (!presenter.isWaitingRecordOpen) {
-                                if (checkCameraPermission()) {
-                                    presenter.speakApply()
-                                }
+                                presenter.speakApply()
                             }
                         }
                     })
             when (routerViewModel.liveRoom.currentUser.type) {
-                LPConstants.LPUserType.Teacher, LPConstants.LPUserType.Assistant -> {
+                LPConstants.LPUserType.Teacher -> {
                     rlSpeakWrapper.visibility = View.GONE
                 }
+                LPConstants.LPUserType.Assistant -> {
+                    rlSpeakWrapper.visibility = View.GONE
+                    tvTimerEntrance.visibility = View.GONE
+                }
                 else -> {
-                    viewDiv.visibility = View.GONE
                     tvPPTFiles.visibility = View.GONE
+                    tvTimerEntrance.visibility = View.GONE
                     tvHandsUpCount.visibility = View.GONE
                     ivHandsUpImg.visibility = View.GONE
                 }
@@ -149,30 +176,51 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
         menuContainer.addView(toolBars, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
     }
 
+    private fun liveHideStudentCamera() = !routerViewModel.liveRoom.isTeacherOrAssistant && !routerViewModel.liveRoom.isGroupTeacherOrAssistant &&
+            routerViewModel.liveRoom.partnerConfig.liveHideStudentCamera == 1
+
     override fun observeActions() {
-        routerViewModel.actionNavigateToMain.observe(this@PPTFragment, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            pptView?.run {
-                attachLiveRoom(routerViewModel.liveRoom)
-                start()
-                setOnPPTStateListener(object : OnPPTStateListener {
-                    override fun onSuccess(code: Int, successMessage: String) {
-                        if (code == OnPPTStateListener.CODE_PPT_WHITEBOARD_ADD) {
-                            pptView?.switchPPTPage("0", Integer.valueOf(successMessage))
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    pptView?.run {
+                        attachLiveRoom(routerViewModel.liveRoom)
+                        start()
+                        setOnPPTStateListener(object : OnPPTStateListener {
+                            override fun onSuccess(code: Int, successMessage: String) {
+                                if (code == OnPPTStateListener.CODE_PPT_WHITEBOARD_ADD) {
+                                    pptView?.switchPPTPage("0", Integer.valueOf(successMessage))
+                                }
+                            }
+
+                            override fun onError(code: Int, errorMessage: String) {
+                                showMessage(errorMessage)
+                            }
+                        })
+                        initPPTViewObserve()
+                        if (routerViewModel.liveRoom.isTeacherOrAssistant) {
+                            setRemarksEnable(true)
                         }
                     }
-
-                    override fun onError(code: Int, errorMessage: String) {
-                        showMessage(errorMessage)
-                    }
+                    initView()
                 })
-                initPPTViewObserve()
-            }
-            initView()
-        })
     }
+
+    private fun enableQaBtn() =
+            if (routerViewModel.liveRoom.roomType == LPConstants.LPRoomType.OneOnOne) {
+                false
+            }else {
+                if (isTeacherOrAssistant()) {
+                    routerViewModel.liveRoom.partnerConfig.enableLiveQuestionAnswer == 1 &&
+                            !routerViewModel.liveRoom.partnerConfig.liveFeatureTabs.isNullOrEmpty() &&
+                            routerViewModel.liveRoom.partnerConfig.liveFeatureTabs.split(",").contains(InteractiveFragment.LABEL_ANSWER)
+                } else {
+                    routerViewModel.liveRoom.partnerConfig.enableLiveQuestionAnswer == 1 &&
+                            !routerViewModel.liveRoom.partnerConfig.liveStudentFeatureTabs.isNullOrEmpty() &&
+                            routerViewModel.liveRoom.partnerConfig.liveStudentFeatureTabs.split(",").contains(InteractiveFragment.LABEL_ANSWER)
+                }
+            }
+
+    private fun enableNoticeBtn() = routerViewModel.liveRoom.roomType != LPConstants.LPRoomType.OneOnOne
 
     private fun clickableCheck(): Boolean {
         if (disposeOfClickable != null && !disposeOfClickable!!.isDisposed) {
@@ -222,6 +270,7 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
                     if (it.view == pptView && pptView?.isEditable == true) {
                         presenter.changeDrawing()
                     }
+                    removeSwitchableFromParent(it)
                     pptContainer.addView(it.view, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
                 }
@@ -250,12 +299,20 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
                                 llPenMenu.visibility = View.GONE
                             }
                             rlSpeakWrapper.visibility = View.GONE
+                            ivNotice.visibility = View.GONE
+                            ivQa.visibility = View.GONE
                         } else {
                             //fix llAVideo must not be null
                             llAVideo.visibility = View.VISIBLE
                             llPenMenu.visibility = View.VISIBLE
                             if (!isAutoSpeak()) {
                                 rlSpeakWrapper.visibility = View.VISIBLE
+                            }
+                            if (enableNoticeBtn()) {
+                                ivNotice.visibility = View.VISIBLE
+                            }
+                            if (enableQaBtn()) {
+                                ivQa.visibility = View.VISIBLE
                             }
                         }
                     }
@@ -267,7 +324,7 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
                     try {
                         context?.run {
                             var title = getString(R.string.live_room_ppt_load_error, it.first)
-                            if(it.first == -10086){
+                            if (it.first == -10086) {
                                 title = it.second ?: ""
                             }
                             MaterialDialog.Builder(this)
@@ -292,6 +349,14 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
                     presenter.changeDrawing()
                 }
             })
+            remarkEnable.observe(this@PPTFragment, Observer {
+                pptView?.setRemarksEnable(it ?: false)
+            })
+            if (enableQaBtn()) {
+                hasNewQa.observe(this@PPTFragment, Observer {
+                    tvQaTip.visibility = if (it == true && !isQaOpen) View.VISIBLE else View.GONE
+                })
+            }
         }
     }
 
@@ -381,6 +446,7 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             tvPen.visibility = View.VISIBLE
             tvPenClear.visibility = View.VISIBLE
             tvPPTFiles.visibility = View.VISIBLE
+            tvTimerEntrance.visibility = View.VISIBLE
             tvSpeakApply.visibility = View.GONE
         }
     }
@@ -390,6 +456,7 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
             tvPen.visibility = View.GONE
             tvPenClear.visibility = View.GONE
             tvPPTFiles.visibility = View.GONE
+            tvTimerEntrance.visibility = View.GONE
             tvSpeakApply.visibility = View.VISIBLE
         }
     }
@@ -470,6 +537,7 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
     override fun setAudition() {
         toolBars.run {
             tvPPTFiles.visibility = View.GONE
+            tvTimerEntrance.visibility = View.GONE
             tvPenClear.visibility = View.GONE
             tvPen.visibility = View.GONE
             tvAudio.visibility = View.GONE
@@ -497,7 +565,9 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
 
     override fun enableSpeakerMode() {
         with(toolBars) {
-            tvVideo.visibility = View.VISIBLE
+            if (routerViewModel.liveRoom.partnerConfig.liveHideStudentCamera != 1) {
+                tvVideo.visibility = View.VISIBLE
+            }
             tvAudio.visibility = View.VISIBLE
         }
     }
@@ -572,21 +642,12 @@ class PPTFragment : BasePadFragment(), PPTMenuContract.View {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pptView?.destroy()
         presenter.unSubscribe()
         pptContainer.removeAllViews()
         menuContainer.removeAllViews()
         LPRxUtils.dispose(disposeOfClickable)
         LPRxUtils.dispose(disposables)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_CODE_PERMISSION_CAMERA) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                presenter.speakApply()
-            } else if (grantResults.isNotEmpty()) {
-                showSystemSettingDialog(REQUEST_CODE_PERMISSION_CAMERA)
-            }
-        }
     }
 
     companion object {

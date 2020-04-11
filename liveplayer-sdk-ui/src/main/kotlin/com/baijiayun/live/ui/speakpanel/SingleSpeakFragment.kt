@@ -10,7 +10,8 @@ import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
-import com.baijiayun.live.ui.speakerlist.item.LocalItem
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.speakerlist.item.Switchable
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.models.LPUserModel
@@ -74,13 +75,11 @@ class SingleSpeakFragment : BasePadFragment() {
 
     override fun observeActions() {
         super.observeActions()
-        routerViewModel.actionNavigateToMain.observe(this, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            initSuccess()
-            speakViewModel.subscribe()
-        })
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initSuccess()
+                    speakViewModel.subscribe()
+                })
     }
 
     private fun initSuccess() {
@@ -139,17 +138,12 @@ class SingleSpeakFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.actionWithLocalAVideo.observe(this, Observer {
+        routerViewModel.actionAttachLocalVideo.observe(this, Observer {
             it?.let {
                 if (liveRoom.isTeacherOrAssistant || liveRoom.isGroupTeacherOrAssistant) {
                     return@Observer
                 }
-                if (it.second) {
-                    attachLocalAudio()
-                } else {
-                    routerViewModel.liveRoom.getRecorder<LPRecorder>().detachAudio()
-                }
-                if (it.first) {
+                if (it) {
                     attachLocalVideo()
                 } else {
                     detachLocalVideo()
@@ -157,7 +151,7 @@ class SingleSpeakFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.actionWithAttachLocalAudio.observe(this, Observer {
+        routerViewModel.actionAttachLocalAudio.observe(this, Observer {
             it?.run {
                 if (liveRoom.isTeacherOrAssistant || liveRoom.isGroupTeacherOrAssistant) {
                     return@run

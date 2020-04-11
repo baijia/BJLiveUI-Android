@@ -31,6 +31,15 @@ public class LoadingFragment extends BaseFragment implements LoadingContract.Vie
         fragment.setArguments(args);
         return fragment;
     }
+    public static LoadingFragment newInstance(boolean checkUnique,LiveRoom liveRoom) {
+        Bundle args = new Bundle();
+        args.putBoolean("check_unique",checkUnique);
+//        args.putBoolean("show_tech_support",showTechSupport);
+        LoadingFragment fragment = new LoadingFragment();
+        fragment.liveRoom = liveRoom;
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
     public void setPresenter(LoadingContract.Presenter presenter) {
         super.setBasePresenter(presenter);
@@ -53,13 +62,16 @@ public class LoadingFragment extends BaseFragment implements LoadingContract.Vie
         } else {
             LiveSDK.checkTeacherUnique = false;
         }
-
-        if (presenter.isJoinCode()) {
-            liveRoom = LiveSDK.enterRoom(getActivity(), presenter.getCode(), presenter.getName(), null, presenter.getAvatar(), presenter.getLaunchListener());
+        if (liveRoom == null) {
+            if (presenter.isJoinCode()) {
+                liveRoom = LiveSDK.enterRoom(getActivity(), presenter.getCode(), presenter.getName(), null, presenter.getAvatar(), presenter.getLaunchListener());
+            } else {
+                liveRoom = LiveSDK.enterRoom(getActivity(), presenter.getRoomId(), presenter.getUser().getGroup(), presenter.getUser().getNumber(),
+                        presenter.getUser().getName(), presenter.getUser().getType(), presenter.getUser().getAvatar(),
+                        presenter.getSign(), presenter.getLaunchListener());
+            }
         } else {
-            liveRoom = LiveSDK.enterRoom(getActivity(), presenter.getRoomId(), presenter.getUser().getGroup(),presenter.getUser().getNumber(),
-                    presenter.getUser().getName(), presenter.getUser().getType(), presenter.getUser().getAvatar(),
-                    presenter.getSign(), presenter.getLaunchListener());
+            liveRoom.reconnect(presenter.getLaunchListener());
         }
         presenter.setLiveRoom(liveRoom);
     }

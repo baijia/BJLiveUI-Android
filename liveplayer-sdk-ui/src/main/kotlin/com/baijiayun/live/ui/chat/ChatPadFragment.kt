@@ -42,6 +42,8 @@ import com.baijiayun.live.ui.chat.utils.URLImageParser
 import com.baijiayun.live.ui.chat.widget.ChatMessageView
 import com.baijiayun.live.ui.databinding.ItemPadChatBinding
 import com.baijiayun.live.ui.isPad
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.utils.ChatImageUtil
 import com.baijiayun.live.ui.utils.DisplayUtils
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
@@ -57,6 +59,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_pad_chat_list.*
+import kotlinx.android.synthetic.main.fragment_pad_top_menu.*
 import kotlinx.android.synthetic.main.item_pad_chat.view.*
 import java.io.File
 import java.io.FileNotFoundException
@@ -114,12 +117,8 @@ class ChatPadFragment : BasePadFragment() {
             failedColorDrawable = ColorDrawable(ContextCompat.getColor(it, R.color.live_half_transparent))
         }
         sendMessageBtn = view.findViewById(R.id.send_message_btn)
-        showNoticeBtn = view.findViewById(R.id.chat_notice_btn)
         sendMessageBtn.setOnClickListener {
             routerViewModel.actionShowSendMessageFragment.value = true
-        }
-        showNoticeBtn.setOnClickListener {
-            routerViewModel.actionShowAnnouncementFragment.value = true
         }
         send_message_btn_back.setOnClickListener {
             routerViewModel.action2Chat.value = false
@@ -143,75 +142,75 @@ class ChatPadFragment : BasePadFragment() {
     }
 
     override fun observeActions() {
-        routerViewModel.actionNavigateToMain.observe(this, Observer { it2 ->
-            if (it2 != true) {
-                return@Observer
-            }
-            chat_private_start.visibility = if(routerViewModel.liveRoom.chatVM.isLiveCanWhisper)View.VISIBLE else View.GONE
-            recyclerView.layoutManager = LinearLayoutWrapManager(context)
-            recyclerView.adapter = messageAdapter
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initSuccess()
+                })
+    }
+    private fun initSuccess() {
+        chat_private_start.visibility = if(routerViewModel.liveRoom.chatVM.isLiveCanWhisper)View.VISIBLE else View.GONE
+        recyclerView.layoutManager = LinearLayoutWrapManager(context)
+        recyclerView.adapter = messageAdapter
 
-            chatViewModel.notifyDataSetChange.observe(this, Observer {
-                val msgCount = chatViewModel.receivedNewMsgNum
-                var needScroll = true
-                if ((routerViewModel.action2Chat.value != true || currentPosition < chatViewModel.getCount() - 2) && msgCount > 0) {
-                    showMessageReminder(true)
-                    needScroll = false
-                }
-                messageAdapter.notifyDataSetChanged()
-                if (needScroll && ::recyclerView.isInitialized && messageAdapter.itemCount > 0) {
-                    recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1)
-                }
+        chatViewModel.notifyDataSetChange.observe(this, Observer {
+            val msgCount = chatViewModel.receivedNewMsgNum
+            var needScroll = true
+            if ((routerViewModel.action2Chat.value != true || currentPosition < chatViewModel.getCount() - 2) && msgCount > 0) {
+                showMessageReminder(true)
+                needScroll = false
+            }
+            messageAdapter.notifyDataSetChanged()
+            if (needScroll && ::recyclerView.isInitialized && messageAdapter.itemCount > 0) {
+                recyclerView.smoothScrollToPosition(messageAdapter.itemCount - 1)
+            }
+            noMessageTv.visibility = if (chatViewModel.getCount() > 0) View.GONE else View.VISIBLE
+        })
+
+        chatViewModel.notifyItemChange.observe(this, Observer {
+            it?.run {
+                messageAdapter.notifyItemChanged(it)
+            }
+        })
+
+        chatViewModel.notifyItemInsert.observe(this, Observer {
+            it?.run {
+                messageAdapter.notifyItemInserted(it)
                 noMessageTv.visibility = if (chatViewModel.getCount() > 0) View.GONE else View.VISIBLE
-            })
-
-            chatViewModel.notifyItemChange.observe(this, Observer {
-                it?.run {
-                    messageAdapter.notifyItemChanged(it)
-                }
-            })
-
-            chatViewModel.notifyItemInsert.observe(this, Observer {
-                it?.run {
-                    messageAdapter.notifyItemInserted(it)
-                    noMessageTv.visibility = if (chatViewModel.getCount() > 0) View.GONE else View.VISIBLE
-                }
-            })
-            routerViewModel.privateChatUser.observe(this, Observer {
-                if (chatViewModel.isPrivateChatMode()) {
-                    showHavingPrivateChat(routerViewModel.privateChatUser.value!!)
-                    //进入私聊取消只看老师
-                    filterMessage(false)
-                } else {
-                    showNoPrivateChat()
-                }
-                messageAdapter.notifyDataSetChanged()
-            })
-            chatViewModel.subscribe()
-            if (routerViewModel.liveRoom.roomType == LPConstants.LPRoomType.Single || routerViewModel.liveRoom.roomType == LPConstants.LPRoomType.OneOnOne) {
-                if (!isPad(context!!)) {
-                    send_message_btn_back.visibility = View.VISIBLE
-                }
-                chat_private_start.visibility = View.GONE
-                chat_notice_btn.visibility = View.GONE
             }
-            routerViewModel.sendPictureMessage.observe(this, Observer {
-                it?.run {
-                    chatViewModel.sendImageMessage(this)
-                }
-            })
+        })
+        routerViewModel.privateChatUser.observe(this, Observer {
+            if (chatViewModel.isPrivateChatMode()) {
+                showHavingPrivateChat(routerViewModel.privateChatUser.value!!)
+                //进入私聊取消只看老师
+                filterMessage(false)
+            } else {
+                showNoPrivateChat()
+            }
+            messageAdapter.notifyDataSetChanged()
+        })
+        chatViewModel.subscribe()
+        if (routerViewModel.liveRoom.roomType == LPConstants.LPRoomType.Single || routerViewModel.liveRoom.roomType == LPConstants.LPRoomType.OneOnOne) {
+            if (!isPad(context!!)) {
+                send_message_btn_back.visibility = View.VISIBLE
+            }
+            chat_private_start.visibility = View.GONE
+        }
+        routerViewModel.sendPictureMessage.observe(this, Observer {
+            it?.run {
+                chatViewModel.sendImageMessage(this)
+            }
+        })
 
-            routerViewModel.showSavePicDialog.observe(this, Observer {
-                it?.run {
-                    showSavePicDialog(this)
-                }
-            })
+        routerViewModel.showSavePicDialog.observe(this, Observer {
+            it?.run {
+                showSavePicDialog(this)
+            }
+        })
 
-            routerViewModel.saveChatPictureToGallery.observe(this, Observer {
-                it?.run {
-                    saveImageToGallery(this)
-                }
-            })
+        routerViewModel.saveChatPictureToGallery.observe(this, Observer {
+            it?.run {
+                saveImageToGallery(this)
+            }
         })
     }
 
@@ -261,7 +260,7 @@ class ChatPadFragment : BasePadFragment() {
 
         override fun getItemCount() = chatViewModel.getCount()
 
-        @SuppressLint("ClickableViewAccessibility")
+        @SuppressLint("ClickableViewAccessibility", "RecyclerView")
         override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
             if (position < 0 || position >= itemCount) {
                 return

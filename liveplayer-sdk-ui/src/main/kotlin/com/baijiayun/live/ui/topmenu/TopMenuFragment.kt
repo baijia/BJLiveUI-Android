@@ -9,6 +9,8 @@ import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.livecore.context.LPConstants
 import kotlinx.android.synthetic.main.fragment_pad_top_menu.*
 
@@ -31,16 +33,14 @@ class TopMenuFragment : BasePadFragment() {
     }
 
     override fun observeActions() {
-        routerViewModel.actionNavigateToMain.observe(this, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            fragment_pad_top_menu_title.text = routerViewModel.liveRoom.roomTitle
-            topMenuViewModel.subscribe()
-            initSuccess()
-        })
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    fragment_pad_top_menu_title.text = routerViewModel.liveRoom.roomTitle
+                    topMenuViewModel.subscribe()
+                    initSuccess()
+                })
 
-        topMenuViewModel.classStarTimeCount.observe(this, Observer {
+        topMenuViewModel.classStartTimeDesc.observe(this, Observer {
             fragment_pad_top_menu_time.text = it
         })
         topMenuViewModel.showToast.observe(this, Observer {
@@ -80,8 +80,13 @@ class TopMenuFragment : BasePadFragment() {
         if (routerViewModel.liveRoom.isAudition) {
             fragment_pad_top_menu_setting.visibility = View.GONE
         }
-        if (routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher) {
-            fragment_pad_top_menu_record.visibility = View.GONE
+        //老师助教与学生读取不同配置项
+        fragment_pad_top_menu_record.visibility = if (routerViewModel.liveRoom.currentUser.type == LPConstants.LPUserType.Student || routerViewModel.liveRoom.currentUser.type == LPConstants.LPUserType.Visitor) {
+                    if (routerViewModel.liveRoom.partnerConfig.liveHideRecordStatus == 1) View.GONE
+                    else View.VISIBLE
+        } else {
+            if (routerViewModel.liveRoom.partnerConfig.disableLiveRoomBottomMenus.split(",").contains("cloud_record")) View.GONE
+            else View.VISIBLE
         }
         routerViewModel.isShowShare.observe(this, Observer {
             it?.let {
@@ -110,7 +115,8 @@ class TopMenuFragment : BasePadFragment() {
         }
         fragment_pad_top_menu_share.setOnClickListener { routerViewModel.action2Share.value = Unit }
         fragment_pad_top_menu_record.setOnClickListener {
-            if (routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher) {
+            if (routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher
+                    && routerViewModel.liveRoom.currentUser.type != LPConstants.LPUserType.Assistant) {
                 return@setOnClickListener
             }
             if (routerViewModel.isClassStarted.value != true) {

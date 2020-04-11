@@ -24,4 +24,5 @@ class ErrorFragmentModel : ViewModel(){
         this.title = title
         this.content = content
     }
+    fun showFinish() = handlerWay == ErrorPadFragment.ErrorType.ERROR_HANDLE_FINISH
 }

@@ -71,7 +71,7 @@
                 android:paddingBottom="8dp"
                 android:background="@drawable/btn_retry"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:text="@{!checkUnique ? @string/live_enter_room : @string/live_retry}"
+                android:text="@{errorModel.showFinish()?@string/live_i_know :!checkUnique ? @string/live_enter_room : @string/live_retry}"
                 android:gravity="center"
                 android:textColor="@color/live_blue"
                 android:onClick="@{()->errorFragment.retry()}"

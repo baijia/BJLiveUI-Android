@@ -25,6 +25,19 @@ import java.util.Map;
 public class LiveSDKWithUI {
 
     /**
+     * 通过参加码进入竖版老模板
+     *
+     * @param context
+     * @param code     参加码
+     * @param name     昵称
+     * @param listener 出错回调
+     */
+    public static void enterRoomWithVerticalTemplate(@NonNull Context context, @NonNull String code, @NonNull String name,
+                                 @NonNull LiveSDKEnterRoomListener listener) {
+        enterRoom(context, code, name, null, listener, false);
+    }
+
+    /**
      * 通过参加码进入房间
      *
      * @param context
@@ -47,7 +60,12 @@ public class LiveSDKWithUI {
      * @param listener 出错回调
      */
     public static void enterRoom(@NonNull Context context, @NonNull String code, @NonNull String name,
-                                 @Nullable String avatar, @NonNull LiveSDKEnterRoomListener listener) {
+                                 @Nullable String avatar, @NonNull LiveSDKEnterRoomListener listener){
+        enterRoom(context, code, name, avatar, listener, true);
+    }
+
+    private static void enterRoom(@NonNull Context context, @NonNull String code, @NonNull String name,
+                                 @Nullable String avatar, @NonNull LiveSDKEnterRoomListener listener, boolean useTripleTemplate) {
         if (TextUtils.isEmpty(name)) {
             listener.onError("name is empty");
             return;
@@ -58,7 +76,7 @@ public class LiveSDKWithUI {
         }
         addDefaultLoginConflictCallback();
 
-        Intent intent = new Intent(context, LiveRoomTripleActivity.class);
+        Intent intent = new Intent(context, useTripleTemplate ? LiveRoomTripleActivity.class : LiveRoomActivity.class);
         intent.putExtra("name", name);
         intent.putExtra("code", code);
         if (!TextUtils.isEmpty(avatar)) {
@@ -68,6 +86,20 @@ public class LiveSDKWithUI {
     }
 
     /**
+     * 通过签名进竖版老模板
+     * @param context
+     * @param roomId   房间号
+     * @param sign     签名
+     * @param model    用户model (包含昵称、头像、角色等)
+     * @param listener 出错回调
+     */
+    public static void enterRoomWithVerticalTemplate(@NonNull Context context, long roomId,
+                                 @NonNull String sign, @NonNull LiveRoomUserModel model, @NonNull LiveSDKEnterRoomListener listener) {
+        enterRoom(context, roomId, sign, model, listener, false);
+    }
+
+    /**
+     * 通过签名进房间
      * @param context
      * @param roomId   房间号
      * @param sign     签名
@@ -75,7 +107,12 @@ public class LiveSDKWithUI {
      * @param listener 出错回调
      */
     public static void enterRoom(@NonNull Context context, long roomId,
-                                 @NonNull String sign, @NonNull LiveRoomUserModel model, @NonNull LiveSDKEnterRoomListener listener) {
+                                  @NonNull String sign, @NonNull LiveRoomUserModel model, @NonNull LiveSDKEnterRoomListener listener) {
+       enterRoom(context, roomId, sign, model, listener, true);
+    }
+
+    private static void enterRoom(@NonNull Context context, long roomId,
+                                 @NonNull String sign, @NonNull LiveRoomUserModel model, @NonNull LiveSDKEnterRoomListener listener, boolean useTripleTemplate) {
         if (roomId <= 0) {
             listener.onError("room id =" + roomId);
             return;
@@ -85,7 +122,7 @@ public class LiveSDKWithUI {
             return;
         }
         addDefaultLoginConflictCallback();
-        Intent intent = new Intent(context, LiveRoomTripleActivity.class);
+        Intent intent = new Intent(context, useTripleTemplate ? LiveRoomTripleActivity.class : LiveRoomActivity.class);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sign", sign);
         intent.putExtra("user", model);

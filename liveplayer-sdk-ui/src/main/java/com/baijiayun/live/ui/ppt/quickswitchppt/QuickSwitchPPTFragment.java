@@ -283,7 +283,11 @@ public class QuickSwitchPPTFragment extends BaseDialogFragment implements Switch
 
         @Override
         public void onBindViewHolder(final SwitchHolder holder, int position) {
-            Glide.with(getContext()).load(AliCloudImageUtil.getScaledUrl(list.get(position).url, AliCloudImageUtil.SCALED_MFIT, 200, 200)).into(holder.PPTView);
+            if(list.get(position).isH5Doc){
+                Glide.with(getContext()).load(getContext().getResources().getDrawable(R.drawable.lp_h5_ppt_cover)).into(holder.PPTView);
+            } else{
+                Glide.with(getContext()).load(AliCloudImageUtil.getScaledUrl(list.get(position).url, AliCloudImageUtil.SCALED_MFIT, 200, 200)).into(holder.PPTView);
+            }
             if (isBoard) {
                 //白板
                 holder.PPTOrder.setText(getResources().getString(R.string.string_board_title) + (position + 1));

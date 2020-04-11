@@ -4,10 +4,8 @@ import com.baijiayun.live.ui.activity.LiveRoomRouterListener
 import com.baijiayun.live.ui.isMainVideoItem
 import com.baijiayun.live.ui.menu.rightmenu.RightMenuContract
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
-import com.baijiayun.live.ui.removeSwitchableFromParent
 import com.baijiayun.live.ui.speakerlist.item.RemoteItem
 import com.baijiayun.live.ui.speakerlist.item.Switchable
-import com.baijiayun.live.ui.speakpanel.RemoteVideoItem
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.context.LPError
 import com.baijiayun.livecore.context.LiveRoom
@@ -17,7 +15,6 @@ import com.baijiayun.livecore.models.imodels.IMediaControlModel
 import com.baijiayun.livecore.models.imodels.IMediaModel
 import com.baijiayun.livecore.models.imodels.IUserModel
 import com.baijiayun.livecore.ppt.PPTView
-import com.baijiayun.livecore.viewmodels.impl.LPSpeakQueueViewModel
 import com.baijiayun.livecore.wrapper.LPRecorder
 
 /**
@@ -130,15 +127,15 @@ class OldLiveRoomRouterListenerBridge(private val routerViewModel: RouterViewMod
 
 
     override fun attachLocalVideo() {
-        routerViewModel.actionWithLocalAVideo.value = true to liveRoom.getRecorder<LPRecorder>().isAudioAttached
+        routerViewModel.actionAttachLocalVideo.value = true
     }
 
     override fun attachLocalAudio() {
-        routerViewModel.actionWithAttachLocalAudio.value = true
+        routerViewModel.actionAttachLocalAudio.value = true
     }
 
     override fun detachLocalVideo() {
-        routerViewModel.actionWithLocalAVideo.value = false to liveRoom.getRecorder<LPRecorder>().isAudioAttached
+        routerViewModel.actionAttachLocalVideo.value = false
     }
 
     override fun isPPTMax(): Boolean = false
@@ -184,8 +181,6 @@ class OldLiveRoomRouterListenerBridge(private val routerViewModel: RouterViewMod
         routerViewModel.saveChatPictureToGallery.value = bmpArray
     }
 
-    override fun doReEnterRoom(checkUnique: Boolean) {
-    }
 
     override fun doHandleErrorNothing() {
     }
@@ -242,6 +237,10 @@ class OldLiveRoomRouterListenerBridge(private val routerViewModel: RouterViewMod
             routerViewModel.changeDrawing.value = true
         }
         routerViewModel.switch2FullScreen.value = screenItem
+    }
+
+    override fun doReEnterRoom(checkUnique: Boolean, reEnterRoom: Boolean) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun switchBackToList(switchable: Switchable?) {
@@ -395,6 +394,7 @@ class OldLiveRoomRouterListenerBridge(private val routerViewModel: RouterViewMod
     override fun isQuestionAnswerShow(): Boolean = true
 
     override fun setRemarksEnable(isEnable: Boolean) {
+        routerViewModel.remarkEnable.value = isEnable
     }
 
     override fun switchRedPacketUI(isShow: Boolean, lpRedPacketModel: LPRedPacketModel?) {

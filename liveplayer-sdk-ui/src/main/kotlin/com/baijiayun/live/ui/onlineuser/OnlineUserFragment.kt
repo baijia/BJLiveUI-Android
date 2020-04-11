@@ -20,6 +20,8 @@ import com.baijiayun.live.ui.chat.ChatOptMenuHelper
 import com.baijiayun.live.ui.chat.widget.ChatMessageView
 import com.baijiayun.live.ui.databinding.BjyPadItemHandsupBinding
 import com.baijiayun.live.ui.databinding.BjyPadLayoutItemOnlineUserBinding
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.users.group.GroupExtendableListViewAdapter
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
 import com.baijiayun.livecore.context.LPConstants
@@ -55,25 +57,23 @@ class OnlineUserFragment : BasePadFragment() {
 
     @SuppressLint("SetTextI18n")
     override fun observeActions() {
-        routerViewModel.actionNavigateToMain.observe(this, Observer { b ->
-            if (b != true) {
-                return@Observer
-            }
-            initExpandableListView()
-            with(onlineUserViewModel) {
-                subscribe()
-                onlineUserList.observe(this@OnlineUserFragment, Observer {
-                    isLoading = false
-                    onlineUserAdapter.notifyDataSetChanged()
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initExpandableListView()
+                    with(onlineUserViewModel) {
+                        subscribe()
+                        onlineUserList.observe(this@OnlineUserFragment, Observer {
+                            isLoading = false
+                            onlineUserAdapter.notifyDataSetChanged()
+                        })
+                        onlineUserGroup.observe(this@OnlineUserFragment, Observer {
+                            onlineGroupTitleTv.visibility = if (it.isNullOrEmpty()) View.GONE else View.VISIBLE
+                            onlineGroupTitleTv.text = resources.getString(R.string.string_group) + "(${it?.size})"
+                            groupAdapter.setDate(it)
+                            groupAdapter.notifyDataSetChanged()
+                        })
+                    }
                 })
-                onlineUserGroup.observe(this@OnlineUserFragment, Observer {
-                    onlineGroupTitleTv.visibility = if (it.isNullOrEmpty()) View.GONE else View.VISIBLE
-                    onlineGroupTitleTv.text = resources.getString(R.string.string_group) + "(${it?.size})"
-                    groupAdapter.setDate(it)
-                    groupAdapter.notifyDataSetChanged()
-                })
-            }
-        })
     }
 
     private fun initExpandableListView() {

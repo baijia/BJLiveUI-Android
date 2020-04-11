@@ -254,7 +254,7 @@ class ChatViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() {
 
             override fun onFailure(e: HttpException) {
                 model.status = UploadingImageModel.STATUS_UPLOAD_FAILED
-                notifyDataSetChange.value = Unit
+                notifyDataSetChange.postValue(Unit)
             }
 
             override fun onResponse(bjResponse: BJResponse) {
@@ -265,13 +265,13 @@ class ChatViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() {
                     val imageContent = LPChatMessageParser.toImageMessage(uploadModel.url)
                     liveRoom.chatVM.sendImageMessageToUser(model.getToUser(), imageContent, uploadModel.width, uploadModel.height)
                     imageMessageUploadingQueue.poll()
-                    notifyDataSetChange.value = Unit
                     continueUploadQueue()
                 } catch (e: Exception) {
                     model.status = UploadingImageModel.STATUS_UPLOAD_FAILED
                     e.printStackTrace()
+                }finally {
+                    notifyDataSetChange.postValue(Unit)
                 }
-
             }
         })
     }

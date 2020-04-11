@@ -296,7 +296,7 @@ public class PPTManageFragment extends BaseDialogFragment implements PPTManageCo
             switch (ext) {
                 case ".doc":
                 case ".docx":
-                    return R.drawable.live_ic_file_pdf;
+                    return R.drawable.live_ic_file_doc;
                 case ".ppt":
                 case ".pptx":
                     return R.drawable.live_ic_file_ppt;

@@ -19,7 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 class OnlineUserViewModel(val liveRoom : LiveRoom) : BaseViewModel(){
 
     val onlineUserCount = MutableLiveData<Int>()
-    val onlineUserList = MutableLiveData<List<IUserModel>>()
+    val onlineUserList = MutableLiveData<Unit>()
     val onlineUserGroup = MutableLiveData<List<LPGroupItem>>()
 
     override fun subscribe() {
@@ -37,7 +37,7 @@ class OnlineUserViewModel(val liveRoom : LiveRoom) : BaseViewModel(){
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposingObserver<List<IUserModel>>(){
                     override fun onNext(t: List<IUserModel>) {
-                        onlineUserList.value = t
+                        onlineUserList.value = Unit
                         onlineUserCount.value = liveRoom.onlineUserVM.allCount
                     }
                 })
@@ -48,6 +48,7 @@ class OnlineUserViewModel(val liveRoom : LiveRoom) : BaseViewModel(){
                 .subscribe(object : DisposingObserver<List<LPGroupItem>>() {
                     override fun onNext(t: List<LPGroupItem>) {
                         onlineUserGroup.value = t
+                        onlineUserList.value = Unit
                         onlineUserCount.value = liveRoom.onlineUserVM.allCount
                     }
                 })

@@ -126,7 +126,7 @@ public interface LiveRoomRouterListener {
 
     void realSaveBmpToFile(byte[] bmpArray);
 
-    void doReEnterRoom(boolean checkUnique);
+    void doReEnterRoom(boolean checkUnique,boolean reEnterRoom);
 
     void doHandleErrorNothing();
 

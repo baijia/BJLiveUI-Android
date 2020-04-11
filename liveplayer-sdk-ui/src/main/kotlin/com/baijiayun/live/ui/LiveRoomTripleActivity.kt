@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.TextUtils
+import android.util.Log
 import android.view.*
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
@@ -33,6 +34,8 @@ import com.baijiayun.live.ui.ppt.quickswitchppt.SwitchPPTFragmentPresenter
 import com.baijiayun.live.ui.pptpanel.PPTFragment
 import com.baijiayun.live.ui.rollcall.RollCallDialogFragment
 import com.baijiayun.live.ui.rollcall.RollCallDialogPresenter
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.setting.SettingDialogFragment
 import com.baijiayun.live.ui.setting.SettingPresenter
 import com.baijiayun.live.ui.share.LPShareDialog
@@ -46,17 +49,20 @@ import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolFragment
 import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolPresenter
 import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogFragment
 import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogPresenter
+import com.baijiayun.live.ui.toolbox.questionanswer.QAInteractiveFragment
 import com.baijiayun.live.ui.toolbox.quiz.QuizDialogFragment
 import com.baijiayun.live.ui.toolbox.quiz.QuizDialogPresenter
 import com.baijiayun.live.ui.toolbox.redpacket.RedPacketFragment
 import com.baijiayun.live.ui.toolbox.redpacket.RedPacketPresenter
 import com.baijiayun.live.ui.toolbox.timer.TimerFragment
 import com.baijiayun.live.ui.toolbox.timer.TimerPresenter
+import com.baijiayun.live.ui.toolbox.timer.TimerShowyFragment
 import com.baijiayun.live.ui.topmenu.TopMenuFragment
 import com.baijiayun.live.ui.utils.DisplayUtils
 import com.baijiayun.live.ui.utils.JsonObjectUtil
 import com.baijiayun.live.ui.viewsupport.dialog.SimpleTextDialog
 import com.baijiayun.livecore.LiveSDK
+import com.baijiayun.livecore.alilog.AliYunLogHelper
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.context.LPError
 import com.baijiayun.livecore.context.LiveRoom
@@ -70,6 +76,7 @@ import com.google.gson.JsonObject
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import org.jetbrains.anko.contentView
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -82,6 +89,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private lateinit var liveRoomViewModel: LiveRoomViewModel
     private lateinit var oldBridge: OldLiveRoomRouterListenerBridge
     private var pptManagePresenter: PPTManagePresenter? = null
+    private var showyTimerPresenter : TimerPresenter? = null
     private var quickSwitchPPTPresenter: SwitchPPTFragmentPresenter? = null
     private var rollCallDialogFragment: RollCallDialogFragment? = null
     private var rollCallDialogPresenter: RollCallDialogPresenter? = null
@@ -90,9 +98,11 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private var questionToolFragment: QuestionToolFragment? = null
     private var questionShowFragment: QuestionShowFragment? = null
     private var announcementFragment: AnnouncementFragment? = null
+    private var qaInteractiveFragment: QAInteractiveFragment? = null
     private var redPacketFragment: RedPacketFragment? = null
     private var redPacketPresenter: RedPacketPresenter? = null
     private var timerFragment: TimerFragment? = null
+    private var timerShowyFragment: TimerShowyFragment? = null
     private var lpAnswerModel: LPAnswerModel? = null
     private var evaDialogFragment: EvaDialogFragment? = null
     private var mobileNetworkDialogShown = false
@@ -100,9 +110,15 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     private var disposeOfTeacherAbsent: Disposable? = null
     private var disposeOfLoginConflict: Disposable? = null
     private var disposeOfMarquee: Disposable? = null
+    private var disposeOfActionMain: Disposable? = null
     private var marqueeAnimator: ObjectAnimator? = null
     private val timerObserver by lazy {
-        Observer<Pair<Boolean, LPBJTimerModel>> { it?.let { if (it.first) showTimer(it.second) else closeTimer() } }
+        Observer<Pair<Boolean, LPBJTimerModel>> { it?.let { if (it.first && it.second.action != TimerPresenter.stop_timer) {
+            if (routerListener.liveRoom.currentUser.type != LPConstants.LPUserType.Teacher || it.second.action != null)
+                showTimerShowy(it.second)
+            else
+                showTimer(it.second)
+        } else closeTimer() } }
     }
     private val answerObserver by lazy {
         Observer<LPAnswerModel> { it?.let { answerStart(it) } }
@@ -211,16 +227,33 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 .commitNowAllowingStateLoss()
     }
 
-    private fun enterRoom() {
+    private var enterCount = 0//记录进入教室次数，临时排查问题增加
+
+    /**
+     * 进入教室或者重连
+     */
+    private fun enterRoom(liveRoom: LiveRoom? = null) {
+        enterCount++
         replaceFragment(fullContainer.id, loadingFragment)
         fullContainer.visibility = View.VISIBLE
         routerViewModel = getViewModel { RouterViewModel() }
         liveRoomViewModel = getViewModel { LiveRoomViewModel(routerViewModel) }
         oldBridge = OldLiveRoomRouterListenerBridge(routerViewModel)
-        routerViewModel.liveRoom = if (!code.isNullOrEmpty()) {
-            LiveSDK.enterRoom(this, code, name, null, avatar, loadingFragment.launchListener)
+        if (liveRoom == null) {
+            if (!code.isNullOrEmpty()) {
+                routerViewModel.liveRoom = LiveSDK.enterRoom(this, code, name, null, avatar, loadingFragment.launchListener)
+            } else {
+                if (enterUser == null) {
+                    AliYunLogHelper.getInstance().addErrorLog("进教室失败第${enterCount}次，roomId:${roomId} sign:${sign}")
+                    showToastMessage("进教室失败")
+                    finish()
+                } else {
+                    routerViewModel.liveRoom = LiveSDK.enterRoom(this, roomId, enterUser, sign, loadingFragment.launchListener)
+                }
+            }
         } else {
-            LiveSDK.enterRoom(this, roomId, enterUser, sign, loadingFragment.launchListener)
+            routerViewModel.liveRoom = liveRoom
+            liveRoom.reconnect(loadingFragment.launchListener)
         }
         observeActions()
         initView()
@@ -239,12 +272,13 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
             it?.let { showExitDialog() }
         })
 
-        actionNavigateToMain.observe(this@LiveRoomTripleActivity, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            initSuccess()
-        })
+        disposeOfActionMain = Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initLiveRoom()
+                    navigateToMain()
+                    observeSuccess()
+                }
+
         speakListCount.observe(this@LiveRoomTripleActivity, Observer {
             it?.let {
                 this@LiveRoomTripleActivity.findViewById<View>(R.id.activity_live_room_pad_room_videos_container).visibility = if (it == 0) View.GONE else View.VISIBLE
@@ -253,17 +287,17 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         actionShowError.observeForever (showErrorObserver)
         actionDismissError.observe(this@LiveRoomTripleActivity, Observer {
             it?.let {
-                fullContainer.visibility = View.GONE
+                errorContainer.visibility = View.GONE
             }
         })
         actionReEnterRoom.observe(this@LiveRoomTripleActivity, Observer {
             it?.let {
-                doReEnterRoom(it)
+                doReEnterRoom(it.first,it.second)
             }
         })
         action2Setting.observe(this@LiveRoomTripleActivity, Observer {
             it?.let {
-                val settingFragment = SettingDialogFragment.newInstance()
+                val settingFragment = SettingDialogFragment.newInstance(pptViewData.value?.didRoomContainsH5PPT()?:false)
                 val settingPresenter = SettingPresenter(settingFragment)
                 bindVP(settingFragment, settingPresenter)
                 showDialogFragment(settingFragment)
@@ -315,6 +349,11 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 navigateToAnnouncement()
             }
         })
+        actionShowQAInteractiveFragment.observe(this@LiveRoomTripleActivity, Observer {
+            it?.let {
+                navigateToQAInteractive()
+            }
+        })
         shouldShowTecSupport.observe(this@LiveRoomTripleActivity, Observer {
             if (it != null) {
                 shouldShowTechSupport = it
@@ -325,17 +364,11 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         })
     }
 
-    private fun initSuccess() {
-        initLiveRoom()
-        navigateToMain()
-        observeSuccess()
-    }
-
     private fun initLiveRoom() {
         LPSdkVersionUtils.setSdkVersion(LPSdkVersionUtils.MULTI_CLASS_UI + BuildConfig.VERSION_NAME)
         routerViewModel.liveRoom.setOnLiveRoomListener { error ->
             when (error.code.toInt()) {
-                LPError.CODE_ERROR_ROOMSERVER_LOSE_CONNECTION -> doReEnterRoom(LiveSDK.checkTeacherUnique)
+                LPError.CODE_ERROR_ROOMSERVER_LOSE_CONNECTION -> routerViewModel.actionReEnterRoom.value = LiveSDK.checkTeacherUnique to false
                 LPError.CODE_ERROR_NETWORK_FAILURE -> showMessage(error.message)
                 LPError.CODE_ERROR_NETWORK_MOBILE -> {
                     if (!mobileNetworkDialogShown && isForeground) {
@@ -379,11 +412,20 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         }
     }
 
-    //重进房间
-    private fun doReEnterRoom(checkTeacherUnique: Boolean) {
+    /**
+     * 重进房间或者重连
+     * reEnterRoom： true重进 false重连
+     */
+    private fun doReEnterRoom(checkTeacherUnique: Boolean,reEnterRoom:Boolean = false) {
         LiveSDK.checkTeacherUnique = checkTeacherUnique
-        release(true)
-        enterRoom()
+        if (reEnterRoom) {
+            release(true)
+            enterRoom()
+        } else {
+            val liveRoom = routerViewModel.liveRoom
+            release()
+            enterRoom(liveRoom)
+        }
     }
 
     private fun observeSuccess() {
@@ -443,9 +485,6 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 }
             })
             clearScreen.observe(this@LiveRoomTripleActivity, Observer {
-                if (isPad(this@LiveRoomTripleActivity)) {
-                    return@Observer
-                }
                 it?.let {
                     //sw600dp和sw400dp没有activity_live_room_pad_room_top_parent
                     this@LiveRoomTripleActivity.findViewById<View>(R.id.activity_live_room_pad_room_top_parent)?.visibility = if (it) View.GONE else View.VISIBLE
@@ -494,6 +533,9 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
                 it?.let { removeAnswer() }
             })
             showTimer.observeForever(timerObserver)
+            showTimerShowy.observe(this@LiveRoomTripleActivity , Observer {
+                it?.let { if(it.first) showTimerShowy(it.second) }
+            })
             action2Award.observe(this@LiveRoomTripleActivity, Observer {
                 it?.let {
                     showAwardAnimation(it)
@@ -531,7 +573,9 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
             }
 
             override fun onLaunchSuccess(liveRoom: LiveRoom) {
-                routerViewModel.actionNavigateToMain.value = true
+                Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                    .onNext(Unit)
+            routerViewModel.actionNavigateToMain = true
             }
         })
     }
@@ -539,6 +583,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         LPRxUtils.dispose(disposeOfTeacherAbsent)
         LPRxUtils.dispose(disposeOfLoginConflict)
         LPRxUtils.dispose(disposeOfMarquee)
+        LPRxUtils.dispose(disposeOfActionMain)
         marqueeAnimator?.cancel()
         removeAllFragment()
         supportFragmentManager.executePendingTransactions()
@@ -547,6 +592,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         }
         removeObservers()
         viewModelStore.clear()
+        Router.instance.release()
     }
 
     private fun navigateToMain() {
@@ -705,6 +751,13 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         bindVP(announcementFragment!!, presenter)
         showDialogFragment(announcementFragment)
     }
+    //显示问答
+    private fun navigateToQAInteractive() {
+        if (qaInteractiveFragment?.isAdded == true) return
+        qaInteractiveFragment = QAInteractiveFragment()
+        qaInteractiveFragment?.setViewMode(routerViewModel)
+        showDialogFragment(qaInteractiveFragment)
+    }
 
     private fun showRollCallDlg(time: Int, rollCallListener: OnPhoneRollCallListener.RollCall) {
         rollCallDialogFragment = RollCallDialogFragment()
@@ -844,42 +897,56 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     }
 
     private fun showTimer(lpbjTimerModel: LPBJTimerModel) {
+        var lpbjTimerModel_t : LPBJTimerModel = lpbjTimerModel
+        if(timerShowyFragment != null && showyTimerPresenter != null) {
+            lpbjTimerModel_t = showyTimerPresenter!!.lpbjTimerModel
+        }
+
+        timerFragment = TimerFragment()
         val timerPresenter = TimerPresenter()
         timerPresenter.setRouter(oldBridge)
-        timerPresenter.setTimerModel(lpbjTimerModel)
-        timerFragment = TimerFragment()
+        timerPresenter.setTimerModel(lpbjTimerModel_t)
+        timerPresenter.setRouterViewModel(routerViewModel)
+        timerPresenter.setIsSetting(true)
         timerPresenter.setView(timerFragment)
         bindVP(timerFragment!!, timerPresenter)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).visibility = View.VISIBLE
-        val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).layoutParams = layoutParams
-        addFragment(R.id.activity_dialog_timer_pad, timerFragment)
-        showFragment(timerFragment)
+        showDialogFragment(timerFragment)
     }
 
-    private fun showTimer() {
-        if (timerFragment != null) {
+    private fun showTimerShowy(lpbjTimerModel: LPBJTimerModel) {
+        if (timerFragment != null && timerFragment?.isAdded == true){
+            removeFragment(timerFragment)
+            timerFragment = null
+        }
+        if (timerShowyFragment != null && timerShowyFragment?.isVisible == true) {
             return
         }
-        val timerPresenter = TimerPresenter()
-        timerPresenter.setRouter(oldBridge)
-        timerFragment = TimerFragment()
-        timerPresenter.setView(timerFragment)
-        bindVP(timerFragment!!, timerPresenter)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).visibility = View.VISIBLE
+        showyTimerPresenter = TimerPresenter()
+        timerShowyFragment = TimerShowyFragment()
+        showyTimerPresenter!!.setRouter(oldBridge)
+        showyTimerPresenter!!.setRouterViewModel(routerViewModel)
+        showyTimerPresenter!!.setTimerModel(lpbjTimerModel)
+        showyTimerPresenter!!.setView(timerShowyFragment)
+        bindVP(timerShowyFragment!!, showyTimerPresenter!!)
+
+        val showy = findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad);
+        showy.visibility = View.VISIBLE
         val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT)
-        findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).layoutParams = layoutParams
-        addFragment(R.id.activity_dialog_timer_pad, timerFragment)
-        showFragment(timerFragment)
+//        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+        layoutParams.marginStart = DisplayUtils.dip2px(this ,16f)
+        layoutParams.topMargin = DisplayUtils.dip2px(this ,34f)
+        showy.layoutParams = layoutParams
+        showy.assignParent(findViewById(R.id.activity_live_room_pad_background));
+        addFragment(R.id.activity_dialog_timer_pad, timerShowyFragment)
+        showFragment(timerShowyFragment)
     }
 
     private fun closeTimer() {
-        if (timerFragment?.isAdded == true) {
-            removeFragment(timerFragment)
+        if (timerShowyFragment?.isAdded == true) {
+            removeFragment(timerShowyFragment)
             findViewById<DragFrameLayout>(R.id.activity_dialog_timer_pad).visibility = View.GONE
-            timerFragment = null
+            timerShowyFragment!!.onDestroy()
+            timerShowyFragment = null
         }
     }
 
@@ -923,7 +990,8 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
     }
 
     private fun showExitDialog() = when {
-        routerViewModel.liveRoom.isClassStarted && routerViewModel.liveRoom.isTeacher -> MaterialDialog.Builder(this)
+        routerViewModel.liveRoom.isClassStarted && (routerViewModel.liveRoom.isTeacherOrAssistant||routerViewModel.liveRoom.isGroupTeacherOrAssistant) ->
+            MaterialDialog.Builder(this)
                 .apply {
                     title(getString(R.string.live_exit_hint_title))
                     content(getString(R.string.live_exit_hint_content))
@@ -1017,10 +1085,12 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
             LPError.CODE_ERROR_HOST_UNKNOW -> {
                 errorModel.init(ErrorPadFragment.ErrorType.ERROR_HANDLE_REENTER, false, getString(R.string.live_host_unknow), it.message)
             }
+            LPError.CODE_ERROR_CLASS_EXPIRED -> {
+                errorModel.init(ErrorPadFragment.ErrorType.ERROR_HANDLE_FINISH, false, getString(R.string.live_enter_deny), it.message)
+            }
             else -> errorModel.init(ErrorPadFragment.ErrorType.ERROR_HANDLE_REENTER, true, getString(R.string.live_override_error), it!!.message)
         }
         replaceFragment(errorContainer.id, errorFragment)
-
     }
 
     private fun removeObservers() {
@@ -1041,7 +1111,7 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         super.onResume()
         if (roomLifeCycleListener != null) {
             roomLifeCycleListener.onResume(this) { _, _ ->
-                doReEnterRoom(LiveSDK.checkTeacherUnique)
+                doReEnterRoom(LiveSDK.checkTeacherUnique, true)
             }
         }
     }
@@ -1054,8 +1124,10 @@ class LiveRoomTripleActivity : LiveRoomBaseActivity() {
         LPRxUtils.dispose(disposeOfTeacherAbsent)
         LPRxUtils.dispose(disposeOfLoginConflict)
         LPRxUtils.dispose(disposeOfMarquee)
+        LPRxUtils.dispose(disposeOfActionMain)
         marqueeAnimator?.cancel()
         viewModelStore.clear()
+        Router.instance.release()
     }
 }
 

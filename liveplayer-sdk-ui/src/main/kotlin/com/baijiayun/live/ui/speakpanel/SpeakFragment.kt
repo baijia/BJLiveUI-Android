@@ -14,6 +14,8 @@ import com.baijiayun.live.ui.base.getViewModel
 import com.baijiayun.live.ui.getSpeaksVideoParams
 import com.baijiayun.live.ui.isSpeakVideoItem
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.speakerlist.ItemPositionHelper
 import com.baijiayun.live.ui.speakerlist.item.*
 import com.baijiayun.live.ui.viewsupport.BJTouchHorizontalScrollView
@@ -21,7 +23,6 @@ import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.models.LPAwardUserInfo
 import com.baijiayun.livecore.models.imodels.IMediaModel
 import com.baijiayun.livecore.utils.CommonUtils
-import com.baijiayun.livecore.utils.LPLogger
 import com.baijiayun.livecore.viewmodels.impl.LPSpeakQueueViewModel
 import com.baijiayun.livecore.wrapper.LPRecorder
 
@@ -79,13 +80,11 @@ class SpeakFragment : BasePadFragment() {
 
     override fun observeActions() {
         super.observeActions()
-        routerViewModel.actionNavigateToMain.observe(this, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            initSuccess()
-            speakViewModel.subscribe()
-        })
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initSuccess()
+                    speakViewModel.subscribe()
+                })
         routerViewModel.pptViewData.observe(this, Observer {
             it?.let {
                 if (activity is LiveRoomBaseActivity) {
@@ -136,17 +135,12 @@ class SpeakFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.actionWithLocalAVideo.observe(this, Observer {
+        routerViewModel.actionAttachLocalVideo.observe(this, Observer {
             it?.let {
                 if (liveRoom.isTeacher) {
                     return@Observer
                 }
-                if (it.second) {
-                    attachLocalAudio()
-                } else {
-                    routerViewModel.liveRoom.getRecorder<LPRecorder>().detachAudio()
-                }
-                if (it.first) {
+                if (it) {
                     attachLocalVideo()
                 } else {
                     detachLocalVideo()
@@ -183,7 +177,7 @@ class SpeakFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.actionWithAttachLocalAudio.observe(this, Observer {
+        routerViewModel.actionAttachLocalAudio.observe(this, Observer {
             it?.run {
                 if (liveRoom.isTeacher) {
                     return@run
@@ -215,7 +209,7 @@ class SpeakFragment : BasePadFragment() {
             it?.let {
                 if (it) {
                     val fullScreenItem = routerViewModel.switch2FullScreen.value
-                    if (routerViewModel.liveRoom.teacherUser != null && fullScreenItem?.identity != routerViewModel.liveRoom.teacherUser.userId
+                    if (routerViewModel.liveRoom.teacherUser != null && fullScreenItem?.identity != routerViewModel.liveRoom.teacherUser?.userId
                             && fullScreenItem?.identity != LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID) {
                         val speakItem = positionHelper.getSpeakItemByIdentity(routerViewModel.liveRoom.teacherUser.userId)
                         if (speakItem is RemoteItem) {
@@ -236,6 +230,7 @@ class SpeakFragment : BasePadFragment() {
                     if (!isSpeakVideoItem(it, liveRoom)) {
                         return@let
                     }
+                    removeSwitchableFromParent(it)
                     val index = positionHelper.getItemSwitchBackPosition(it)
                     addView(it.view, index)
                     routerViewModel.speakListCount.value = container.childCount
@@ -274,6 +269,11 @@ class SpeakFragment : BasePadFragment() {
         routerViewModel.kickOut.observeForever(kickOutObserver)
     }
 
+    /**
+     * 处理辅助摄像头的流
+     * 三分屏辅助摄像头默认全屏并且替换掉ppt(切换逻辑和ppt一致)
+     * 辅助摄像头关闭后ppt还原到全屏位置
+     */
     private fun handleExtMedia(iMediaModel: IMediaModel) {
         val pptview = routerViewModel.pptViewData.value as MyPadPPTView
         val remoteItem: Switchable?

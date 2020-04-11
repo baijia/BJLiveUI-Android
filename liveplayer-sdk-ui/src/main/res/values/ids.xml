@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="lp_speaker_audio_type_tag" type="id" />
+
+    //region setting dialog switches' id
+    <item name="dialog_setting_mic" type="id"/>
+    <item name="dialog_setting_camera" type="id"/>
+    <item name="dialog_setting_beauty_filter" type="id"/>
+    <item name="dialog_setting_forbid_all_speak" type="id"/>
+    <item name="dialog_setting_forbid_raise_hand" type="id"/>
+    <item name="dialog_setting_forbid_all_audio" type="id"/>
+    <item name="dialog_setting_ppt_remark_button" type="id"/>
+    //endregion
+
+    <item name="dialog_setting_forbid_all_speak_container" type="id"/>
+    <item name="dialog_setting_forbid_raise_hand_container" type="id"/>
+    <item name="dialog_setting_forbid_all_audio_container" type="id"/>
+    <item name="dialog_setting_ppt_remark_container" type="id"/>
 </resources>

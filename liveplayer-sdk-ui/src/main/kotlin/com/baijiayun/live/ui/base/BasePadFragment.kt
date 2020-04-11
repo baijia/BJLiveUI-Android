@@ -13,6 +13,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.baijiayun.live.ui.R
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.utils.FileUtil
 import com.baijiayun.livecore.utils.ToastCompat
 import com.baijiayun.livecore.wrapper.LPRecorder
@@ -86,11 +88,15 @@ abstract class BasePadFragment : Fragment() {
         }
     }
 
+    protected fun isTeacherOrAssistant() = routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             REQUEST_CODE_PERMISSION_CAMERA_TEACHER -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                routerViewModel.actionNavigateToMain.value = true
+                Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                    .onNext(Unit)
+            routerViewModel.actionNavigateToMain = true
             } else if (grantResults.isNotEmpty()) {
                 showToastMessage("拒绝了相机授权,不能进入房间")
                 activity?.finish()
@@ -132,8 +138,12 @@ abstract class BasePadFragment : Fragment() {
                             else -> showSystemSettingDialog(REQUEST_CODE_PERMISSION_CAMERA_MIC)
                         }
                     } else {
-                        attachLocalAudio()
+                        //先开视频后开音频，因为webrtc publish不同步
+                        //localVideoItem调用refreshPlayable会走videoOn = true,和audioOn = false
+                        //即isAudioAttached 是false 即使调用attachLocalAudio也不会立即变化成true
+                        //所以调整成先开视频
                         attachLocalVideo()
+                        attachLocalAudio()
                     }
                 }
             else -> {
@@ -152,7 +162,7 @@ abstract class BasePadFragment : Fragment() {
         return false
     }
 
-    protected fun checkCameraAndMicPermission(): Boolean {
+    fun checkCameraAndMicPermission(): Boolean {
         activity?.let {
             if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(it, Manifest.permission.CAMERA) &&
                     PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(it, Manifest.permission.RECORD_AUDIO)) {
@@ -204,7 +214,11 @@ abstract class BasePadFragment : Fragment() {
 
     protected fun showDialogFragment(dialogFragment: BaseDialogFragment) {
         //添加activity判断，保证fragment中mHost!=null
-        if (isActivityFinish()) {
+        //fragment的show是调用commit。会checkLossState,出现
+        // Can not perform this action after onSaveInstanceState的IllegalStateException
+        //isStateSaved在onSaveInstanceState调用保证onSaveInstanceState后不执行
+        //也可以用反射重写show。调用commitAllowingStateLoss
+        if (isActivityFinish()||isStateSaved) {
             return
         }
         val ft = childFragmentManager.beginTransaction()
@@ -229,6 +243,9 @@ abstract class BasePadFragment : Fragment() {
 
     protected open fun attachLocalAudio() {
         if (checkMicPermission()) {
+            if(!routerViewModel.liveRoom.getRecorder<LPRecorder>().isPublishing){
+                routerViewModel.liveRoom.getRecorder<LPRecorder>().publish()
+            }
             routerViewModel.liveRoom.getRecorder<LPRecorder>().attachAudio()
         }
     }

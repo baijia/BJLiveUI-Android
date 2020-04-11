@@ -11,8 +11,11 @@
     <dimen name="distance_left_right">12dp</dimen>
     <dimen name="distance_top_bottom">4dp</dimen>
     <dimen name="distance_setting_big_margin">40dp</dimen>
-    <dimen name="timer_edit_width">35dp</dimen>
-    <dimen name="timer_edit_height">45dp</dimen>
+    <dimen name="timer_edit_width">64dp</dimen>
+    <dimen name="timer_edit_height">40dp</dimen>
+    <dimen name="old_timer_edit_width">35dp</dimen>
+    <dimen name="old_timer_edit_height">45dp</dimen>
+
 
     <dimen name="main_video_height">108dp</dimen>
     <dimen name="main_video_width">192dp</dimen>
@@ -39,8 +42,8 @@
     <dimen name="user_item_role_label_padding">4dp</dimen>
 
     <!--问答-->
-    <dimen name="qa_empty_img_width">72dp</dimen>
-    <dimen name="qa_empty_img_height">79dp</dimen>
+    <dimen name="qa_empty_img_width">180dp</dimen>
+    <dimen name="qa_empty_img_height">180dp</dimen>
     <dimen name="qa_item_padding">3dp</dimen>
     <dimen name="qa_item_margin_top">3dp</dimen>
     <dimen name="qa_item_popup_window_padding">3dp</dimen>
@@ -61,4 +64,16 @@
     <dimen name="tab_item_red_point_width">12dp</dimen>
     <dimen name="tab_item_red_point_margin_start">8dp</dimen>
     <dimen name="tab_item_red_point_margin_bottom">4dp</dimen>
+
+
+    <dimen name="ppt_menu_item_size_width">44dp</dimen>
+    <dimen name="ppt_menu_item_size_height">44dp</dimen>
+    <dimen name="ppt_menu_speak_circle_size_width">36dp</dimen>
+    <dimen name="ppt_menu_speak_circle_size_height">36dp</dimen>
+    <dimen name="ppt_menu_start_class_width">160dp</dimen>
+    <dimen name="ppt_menu_start_class_height">44dp</dimen>
+    <dimen name="ppt_menu_start_class_text_size">20sp</dimen>
+    <dimen name="ppt_menu_item_margin_start">8dp</dimen>
+    <dimen name="ppt_menu_item_margin_bottom">4dp</dimen>
+    <dimen name="ppt_menu_item_padding">4dp</dimen>
 </resources>

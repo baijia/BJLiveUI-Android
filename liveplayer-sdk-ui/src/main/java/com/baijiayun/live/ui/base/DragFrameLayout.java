@@ -8,6 +8,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -31,8 +32,11 @@ public class DragFrameLayout extends FrameLayout{
     private Context context;
     private int dx;
     private int dy;
+    private ViewGroup mParent;
+    private boolean useParentRect = false;
+
     RelativeLayout.LayoutParams lpFeedback = new RelativeLayout.LayoutParams(
-            DisplayUtils.dip2px(getContext(), 224), ViewGroup.LayoutParams.WRAP_CONTENT);
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
     public DragFrameLayout(Context context){
         this(context, null);
@@ -42,19 +46,14 @@ public class DragFrameLayout extends FrameLayout{
         super(context, attrs);
         initScreenParam(context);
         this.context = context;
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.DragFrameLayout);
-        lpFeedback.width = ta.getDimensionPixelSize(R.styleable.DragFrameLayout_width, DisplayUtils.dip2px(context,224));
-        ta.recycle();
-    }
-
-    public void setWidth(int width) {
-        lpFeedback.width = DisplayUtils.dip2px(context, width);
+        mParent = (ViewGroup)getParent();
     }
 
     private void initScreenParam(Context context) {
         DisplayMetrics metric = new DisplayMetrics();
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(metric);
+//        screenWidth = metric.widthPixels;
         screenWidth = metric.widthPixels;
         screenHeight = metric.heightPixels;
 
@@ -77,28 +76,22 @@ public class DragFrameLayout extends FrameLayout{
 
     private int threshold = 0;
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent event){
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent event){
-//        return false;
-//    }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 lastX = (int) event.getRawX();
                 lastY = (int) event.getRawY();
+                if (useParentRect){
+                    //如果选择使用父容器，则将范围调整为父容器的宽高
+                    screenWidth = mParent.getWidth();
+                    screenHeight = mParent.getHeight();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 dx = (int) event.getRawX() - lastX;
                 dy = (int) event.getRawY() - lastY;
 
-//                Log.e("onGlobal", "dx:" + dx + "-dy:" + dy);
                 int left = getLeft() + dx;
                 int top = getTop() + dy;
                 int right = getRight() + dx;
@@ -109,7 +102,7 @@ public class DragFrameLayout extends FrameLayout{
                 }
                 if (right > screenWidth) {
                     right = screenWidth;
-                    left = right - getWidth();
+                    left = screenWidth - getWidth();
                 }
                 if (top < 0) {
                     top = 0;
@@ -120,11 +113,10 @@ public class DragFrameLayout extends FrameLayout{
                     top = screenHeight - getHeight();
                 }
                 layout(left, top, right, bottom);
-                lpFeedback.setMargins(left, top, 0, 0);
+                lpFeedback.setMargins(left, top, 0,0);
                 setLayoutParams(lpFeedback);
                 lastX = (int) event.getRawX();
                 lastY = (int) event.getRawY();
-//                Log.e("onGlobal", getLeft() + ":" + getTop() + ":" + getRight() + ":" + getBottom());
                 threshold = Math.max(threshold, Math.abs(dx) + Math.abs(dy));
                 break;
             case MotionEvent.ACTION_UP:
@@ -134,5 +126,18 @@ public class DragFrameLayout extends FrameLayout{
                 }
         }
         return super.onTouchEvent(event);
+    }
+
+    /**
+     * 若要限制控件活动范围在父容器内，请调用此方法
+     * @param parent 父容器
+     */
+    public void assignParent(ViewGroup parent){
+        if (mParent == null) {
+            mParent = parent;
+            useParentRect = true;
+        } else if (parent == null) {
+            mParent = null;
+        }
     }
 }

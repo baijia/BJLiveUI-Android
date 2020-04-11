@@ -13,6 +13,7 @@ import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.RouterViewModel
 import com.baijiayun.live.ui.speakerlist.item.SpeakItemType
 import com.baijiayun.live.ui.speakerlist.item.Switchable
+import com.baijiayun.livecore.models.animppt.LPAnimPPTPageChangeEndModel
 import com.baijiayun.livecore.ppt.PPTView
 import com.baijiayun.livecore.ppt.photoview.OnDoubleTapListener
 import com.baijiayun.livecore.ppt.whiteboard.WhiteboardView
@@ -147,7 +148,21 @@ class MyPadPPTView(context: Context, val routerViewModel: RouterViewModel, attr:
         super.setPPTErrorListener { errorCode, description ->
             routerViewModel.action2PPTError.value = errorCode to description
         }
-        super.setOnPageSelectedListener { _, _ -> super.setAnimPPTAuth(true) }
+
+        setPPTStatusListener(object: PPTStatusListener{
+            override fun onPageChange(pageChangeEndModel: LPAnimPPTPageChangeEndModel?, remarkInfo: String?) {
+
+            }
+
+            override fun onH5PageCountChange(docId: String?, page: Int) {
+
+            }
+
+            override fun onPPTViewAttached() {
+                setAnimPPTAuth(true)
+            }
+
+        })
     }
 
     override fun getPPTBgColor(): Int {

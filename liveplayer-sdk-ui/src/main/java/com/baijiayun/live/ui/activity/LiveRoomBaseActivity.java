@@ -76,6 +76,10 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
             roomId = savedInstanceState.getLong("roomId", -1L);
             sign = savedInstanceState.getString("sign");
             enterUser = (IUserModel) savedInstanceState.getSerializable("user");
+            String domain = savedInstanceState.getString("custom_domain");
+            if (!TextUtils.isEmpty(domain)) {
+                LiveSDK.customEnvironmentPrefix = domain;
+            }
         }
     }
 
@@ -88,6 +92,7 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
         outState.putLong("roomId", roomId);
         outState.putString("sign", sign);
         outState.putSerializable("user", enterUser);
+        outState.putString("custom_domain",LiveSDK.customEnvironmentPrefix);
     }
 
     public static boolean getShowTechSupport() {
@@ -179,7 +184,7 @@ public abstract class LiveRoomBaseActivity extends AppCompatActivity {
     }
 
     protected void showDialogFragment(final BaseDialogFragment dialogFragment) {
-        if(isFinishing() || isDestroyed()) return;
+        if(isFinishing() || isDestroyed() || getSupportFragmentManager().isStateSaved()) return;
         if(!isForeground){
             tempDialogFragment = dialogFragment;
             return;

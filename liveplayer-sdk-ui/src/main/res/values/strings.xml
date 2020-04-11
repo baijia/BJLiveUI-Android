@@ -114,6 +114,7 @@
     <string name="live_mic_off">麦克风已关闭</string>
     <string name="live_override_error">哎呀出错了</string>
     <string name="live_host_unknow">连接超时</string>
+    <string name="live_enter_deny">无法进入</string>
     <string name="live_teacher_not_in">老师未在教室</string>
     <string name="live_teacher_in">已有老师</string>
     <string name="live_chat_filtered">已开启只看老师/助教</string>
@@ -237,7 +238,8 @@
     <string name="live_chat_filter">只看老师/助教</string>
     <string name="live_chat_recall">撤回</string>
     <string name="live_chat_delete">删除</string>
-    <string name="timer_start">开始</string>
+    <string name="timer_start">开始计时</string>
+    <string name="live_end_timer">结束计时</string>
     <string name="timer_error_tip">请先设置%1$s时间</string>
     <string name="timer_restart">重新开始</string>
     <string name="timer_pause">暂停</string>
@@ -253,7 +255,7 @@
     <string name="seat_full">坐席已满</string>
     <string name="pad_camera_closed">已关闭摄像头</string>
     <string name="pad_not_onseat">还未上麦</string>
-    <string name="pad_leave_room">已离开教室</string>
+    <string name="pad_leave_room_teacher">老师不在教室</string>
     <string name="pad_leave_room_single_speaker">学生未进教室</string>
     <string name="pad_class_start_tip">请先点击开始上课按钮</string>
     <string name="pad_class_answer_time_out">答题时间已到</string>
@@ -280,5 +282,7 @@
     <string name="live_pad_switch_local">仅本地切换</string>
     <string name="live_pad_kickout">踢出</string>
     <string name="live_pad_kickout_tip">踢出教室后该用户本节课不能再次进入教室</string>
+    <string name="timer_type">计时方式</string>
+    <string name="set_time">设置时间</string>
 </resources>
 

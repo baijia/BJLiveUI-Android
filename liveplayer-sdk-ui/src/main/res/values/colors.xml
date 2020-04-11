@@ -21,6 +21,10 @@
     <color name="live_timer_bg_color">#f8f8f8</color>
     <color name="live_timer_stroke">#d4d4d4</color>
     <color name="live_timer_text">#4a4a4a</color>
+    <color name="live_timer_showy_bg_normal">#CC1795FF</color>
+    <color name="live_timer_showy_bg_end">#CCFF1F49</color>
+    <color name="live_timer_invalid_color">#FF999999</color>
+    <color name="live_timer_end_color">#FF1F49</color>
     <color name="live_white">#FFFFFF</color>
     <color name="live_red">#FF5850</color>
     <color name="live_red_press">#EF4840</color>

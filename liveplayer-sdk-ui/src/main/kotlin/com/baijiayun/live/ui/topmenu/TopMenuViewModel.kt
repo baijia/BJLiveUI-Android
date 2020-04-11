@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
  * Created by Shubo on 2019-10-10.
  */
 class TopMenuViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
-    val classStarTimeCount = MutableLiveData<String>()
+    val classStartTimeDesc = MutableLiveData<String>()
     val showToast = MutableLiveData<String>()
     var lastRecordStatus = false
     var recordStatus = MutableLiveData<Boolean>()
@@ -43,10 +43,10 @@ class TopMenuViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
                         if (liveRoom.currentUser.type == LPConstants.LPUserType.Teacher) {
                             liveRoom.requestCloudRecord(false)
                         }
-                        classStarTimeCount.value = defaultStartTimeStr
+                        classStartTimeDesc.value = defaultStartTimeStr
                     }
                 })
-        classStarTimeCount.value = defaultStartTimeStr
+        classStartTimeDesc.value = defaultStartTimeStr
         liveRoom.observableOfCloudRecordStatus.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposingObserver<Boolean>() {
                     override fun onNext(boolean: Boolean) {
@@ -93,7 +93,7 @@ class TopMenuViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
                 .subscribe {
                     val past = hasPast + it
                     val date = "${String.format("%02d", past / 3600)}:${String.format("%02d", past / 60 % 60)}:${String.format("%02d", past % 60)}"
-                    classStarTimeCount.value = "直播中：$date"
+                    classStartTimeDesc.value = "直播中：$date"
                 }
     }
 

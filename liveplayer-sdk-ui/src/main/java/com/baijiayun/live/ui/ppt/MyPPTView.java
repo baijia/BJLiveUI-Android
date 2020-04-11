@@ -11,6 +11,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.speakerlist.item.SpeakItemType;
 import com.baijiayun.live.ui.speakerlist.item.Switchable;
+import com.baijiayun.livecore.models.animppt.LPAnimPPTPageChangeEndModel;
 import com.baijiayun.livecore.ppt.PPTView;
 import com.baijiayun.livecore.ppt.photoview.OnDoubleTapListener;
 import com.baijiayun.livecore.ppt.whiteboard.Whiteboard;
@@ -76,11 +77,23 @@ public class MyPPTView extends PPTView implements PPTContract.View, Switchable {
             }
         });
 
-        super.setOnPageSelectedListener((position, remarksInfo) -> {
-            //大班课在initDocList之后设置animPPTAuth为true，使得学生可翻页
-            MyPPTView.super.setAnimPPTAuth(true);
-        });
+        setPPTStatusListener(new PPTStatusListener() {
+            @Override
+            public void onPPTViewAttached() {
+                //大班课在initDocList之后设置animPPTAuth为true，使得学生可翻页
+                MyPPTView.super.setAnimPPTAuth(true);
+            }
 
+            @Override
+            public void onPageChange(LPAnimPPTPageChangeEndModel pageChangeEndModel, String remarkInfo) {
+
+            }
+
+            @Override
+            public void onH5PageCountChange(String docId, int page) {
+
+            }
+        });
     }
 
     private void showOptionDialog() {

@@ -2,6 +2,7 @@ package com.baijiayun.live.ui.toolbox.questionanswer
 
 import android.arch.lifecycle.MutableLiveData
 import com.baijiayun.live.ui.base.BaseViewModel
+import com.baijiayun.live.ui.base.RouterViewModel
 import com.baijiayun.live.ui.widget.DragResizeFrameLayout
 import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.context.LPError
@@ -15,15 +16,16 @@ import com.baijiayun.livecore.models.LPUserModel
  * Created by yongjiaming on 2019-10-30
  * Describe:
  */
-class QAViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
+class QAViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() {
 
     val toAnswerQuestionList = MutableLiveData<List<LPQuestionPullResItem>>()
     val toPublishQuestionList = MutableLiveData<List<LPQuestionPullResItem>>()
     val publishedQuestionList = MutableLiveData<List<LPQuestionPullResItem>>()
-    //学生为已发布&未发布(自己发布的)；老师为全部状态的问答列表
-    val allQuestionList = MutableLiveData<List<LPQuestionPullResItem>>()
 
     val notifyDragStatusChange = MutableLiveData<DragResizeFrameLayout.Status>()
+
+    //学生为已发布&未发布(自己发布的)；老师为全部状态的问答列表
+    val allQuestionList = MutableLiveData<List<LPQuestionPullResItem>>()
 
 
     val toAnswerList = ArrayList<LPQuestionPullResItem>()
@@ -33,6 +35,10 @@ class QAViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
     val notifyLoadComplete = MutableLiveData<Boolean>()
 
     var isSubscribe = false
+
+    private val liveRoom by lazy {
+        routerViewModel.liveRoom
+    }
 
     override fun subscribe() {
         isSubscribe = true
@@ -49,6 +55,7 @@ class QAViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
                                 }
                             }
                             allQuestionList.value = questionList
+                            routerViewModel.hasNewQa.value = true
                         } else{
                             for (item in t) {
                                 toAnswerList.remove(item)
@@ -71,6 +78,7 @@ class QAViewModel(val liveRoom: LiveRoom) : BaseViewModel() {
                             toPublishQuestionList.value = ArrayList(toPublishList)
                             publishedQuestionList.value = ArrayList(publishedList)
                             allQuestionList.value = ArrayList(t)
+                            routerViewModel.hasNewQa.value = true
                         }
                         notifyLoadComplete.value = true
                     }

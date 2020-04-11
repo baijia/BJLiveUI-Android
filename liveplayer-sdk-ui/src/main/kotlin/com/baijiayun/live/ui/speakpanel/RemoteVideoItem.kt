@@ -388,7 +388,7 @@ class RemoteVideoItem(private val rootView: ViewGroup, media: IMediaModel, speak
     fun showTeacherLeave(isLeave: Boolean = true) {
         if (isLeave) {
             container.item_status_placeholder_ll.visibility = View.VISIBLE
-            container.item_status_placeholder_tv.text = context.getString(R.string.pad_leave_room)
+            container.item_status_placeholder_tv.text = context.getString(R.string.pad_leave_room_teacher)
             container.item_status_placeholder_iv.setImageResource(R.drawable.ic_pad_leave_room)
             speakerNameTv.visibility = View.GONE
         } else {

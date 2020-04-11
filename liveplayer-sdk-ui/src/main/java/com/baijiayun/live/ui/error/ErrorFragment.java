@@ -19,6 +19,7 @@ public class ErrorFragment extends BaseFragment {
     public final static int ERROR_HANDLE_REENTER = 1;
     public final static int ERROR_HANDLE_NOTHING = 2;
     public final static int ERROR_HANDLE_CONFILICT = 3;
+    public final static int ERROR_HANDLE_FINISH = 4;
 
     public static ErrorFragment newInstance(String title, String content, int handleWay, boolean shouldShowTechSupport) {
         return ErrorFragment.newInstance(title, content, handleWay, shouldShowTechSupport, true);
@@ -62,13 +63,20 @@ public class ErrorFragment extends BaseFragment {
             getActivity().finish();
         });
         this.checkUnique = getArguments().getBoolean("checkUnique", true);
-        if (!this.checkUnique) {
-            $.id(R.id.fragment_error_title).text(getString(R.string.live_teacher_in));
-            $.id(R.id.fragment_error_reason).text(getString(R.string.live_login_conflict_tip));
-            $.id(R.id.fragment_error_retry).text(getString(R.string.live_enter_room));
-        } else {
+        int handleWay = getArguments().getInt("handleWay");
+        if (handleWay == ERROR_HANDLE_FINISH) {
             $.id(R.id.fragment_error_title).text(getArguments().getString("title"));
             $.id(R.id.fragment_error_reason).text(getArguments().getString("content"));
+            $.id(R.id.fragment_error_retry).text(getString(R.string.live_i_know));
+        }else {
+            if (!this.checkUnique) {
+                $.id(R.id.fragment_error_title).text(getString(R.string.live_teacher_in));
+                $.id(R.id.fragment_error_reason).text(getString(R.string.live_login_conflict_tip));
+                $.id(R.id.fragment_error_retry).text(getString(R.string.live_enter_room));
+            } else {
+                $.id(R.id.fragment_error_title).text(getArguments().getString("title"));
+                $.id(R.id.fragment_error_reason).text(getArguments().getString("content"));
+            }
         }
         if (getArguments().getBoolean("shouldShowTechSupport", false)) {
             $.id(R.id.tv_logo).visible();
@@ -85,13 +93,18 @@ public class ErrorFragment extends BaseFragment {
         }
         $.id(R.id.fragment_error_retry).clicked(v -> {
             if (routerListener != null) {
-                int handleWay = getArguments().getInt("handleWay");
+
                 if (handleWay == ERROR_HANDLE_RECONNECT) {
-                    routerListener.doReEnterRoom(false);
+                    routerListener.doReEnterRoom(false,true);
                 } else if (handleWay == ERROR_HANDLE_REENTER) {
-                    routerListener.doReEnterRoom(false);
+                    routerListener.doReEnterRoom(false,true);
                 } else if (handleWay == ERROR_HANDLE_CONFILICT) {
-                    routerListener.doReEnterRoom(checkUnique);
+                    routerListener.doReEnterRoom(checkUnique,true);
+                } else if (handleWay == ERROR_HANDLE_FINISH) {
+                    if (!checkUnique) {
+                        routerListener.getLiveRoom().quitRoom();
+                    }
+                    getActivity().finish();
                 } else {
                     routerListener.doHandleErrorNothing();
                 }

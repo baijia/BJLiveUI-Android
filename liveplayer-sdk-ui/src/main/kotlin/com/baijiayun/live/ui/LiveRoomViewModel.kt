@@ -94,7 +94,7 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
                 liveRoom.speakQueueVM.observableOfMediaPublish
                         .filter { !liveRoom.isTeacherOrAssistant && it.user.type == LPConstants.LPUserType.Teacher }
                         .filter { liveRoom.isClassStarted }
-                        .filter { !liveRoom.isMixModeOn }
+                        .filter { !liveRoom.speakQueueVM.isMixModeOn }
                         .throttleFirst(500, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(object : DisposingObserver<IMediaModel>() {
@@ -225,13 +225,6 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
                                 answerEnd.value = !lpAnswerEndModel.isRevoke
                             }
                         })
-                liveRoom.toolBoxVM.observableOfBJTimerStart
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(object : DisposingObserver<LPBJTimerModel>() {
-                            override fun onNext(lpbjTimerModel: LPBJTimerModel) {
-                                showTimer.value = true to lpbjTimerModel
-                            }
-                        })
                 liveRoom.toolBoxVM.observableOfBJTimerEnd
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(object : DisposingObserver<Boolean>() {
@@ -254,6 +247,14 @@ class LiveRoomViewModel(val routerViewModel: RouterViewModel) : BaseViewModel() 
                             }
                         })
             }
+            liveRoom.toolBoxVM.observableOfBJTimerStart
+                    .mergeWith(liveRoom.toolBoxVM.observableOfBJTimerPause)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(object : DisposingObserver<LPBJTimerModel>() {
+                        override fun onNext(lpbjTimerModel: LPBJTimerModel) {
+                            showTimer.value = true to lpbjTimerModel
+                        }
+                    })
             if (!liveRoom.isTeacherOrAssistant) {
                 liveRoom.observableOfAnnouncementChange
                         .observeOn(AndroidSchedulers.mainThread())

@@ -3,6 +3,8 @@ package com.baijiayun.live.ui.ppt.quickswitchppt;
 import com.baijiayun.live.ui.activity.LiveRoomRouterListener;
 import com.baijiayun.live.ui.utils.RxUtils;
 import com.baijiayun.livecore.context.LPConstants;
+import com.baijiayun.livecore.models.LPAdminAuthModel;
+import com.baijiayun.livecore.models.imodels.IUserModel;
 import com.baijiayun.livecore.ppt.listener.OnPPTStateListener;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -90,8 +92,18 @@ public class SwitchPPTFragmentPresenter implements SwitchPPTContract.Presenter {
 
     @Override
     public boolean canOperateDocumentControl() {
-        return !(listener.getLiveRoom().getCurrentUser().getType() == LPConstants.LPUserType.Assistant &&
-                listener.getLiveRoom().getAdminAuth() != null && !listener.getLiveRoom().getAdminAuth().documentControl);
+        final IUserModel currentUser = listener.getLiveRoom().getCurrentUser();
+        final LPAdminAuthModel adminAuth = listener.getLiveRoom().getAdminAuth();
+        if (currentUser == null) {
+            return false;
+        }
+        if (currentUser.getType() == LPConstants.LPUserType.Assistant) {
+            return !(adminAuth != null && !adminAuth.documentControl);
+        } else if (currentUser.getType() == LPConstants.LPUserType.Teacher) {
+            return true;
+        } else {
+            return !listener.getLiveRoom().getStudentSwitchPPTState();
+        }
     }
 
     @Override

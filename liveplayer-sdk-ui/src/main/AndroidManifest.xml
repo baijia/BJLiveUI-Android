@@ -5,20 +5,20 @@
     <application>
         <activity
             android:name=".LiveRoomTripleActivity"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|layoutDirection"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|layoutDirection|screenLayout"
             android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
             android:launchMode="singleTop"
             />
         <activity android:name=".LiveRoomSingleActivity"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|layoutDirection"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|layoutDirection|screenLayout"
             android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
             android:launchMode="singleTop"
             />
         <activity
             android:name=".activity.LiveRoomActivity"
-            android:configChanges="orientation|screenSize|layoutDirection"
+            android:configChanges="orientation|screenSize|layoutDirection|screenLayout"
             android:hardwareAccelerated="false"
             android:launchMode="singleTop"
             android:theme="@style/LiveAppTheme"

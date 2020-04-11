@@ -1,9 +1,8 @@
 package com.baijiayun.live.ui.error
 
+import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
 import android.view.View
-import com.baijiayun.live.ui.LiveRoomSingleActivity
-import com.baijiayun.live.ui.LiveRoomTripleActivity
 import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.activity.LiveRoomBaseActivity
 import com.baijiayun.live.ui.base.BasePadFragment
@@ -16,6 +15,7 @@ import com.baijiayun.live.ui.databinding.FragmentPadErrorBinding
  */
 class ErrorPadFragment : BasePadFragment() {
     private lateinit var errorModel: ErrorFragmentModel
+    @SuppressLint("ClickableViewAccessibility")
     override fun init(view: View) {
         activity?.let {
             errorModel = it.getViewModel { ErrorFragmentModel() }
@@ -30,8 +30,8 @@ class ErrorPadFragment : BasePadFragment() {
                 binding?.fragmentErrorSuggestion?.visibility = View.VISIBLE
                 binding?.fragmentErrorSuggestion?.text = routerViewModel.liveRoom.customerSupportDefaultExceptionMessage
             }
+            view.setOnTouchListener { _, _ -> true }
         }
-
     }
 
     fun showTechSupport() = LiveRoomBaseActivity.getShowTechSupport()
@@ -45,10 +45,13 @@ class ErrorPadFragment : BasePadFragment() {
     fun retry() {
         when (errorModel.handlerWay) {
             ErrorType.ERROR_HANDLE_RECONNECT, ErrorType.ERROR_HANDLE_REENTER -> {
-                routerViewModel.actionReEnterRoom.value = false
+                routerViewModel.actionReEnterRoom.value = false to true
             }
             ErrorType.ERROR_HANDLE_CONFILICT -> {
-                routerViewModel.actionReEnterRoom.value = routerViewModel.checkUnique
+                routerViewModel.actionReEnterRoom.value = routerViewModel.checkUnique to true
+            }
+            ErrorType.ERROR_HANDLE_FINISH ->{
+                activity?.finish()
             }
             else -> {
                 routerViewModel.actionDismissError.value = Unit
@@ -57,7 +60,7 @@ class ErrorPadFragment : BasePadFragment() {
     }
 
     enum class ErrorType {
-        ERROR_HANDLE_RECONNECT, ERROR_HANDLE_REENTER, ERROR_HANDLE_NOTHING, ERROR_HANDLE_CONFILICT
+        ERROR_HANDLE_RECONNECT, ERROR_HANDLE_REENTER, ERROR_HANDLE_NOTHING, ERROR_HANDLE_CONFILICT,ERROR_HANDLE_FINISH
     }
 
 }

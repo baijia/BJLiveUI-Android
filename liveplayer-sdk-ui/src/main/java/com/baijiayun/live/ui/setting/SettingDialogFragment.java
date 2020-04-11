@@ -3,18 +3,26 @@ package com.baijiayun.live.ui.setting;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.baijiayun.live.ui.R;
 import com.baijiayun.live.ui.base.BaseDialogFragment;
+import com.baijiayun.live.ui.utils.CommonUtil;
 import com.baijiayun.live.ui.utils.QueryPlus;
 import com.baijiayun.livecore.context.LPConstants;
 import com.baijiayun.livecore.context.LPError;
 import com.baijiayun.livecore.utils.LPRxUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -32,10 +40,38 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
     private QueryPlus $;
     private SettingContract.Presenter presenter;
     private Disposable disposable;
-    private boolean mRemarksEnable = false;
+    private static boolean mRemarksEnable = false;
+    private static boolean shouldInitRemark = true;
+    private List<SettingSwitch> switches;
 
-    public static SettingDialogFragment newInstance() {
-        return new SettingDialogFragment();
+    private static class SettingSwitch {
+        String name;
+        String id;
+        String containerId;
+        boolean isEnable;
+
+        public SettingSwitch(String name, String id) {
+            this(name, id, "");
+        }
+
+        SettingSwitch(String name, String id, String containerId) {
+            this(name, id, containerId, true);
+        }
+
+        SettingSwitch(String name, String id, String containerId, boolean isEnable) {
+            this.name = name;
+            this.id = id;
+            this.containerId = containerId;
+            this.isEnable = isEnable;
+        }
+    }
+
+    public static SettingDialogFragment newInstance(boolean hidePPTSwitch) {
+        SettingDialogFragment settingDialogFragment = new SettingDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("hidePPTSwitch", hidePPTSwitch);
+        settingDialogFragment.setArguments(bundle);
+        return settingDialogFragment;
     }
 
     @Override
@@ -47,6 +83,14 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
     protected void init(Bundle savedInstanceState, Bundle arguments) {
         super.title(getString(R.string.live_setting)).editable(false);
         $ = QueryPlus.with(contentView);
+        initSwitchName();
+        generateSwitches();
+
+        if(getArguments().getBoolean("hidePPTSwitch")){
+            $.id(R.id.dialog_setting_ppt_view_type_switch_wrapper).visibility(View.GONE);
+        }
+        $.id(R.id.dialog_setting_ppt_remark_button).image(mRemarksEnable ? R.drawable.ic_on_switch : R.drawable.ic_off_switch);
+
         $.id(R.id.dialog_setting_mic).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -169,9 +213,9 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                     if (presenter.getCDNCount() > 1) {
                         ArrayList<String> options = new ArrayList<>();
                         for (int i = 0; i <= presenter.getCDNCount(); i++) {
-                            if(i == 0){
+                            if (i == 0) {
                                 options.add("自动");
-                            } else{
+                            } else {
                                 options.add("线路" + i);
                             }
                         }
@@ -243,36 +287,121 @@ public class SettingDialogFragment extends BaseDialogFragment implements Setting
                 $.id(R.id.dialog_setting_ppt_remark_button).image(mRemarksEnable ? R.drawable.ic_on_switch : R.drawable.ic_off_switch);
             }
         });
+    }
+
+    private void initSwitchName() {
+        switches = new ArrayList<>();
+        // 0
+        switches.add(new SettingSwitch("麦克风", "dialog_setting_mic"));
+
+        // 1
+        switches.add(new SettingSwitch("摄像头", "dialog_setting_camera"));
+
+        // 2
+        switches.add(new SettingSwitch("美颜", "dialog_setting_beauty_filter"));
+
+        // 3
+        switches.add(new SettingSwitch("全体禁言", "dialog_setting_forbid_all_speak", "dialog_setting_forbid_all_speak_container"));
+
+        // 4
+        switches.add(new SettingSwitch("禁止举手", "dialog_setting_forbid_raise_hand", "dialog_setting_forbid_raise_hand_container"));
+
+        // 5
+        switches.add(new SettingSwitch("全体静音", "dialog_setting_forbid_all_audio", "dialog_setting_forbid_all_audio_container"));
+
+        // 6
+        switches.add(new SettingSwitch("课件备注", "dialog_setting_ppt_remark_button", "dialog_setting_ppt_remark_container"));
+
 
         if (presenter.isTeacherOrAssistant()) {
             //只要是老师或助教，就显示全体禁言
-            $.id(R.id.dialog_setting_forbid_all_speak_container).visible();
+            switches.get(3).isEnable = true;
             //只有小班才有静音功能.
             if (presenter.getRoomType() == LPConstants.LPRoomType.Multi) {
                 //大班课显示禁止举手，不显示全体静音
-                $.id(R.id.dialog_setting_forbid_raise_hand_container).visible();
-                $.id(R.id.dialog_setting_forbid_all_audio_container).gone();
+                switches.get(4).isEnable = true;
+                switches.get(5).isEnable = false;
             } else if (presenter.getRoomType() == LPConstants.LPRoomType.SmallGroup
                     || presenter.getRoomType() == LPConstants.LPRoomType.NewSmallGroup || presenter.getRoomType() == LPConstants.LPRoomType.DoubleTeachers) {
                 //小班课、新版小班课、双师，显示全体静音，不显示禁止举手
-                $.id(R.id.dialog_setting_forbid_all_audio_container).visible();
-                $.id(R.id.dialog_setting_forbid_raise_hand_container).gone();
+                switches.get(5).isEnable = true;
+                switches.get(4).isEnable = false;
             } else if (presenter.getRoomType() == LPConstants.LPRoomType.Single || presenter.getRoomType() == LPConstants.LPRoomType.OneOnOne) {
                 //一对一，禁止举手、全体静音都不显示
-                $.id(R.id.dialog_setting_forbid_raise_hand_container).gone();
-                $.id(R.id.dialog_setting_forbid_all_audio_container).gone();
+                switches.get(4).isEnable = false;
+                switches.get(5).isEnable = false;
             }
             //老师或助教默认显示PPT备注
-            $.id(R.id.dialog_setting_ppt_remark_container).visible();
-            mRemarksEnable = true;
-            presenter.setRemarksEnable(true);
+            switches.get(6).isEnable = true;
+            if (shouldInitRemark) {
+                mRemarksEnable = true;
+                shouldInitRemark = false;
+            }
         } else {
-            $.id(R.id.dialog_setting_forbid_all_speak_container).gone();
-            $.id(R.id.dialog_setting_forbid_raise_hand_container).gone();
-            $.id(R.id.dialog_setting_forbid_all_audio_container).gone();
+            switches.get(3).isEnable = false;
+            switches.get(4).isEnable = false;
+            switches.get(5).isEnable = false;
+            switches.get(6).isEnable = false;
         }
-
     }
+
+    private void generateSwitches() {
+        ((LinearLayout) contentView.findViewById(R.id.setting_switches_container)).removeAllViews();
+
+        LinearLayout switchGroup = null;
+        int nowIndex = 0;
+
+        for (int i = 0; i < switches.size(); i++) {
+            if (!switches.get(i).isEnable) {
+                continue;
+            }
+            if (nowIndex % 3 == 0) {
+                switchGroup = new LinearLayout(getContext());
+                LinearLayout.LayoutParams groupParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                groupParams.bottomMargin = CommonUtil.getDimenById(getContext(), R.dimen.activity_live_room_dialog_margin);
+                groupParams.leftMargin = CommonUtil.getDimenById(getContext(), R.dimen.activity_live_room_dialog_margin);
+                groupParams.rightMargin = CommonUtil.getDimenById(getContext(), R.dimen.activity_live_room_dialog_margin);
+                groupParams.topMargin = CommonUtil.getDimenById(getContext(), R.dimen.activity_live_room_dialog_margin);
+                switchGroup.setLayoutParams(groupParams);
+                switchGroup.setGravity(Gravity.CENTER);
+                switchGroup.setOrientation(LinearLayout.HORIZONTAL);
+
+                ((LinearLayout) contentView.findViewById(R.id.setting_switches_container)).addView(switchGroup);
+            }
+            LinearLayout switchContainerLayout = new LinearLayout(getContext());
+            LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
+            containerParams.weight = 1;
+            switchContainerLayout.setLayoutParams(containerParams);
+            switchContainerLayout.setGravity(Gravity.CENTER);
+            switchContainerLayout.setOrientation(LinearLayout.VERTICAL);
+            if (!TextUtils.isEmpty(switches.get(i).containerId)) {
+                switchContainerLayout.setId(CommonUtil.getId(getContext(), switches.get(i).containerId));
+            }
+
+            TextView switchNameTv = new TextView(getContext());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                switchNameTv.setTextAppearance(R.style.LiveTextNormal);
+            } else {
+                switchNameTv.setTextAppearance(getContext(), R.style.LiveTextNormal);
+            }
+            switchNameTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            switchNameTv.setText(switches.get(i).name);
+            switchContainerLayout.addView(switchNameTv);
+
+            ImageButton switchBt = new ImageButton(getContext());
+            ViewGroup.MarginLayoutParams switchBtParams = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            switchBtParams.topMargin = 20;
+            switchBt.setLayoutParams(switchBtParams);
+            switchBt.setBackground(null);
+            switchBt.setImageResource(R.drawable.ic_on_switch);
+            switchBt.setId(CommonUtil.getId(getContext(), switches.get(i).id));
+            switchContainerLayout.addView(switchBt);
+
+            switchGroup.addView(switchContainerLayout);
+            nowIndex++;
+        }
+    }
+
 
     @Override
     public void showMicOpen() {

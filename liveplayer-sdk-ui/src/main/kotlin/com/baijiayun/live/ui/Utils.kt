@@ -1,12 +1,12 @@
 package com.baijiayun.live.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.support.v4.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.speakerlist.item.Switchable
 import com.baijiayun.live.ui.utils.DisplayUtils
 import com.baijiayun.livecore.context.LiveRoom
@@ -114,8 +114,12 @@ fun isMainVideoItem(switchable: Switchable?, liveRoom: LiveRoom): Boolean {
 
 //学生、ppt、辅助摄像头可在学生发言列表
 fun isSpeakVideoItem(switchable: Switchable?, liveRoom: LiveRoom): Boolean {
-    return liveRoom.teacherUser != null && switchable?.identity != liveRoom.teacherUser.userId
-            && switchable?.identity != LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID
+    if (liveRoom.teacherUser == null) {
+        return true
+    } else {
+        return switchable?.identity != liveRoom.teacherUser.userId
+                && switchable?.identity != LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID
+    }
 }
 
 fun removeSwitchableFromParent(switchable: Switchable) {

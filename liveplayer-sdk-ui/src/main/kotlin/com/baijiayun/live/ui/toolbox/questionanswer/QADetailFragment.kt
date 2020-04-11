@@ -23,6 +23,8 @@ import com.baijiayun.live.ui.R
 import com.baijiayun.live.ui.base.BaseDialogFragment
 import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.base.getViewModel
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.utils.DisplayUtils
 import com.baijiayun.live.ui.utils.LinearLayoutWrapManager
 import com.baijiayun.live.ui.widget.DragResizeFrameLayout
@@ -51,7 +53,7 @@ class QADetailFragment : BasePadFragment() {
     private lateinit var adapter: QAAdapter
     private lateinit var questionList: MutableLiveData<List<LPQuestionPullResItem>>
     private lateinit var qaViewModel: QAViewModel
-    private lateinit var emptyView : ImageView
+    private lateinit var emptyView: ImageView
 
     private var isLoading = false
     private lateinit var questionSendFragment: BaseDialogFragment
@@ -67,7 +69,7 @@ class QADetailFragment : BasePadFragment() {
 
     override fun init(view: View) {
         activity?.run {
-            qaViewModel = getViewModel { QAViewModel(routerViewModel.liveRoom) }
+            qaViewModel = getViewModel { QAViewModel(routerViewModel) }
         }
         questionList = when (tabStatus) {
             QATabStatus.ToAnswer -> {
@@ -92,42 +94,42 @@ class QADetailFragment : BasePadFragment() {
     }
 
     override fun observeActions() {
-
-        routerViewModel.actionNavigateToMain.observe(this, Observer {
-            if(!qaViewModel.isSubscribe){
-                qaViewModel.subscribe()
-            }
-
-            questionList.observe(this, Observer {
-                if(it?.isEmpty() == true){
-                    emptyView.visibility = View.VISIBLE
-                } else{
-                    emptyView.visibility = View.GONE
-                    adapter.notifyDataSetChanged()
-                }
-            })
-
-            qaViewModel.notifyLoadComplete.observe(this, Observer {
-                isLoading = it != true
-                adapter.notifyDataSetChanged()
-
-            })
-            recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                    val totalItemCount = layoutManager.itemCount
-                    val visibleItemCount = layoutManager.childCount
-                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-                    if (!isLoading && newState == SCROLL_STATE_IDLE && visibleItemCount > 0 && lastVisibleItemPosition > totalItemCount - 2) {
-                        val lpError = routerViewModel.liveRoom.loadMoreQuestions()
-                        isLoading = lpError == null
-                        adapter.notifyDataSetChanged()
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    if (!qaViewModel.isSubscribe) {
+                        qaViewModel.subscribe()
                     }
-                }
-            })
-        })
+
+                    questionList.observe(this, Observer {
+                        if (it?.isEmpty() == true) {
+                            emptyView.visibility = View.VISIBLE
+                        } else {
+                            emptyView.visibility = View.GONE
+                            adapter.notifyDataSetChanged()
+                        }
+                    })
+
+                    qaViewModel.notifyLoadComplete.observe(this, Observer {
+                        isLoading = it != true
+                        adapter.notifyDataSetChanged()
+
+                    })
+                    recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+                        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                            super.onScrollStateChanged(recyclerView, newState)
+                            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                            val totalItemCount = layoutManager.itemCount
+                            val visibleItemCount = layoutManager.childCount
+                            val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                            if (!isLoading && newState == SCROLL_STATE_IDLE && visibleItemCount > 0 && lastVisibleItemPosition > totalItemCount - 2) {
+                                val lpError = routerViewModel.liveRoom.loadMoreQuestions()
+                                isLoading = lpError == null
+                                adapter.notifyDataSetChanged()
+                            }
+                        }
+                    })
+                })
     }
 
     override fun getLayoutId() = R.layout.fragment_qa_detail
@@ -189,9 +191,9 @@ class QADetailFragment : BasePadFragment() {
         spannableString.setSpan(ImageSpan(ctx, R.drawable.ic_pad_qa_question), 0, 5, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
         val textView = TextView(ctx)
         textView.text = spannableString
-        textView.setTextColor(ContextCompat.getColor(ctx,R.color.live_pad_title))
+        textView.setTextColor(ContextCompat.getColor(ctx, R.color.live_pad_title))
         container.addView(textView)
-        if(routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant){
+        if (routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant) {
             textView.setOnClickListener {
                 showPopupWindow(textView, container.width, questionId, status, item)
             }
@@ -205,9 +207,9 @@ class QADetailFragment : BasePadFragment() {
         spannableString.setSpan(ImageSpan(ctx, drawableId), 0, 5, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
         val textView = TextView(ctx)
         textView.text = spannableString
-        textView.setTextColor(ContextCompat.getColor(ctx,R.color.live_pad_title))
+        textView.setTextColor(ContextCompat.getColor(ctx, R.color.live_pad_title))
         container.addView(textView)
-        if(routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant){
+        if (routerViewModel.liveRoom.isTeacherOrAssistant || routerViewModel.liveRoom.isGroupTeacherOrAssistant) {
             textView.setOnClickListener {
                 showPopupWindow(textView, container.width, questionId, status, item)
             }
@@ -221,7 +223,7 @@ class QADetailFragment : BasePadFragment() {
         return arrayOf(apply, publish, copy)
     }
 
-    private fun showPopupWindow(anchorView : View, containerWidth : Int, questionId: String, status: Int, item: LPQuestionPullListItem){
+    private fun showPopupWindow(anchorView: View, containerWidth: Int, questionId: String, status: Int, item: LPQuestionPullListItem) {
         val popupWindow = ListPopupWindow(anchorView.context)
         with(popupWindow) {
             this.anchorView = anchorView
@@ -231,7 +233,7 @@ class QADetailFragment : BasePadFragment() {
             horizontalOffset = (containerWidth - width) / 2
             setAdapter(ArrayAdapter(anchorView.context, R.layout.item_pad_qa_menu, buildPopupWindowTipArray(status, anchorView.context)))
             setOnItemClickListener { _, _, position, _ ->
-                val quoteContent = if((status and QuestionStatus.QuestionReplied.status) > 0){
+                val quoteContent = if ((status and QuestionStatus.QuestionReplied.status) > 0) {
                     "${CommonUtils.getEncodePhoneNumber(item.from.user.name)} : ${item.content}"
                 } else {
                     ""

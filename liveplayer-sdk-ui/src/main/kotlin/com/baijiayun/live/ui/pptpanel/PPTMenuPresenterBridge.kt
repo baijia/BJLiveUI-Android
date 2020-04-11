@@ -9,12 +9,14 @@ import com.baijiayun.livecore.context.LPConstants
 import com.baijiayun.livecore.listener.OnSpeakApplyCountDownListener
 import com.baijiayun.livecore.models.imodels.IMediaControlModel
 import com.baijiayun.livecore.models.roomresponse.LPResRoomMediaControlModel
+import com.baijiayun.livecore.utils.LPLogger
 import com.baijiayun.livecore.wrapper.LPRecorder
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import java.util.concurrent.TimeUnit
+import java.util.logging.Logger
 
 class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterListener: LiveRoomRouterListener,val routerViewModel: RouterViewModel) : PPTMenuContract.Presenter {
     private val disposables by lazy {
@@ -59,35 +61,39 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
             return
         }
 
-        if (routerViewModel.speakApplyStatus.value == RightMenuContract.STUDENT_SPEAK_APPLY_NONE) {
-            if (liveRoomRouterListener.liveRoom.forbidRaiseHandStatus) {
-                view.showHandUpForbid()
-                return
+        when (routerViewModel.speakApplyStatus.value) {
+            RightMenuContract.STUDENT_SPEAK_APPLY_NONE -> {
+                if (liveRoomRouterListener.liveRoom.forbidRaiseHandStatus) {
+                    view.showHandUpForbid()
+                    return
+                }
+
+                liveRoomRouterListener.liveRoom.speakQueueVM.requestSpeakApply(object : OnSpeakApplyCountDownListener {
+                    override fun onTimeOut() {
+                        routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_NONE
+                        liveRoomRouterListener.liveRoom.speakQueueVM.cancelSpeakApply()
+                        view.showSpeakApplyCanceled()
+                        view.showHandUpTimeout()
+                    }
+
+                    override fun onTimeCountDown(counter: Int, timeOut: Int) {
+                        view.showSpeakApplyCountDown(timeOut - counter, timeOut)
+                    }
+                })
+                routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_APPLYING
+                view.showWaitingTeacherAgree()
             }
-
-            liveRoomRouterListener.liveRoom.speakQueueVM.requestSpeakApply(object : OnSpeakApplyCountDownListener {
-                override fun onTimeOut() {
-                    routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_NONE
-                    liveRoomRouterListener.liveRoom.speakQueueVM.cancelSpeakApply()
-                    view.showSpeakApplyCanceled()
-                    view.showHandUpTimeout()
-                }
-
-                override fun onTimeCountDown(counter: Int, timeOut: Int) {
-                    view.showSpeakApplyCountDown(timeOut - counter, timeOut)
-                }
-            })
-            routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_APPLYING
-            view.showWaitingTeacherAgree()
-        } else if (routerViewModel.speakApplyStatus.value == RightMenuContract.STUDENT_SPEAK_APPLY_APPLYING) {
-            // 取消发言请求
-            routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_NONE
-            liveRoomRouterListener.liveRoom.speakQueueVM.cancelSpeakApply()
-            view.showSpeakApplyCanceled()
-        } else if (routerViewModel.speakApplyStatus.value == RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING) {
-            liveRoomRouterListener.liveRoom.mediaViewModel.updateSpeakStatus(false)
-            // 取消发言
-            cancelStudentSpeaking()
+            RightMenuContract.STUDENT_SPEAK_APPLY_APPLYING -> {
+                // 取消发言请求
+                routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_NONE
+                liveRoomRouterListener.liveRoom.speakQueueVM.cancelSpeakApply()
+                view.showSpeakApplyCanceled()
+            }
+            RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING -> {
+                liveRoomRouterListener.liveRoom.mediaViewModel.updateSpeakStatus(false)
+                // 取消发言
+                cancelStudentSpeaking()
+            }
         }
     }
     private fun disableSpeakerMode() {
@@ -99,6 +105,7 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
         }
         liveRoomRouterListener.detachLocalVideo()
     }
+
     private fun cancelStudentSpeaking() {
         routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_NONE
         disableSpeakerMode()
@@ -116,18 +123,18 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
             //接受
             routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING
             liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.publish()
-            if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isAudioAttached == false)
-                liveRoomRouterListener.attachLocalAudio()
             if (liveRoomRouterListener.liveRoom.autoOpenCameraStatus) {
-                isWaitingRecordOpen = true
-                val timer = Observable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { aLong ->
-                            if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isVideoAttached == false) {
-                                liveRoomRouterListener.attachLocalVideo()
-                            }
-                            isWaitingRecordOpen = false
-                        }
-                disposables.add(timer)
+                if(view.checkCameraAndMicPermission()){
+                    if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isVideoAttached == false) {
+                        liveRoomRouterListener.attachLocalVideo()
+                    }
+                    if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isAudioAttached == false) {
+                        liveRoomRouterListener.attachLocalAudio()
+                    }
+                }
+            } else{
+                if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isAudioAttached == false)
+                    liveRoomRouterListener.attachLocalAudio()
             }
             view.showForceSpeak(isEnableDrawing())
             view.enableSpeakerMode()
@@ -144,7 +151,7 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
     override fun setRouter(liveRoomRouterListener: LiveRoomRouterListener) {
     }
 
-    private fun isEnableDrawing(): Boolean {
+    public fun isEnableDrawing(): Boolean {
         return isGetDrawingAuth || liveRoomRouterListener.liveRoom.partnerConfig.liveDisableGrantStudentBrush == 1
     }
 
@@ -173,7 +180,6 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
 
         if (!liveRoomRouterListener.isTeacherOrAssistant && !liveRoomRouterListener.isGroupTeacherOrAssistant) {
             // 学生
-
             disposables.add(liveRoomRouterListener.liveRoom.speakQueueVM
                     .observableOfMediaDeny
                     .observeOn(AndroidSchedulers.mainThread())
@@ -237,8 +243,9 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
                                 }
                             } else {
                                 liveRoomRouterListener.detachLocalVideo()
-                                if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>().isPublishing())
+                                if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>().isPublishing) {
                                     liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>().stopPublishing()
+                                }
                             }
 
                             if (iMediaControlModel.senderUserId != liveRoomRouterListener.liveRoom.currentUser.userId) {
@@ -254,26 +261,28 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
 
             disposables.add(liveRoomRouterListener.liveRoom.speakQueueVM.observableOfSpeakResponse
                     .observeOn(AndroidSchedulers.mainThread())
+                    .filter { it.user.userId == liveRoomRouterListener.liveRoom.currentUser.userId}
                     .subscribe { iMediaControlModel ->
-                        if (iMediaControlModel.user.userId != liveRoomRouterListener.liveRoom.currentUser.userId) {
-                            return@subscribe
-                        }
                         // 请求发言的用户自己
                         if (iMediaControlModel.isApplyAgreed) {
                             // 进入发言模式
-                            liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>().publish()
-                            liveRoomRouterListener.attachLocalAudio()
                             view.showSpeakApplyAgreed(isEnableDrawing())
                             routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING
                             view.enableSpeakerMode()
+                            liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.publish()
                             if (liveRoomRouterListener.liveRoom.autoOpenCameraStatus) {
-                                isWaitingRecordOpen = true
-                                val timer = Observable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe { aLong ->
-                                            liveRoomRouterListener.attachLocalVideo()
-                                            isWaitingRecordOpen = false
-                                        }
-                                disposables.add(timer)
+                                if(view.checkCameraAndMicPermission()){
+                                    if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isVideoAttached == false) {
+                                        liveRoomRouterListener.attachLocalVideo()
+                                    }
+                                    if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isAudioAttached == false) {
+                                        liveRoomRouterListener.attachLocalAudio()
+                                    }
+                                }
+                            } else{
+                                if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>()?.isAudioAttached == false) {
+                                    liveRoomRouterListener.attachLocalAudio()
+                                }
                             }
                         } else {
                             routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_NONE
@@ -379,13 +388,6 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
                     isGetDrawingAuth = false
                 })
 
-        disposables.add(liveRoomRouterListener.liveRoom.observableOfClassStart
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (liveRoomRouterListener.liveRoom.currentUser.type == LPConstants.LPUserType.Student && liveRoomRouterListener.liveRoom.roomType != LPConstants.LPRoomType.Multi) {
-                        routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING
-                    }
-                })
 
         if (liveRoomRouterListener.liveRoom.currentUser.type == LPConstants.LPUserType.Student && liveRoomRouterListener.liveRoom.roomType != LPConstants.LPRoomType.Multi) {
             view.showAutoSpeak(isEnableDrawing())
@@ -437,6 +439,9 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
                     } else {
                         view.disableSpeakerMode()
                     }
+                    if (liveRoomRouterListener.liveRoom.currentUser.type == LPConstants.LPUserType.Student && liveRoomRouterListener.liveRoom.roomType != LPConstants.LPRoomType.Multi) {
+                        routerViewModel.speakApplyStatus.value = RightMenuContract.STUDENT_SPEAK_APPLY_SPEAKING
+                    }
                 })
         disposables.add(liveRoomRouterListener.liveRoom.observableOfForbidAllAudioStatus
                 .subscribe { aBoolean ->
@@ -480,6 +485,7 @@ class PPTMenuPresenterBridge(val view: PPTMenuContract.View, val liveRoomRouterL
         }
         view.showForceSpeakDlg(tipRes)
     }
+
     override fun changeAudio() {
         if (liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>().isAudioAttached) {
             liveRoomRouterListener.liveRoom.getRecorder<LPRecorder>().detachAudio()

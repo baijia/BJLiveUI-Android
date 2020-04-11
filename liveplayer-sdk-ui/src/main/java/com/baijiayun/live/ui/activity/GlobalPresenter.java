@@ -259,6 +259,7 @@ public class GlobalPresenter implements BasePresenter {
                             routerListener.answerEnd(!lpAnswerEndModel.isRevoke);
                     });
             subscriptionOfTimerStart = routerListener.getLiveRoom().getToolBoxVM().getObservableOfBJTimerStart()
+                    .mergeWith(routerListener.getLiveRoom().getToolBoxVM().getObservableOfBJTimerPause())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(lpbjTimerModel -> {
                         if (!routerListener.isCurrentUserTeacher()) {

@@ -87,7 +87,10 @@ class ChatOptMenuHelper {
                         items.add(PRVIATE_CHAT)
                     }
                 }
-//                items.add(KICKOUT_ROOM)
+                //支持踢人
+//                if (routerViewModel.liveRoom.partnerConfig.enableKickOut == 1) {
+//                    items.add(KICKOUT_ROOM)
+//                }
             }
             if (items.isEmpty()) {
                 return

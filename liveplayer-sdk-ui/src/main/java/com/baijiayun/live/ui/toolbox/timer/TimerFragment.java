@@ -1,30 +1,40 @@
 package com.baijiayun.live.ui.toolbox.timer;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
+import com.baijiayun.live.ui.LiveRoomTripleActivity;
 import com.baijiayun.live.ui.R;
+import com.baijiayun.live.ui.base.BaseDialogFragment;
 import com.baijiayun.live.ui.base.BaseFragment;
+import com.baijiayun.live.ui.utils.QueryPlus;
+import com.baijiayun.livecore.models.LPBJTimerModel;
 
 /**
  * 计时器
  */
-public class TimerFragment extends BaseFragment implements TimerContract.View{
+public class TimerFragment extends BaseDialogFragment implements TimerContract.View{
     private TimerContract.Presenter presenter;
+    private QueryPlus $;
     private Context context;
     private boolean isPublish;
-    private boolean isEnd;
-    private EditText etMinHigh;
-    private EditText etMinLow;
-    private EditText etSecondHigh;
-    private EditText etSecondLow;
+    private TextView etMin;
+    private TextView etSecond;
     private CheckedTextView tvPublish;
     private CheckedTextView tvCountDown;
     private CheckedTextView tvCountUp;
@@ -44,35 +54,49 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
     }
 
     @Override
-    protected void init(Bundle savedInstanceState) {
-        super.init(savedInstanceState);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    protected void init(Bundle savedInstanceState ,Bundle arguments) {
+        $ = QueryPlus.with(contentView);
+        hideBackground();
         tvPublish = (CheckedTextView) $.id(R.id.tv_publish).view();
-        etMinHigh = (EditText) $.id(R.id.et_min_high).view();
-        etMinLow = (EditText) $.id(R.id.et_min_low).view();
-        etSecondHigh = (EditText) $.id(R.id.et_second_high).view();
-        etSecondLow = (EditText) $.id(R.id.et_second_low).view();
-        tvCountDown = (CheckedTextView) $.id(R.id.tv_countdown).view();
-        tvCountUp = (CheckedTextView) $.id(R.id.tv_countup).view();
-        etMinHigh.addTextChangedListener(textWatcher);
-        etMinLow.addTextChangedListener(textWatcher);
-        etSecondHigh.addTextChangedListener(textWatcher);
-        etSecondLow.addTextChangedListener(textWatcher);
+        etMin = (TextView) $.id(R.id.dialog_timer_et_min).view();
+        etSecond = (TextView) $.id(R.id.dialog_timer_et_second).view();
+        tvCountDown = (CheckedTextView) $.id(R.id.dialog_timer_tv_count_down).view();
+        tvCountUp = (CheckedTextView) $.id(R.id.dialog_timer_tv_count_up).view();
+
+        etMin.setOnClickListener(v -> {
+            if(canEditable) new TimePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT , (view, hourOfDay, minute) -> {
+                etMin.setText(hourOfDay > 9 ? hourOfDay + "" : "0" + hourOfDay);
+                etSecond.setText(minute > 9 ? minute + "" : "0" + minute);
+            }, Integer.parseInt(etMin.getText().toString()), Integer.parseInt(etSecond.getText().toString()), true).show();
+        });
+        etSecond.setOnClickListener(v -> {
+            if(canEditable) new TimePickerDialog(context,AlertDialog.THEME_HOLO_LIGHT , (view, hourOfDay, minute) -> {
+                etMin.setText(hourOfDay > 9 ? hourOfDay + "" : "0" + hourOfDay);
+                etSecond.setText(minute > 9 ? minute + "" : "0" + minute);
+        }, Integer.parseInt(etMin.getText().toString()), Integer.parseInt(etSecond.getText().toString()), true).show();
+        });
+
         $.id(R.id.tv_publish).clicked(v -> {
-            hideInput(context, view);
-            if (isEnd) {
-                reset();
+            hideInput(context, contentView);
+            if (!isPublish) {
+                //启动
+                publish(getTimerSeconds());
             } else {
-                if (!isPublish) {
-                    publish(getTimerSeconds());
-                } else {
-                    pause();
-                }
+                //暂停
+                pause();
             }
             setTabClickable(canEditable);
         });
-        $.id(R.id.dialog_close).clicked(v -> {
+        $.id(R.id.dialog_end).clicked(v -> {
             presenter.requestTimerEnd();
-            presenter.closeTimer();
+            reset();
         });
         tvCountDown.setOnClickListener(v -> {
             tvCountUp.setChecked(false);
@@ -85,23 +109,18 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
     }
 
     private void reset() {
-        showEditable(true);
-        canEditable = true;
-        isEnd = false;
-        isPublish = false;
-        setTimer(duration);
-        showViewState(true);
-        tvPublish.setText(getString(R.string.timer_start));
+        setTimer(0);
+        setButtonState(TimerPresenter.start_timer);
     }
 
     private boolean isCountDown() {
-        CheckedTextView textView = (CheckedTextView) $.id(R.id.tv_countdown).view();
+        CheckedTextView textView = (CheckedTextView) $.id(R.id.dialog_timer_tv_count_down).view();
         return textView.isChecked();
     }
 
     private void setTabClickable(boolean clickable) {
-        $.id(R.id.tv_countdown).view().setEnabled(clickable);
-        $.id(R.id.tv_countup).view().setEnabled(clickable);
+        $.id(R.id.dialog_timer_tv_count_down).view().setEnabled(clickable);
+        $.id(R.id.dialog_timer_tv_count_up).view().setEnabled(clickable);
     }
 
     private void publish(long duration) {
@@ -112,50 +131,16 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
         if (getString(R.string.timer_start).equals(tvPublish.getText().toString())) {
             this.duration = duration;
         }
-        long current = isCountDown() ? duration : this.duration - duration;
-        if (current == 0) {
-            current = this.duration;
-        }
-        presenter.requestTimerStart(current,this.duration,isCountDown());
-        isPublish = true;
-        tvPublish.setText(getString(R.string.timer_pause));
-        showEditable(false);
-        canEditable = false;
+
+        presenter.requestTimerStart(0,this.duration,isCountDown());
+
+        onDestroyView();
     }
 
     private void pause() {
-        tvPublish.setText(getString(R.string.timer_continue));
-        long current = isCountDown() ? getTimerSeconds() : duration - getTimerSeconds();
-        presenter.requestTimerPause(current, duration, isCountDown());
-        isPublish = false;
-        showEditable(false);
-        canEditable = false;
+        setButtonState(TimerPresenter.continue_timer);
+        presenter.requestTimerPause(0, duration, isCountDown());
     }
-    private TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (!canEditable || isPublish) {
-                return;
-            }
-            if (TextUtils.isEmpty(s)) {
-                tvPublish.setChecked(false);
-                tvPublish.setEnabled(false);
-            } else {
-                boolean isEmpty = TextUtils.isEmpty(etMinHigh.getText()) || TextUtils.isEmpty(etMinLow.getText())
-                        || TextUtils.isEmpty(etSecondHigh.getText()) || TextUtils.isEmpty(etMinLow.getText()) || !isLegal();
-                tvPublish.setChecked(!isEmpty);
-                tvPublish.setEnabled(!isEmpty);
-            }
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
-    };
 
     private boolean isLegal() {
         return getTimerSeconds() > 0;
@@ -165,16 +150,15 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
         long min = 0, second = 0;
         long seconds = 0;
         try {
-            min = Long.parseLong(etMinHigh.getText().toString()) * 10 +
-                    Long.parseLong(etMinLow.getText().toString());
-            second = Long.parseLong(etSecondHigh.getText().toString()) * 10 +
-                    Long.parseLong(etSecondLow.getText().toString());
+            min = Long.parseLong(etMin.getText().toString());
+            second = Long.parseLong(etSecond.getText().toString());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
         seconds = min * 60 + second;
         return seconds;
     }
+
     public static void hideInput(Context context, View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -183,34 +167,21 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
     public void setTimer(long remainSeconds) {
         long min = remainSeconds / 60;
         long second = remainSeconds % 60;
-        etMinHigh.setText(String.valueOf(min / 10));
-        etMinLow.setText(String.valueOf(min % 10));
-        etSecondHigh.setText(String.valueOf(second / 10));
-        etSecondLow.setText(String.valueOf(second % 10));
+        etMin.setText(String.valueOf(min >= 10 ? min : ("0" + min)));
+        etSecond.setText(String.valueOf(second >= 10 ? second : ("0" + second)));
     }
 
     private void showEditable(boolean canEditable) {
-        etMinHigh.setFocusable(canEditable);
-        etMinLow.setFocusable(canEditable);
-        etSecondHigh.setFocusable(canEditable);
-        etSecondLow.setFocusable(canEditable);
-        etMinHigh.setFocusableInTouchMode(canEditable);
-        etMinLow.setFocusableInTouchMode(canEditable);
-        etSecondHigh.setFocusableInTouchMode(canEditable);
-        etSecondLow.setFocusableInTouchMode(canEditable);
-        etMinHigh.setCursorVisible(canEditable);
-        etMinLow.setCursorVisible(canEditable);
-        etSecondHigh.setCursorVisible(canEditable);
-        etSecondLow.setCursorVisible(canEditable);
+        etMin.setClickable(canEditable);
+        etSecond.setClickable(canEditable);
+        tvCountDown.setEnabled(canEditable);
+        tvCountUp.setEnabled(canEditable);
     }
 
     @Override
-    public void showViewState(boolean enable) {
-        etMinHigh.setEnabled(enable);
-        etMinLow.setEnabled(enable);
-        etSecondHigh.setEnabled(enable);
-        etSecondLow.setEnabled(enable);
-        $.id(R.id.tv_risk).view().setEnabled(enable);
+    public void showViewState(boolean isCountDown) {
+        tvCountDown.setChecked(isCountDown);
+        tvCountUp.setChecked(!isCountDown);
     }
 
     @Override
@@ -218,14 +189,12 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
         $.id(R.id.dialog_close).visibility(View.GONE);
         $.id(R.id.ll_tab).visibility(View.GONE);
         $.id(R.id.tv_publish).visibility(View.GONE);
-        $.id(R.id.space).visible();
         showEditable(false);
     }
 
     @Override
     public void showTimerEnd() {
-        isEnd = true;
-        tvPublish.setText(getString(R.string.timer_restart));
+        reset();
     }
 
     @Override
@@ -234,14 +203,32 @@ public class TimerFragment extends BaseFragment implements TimerContract.View{
     }
 
     @Override
-    public void onDestroyView() {
-        if (presenter != null) {
-            presenter.requestTimerEnd();
+    public void setButtonState(String state) {
+        if (TextUtils.isEmpty(state)){
+            return;
         }
-        etMinHigh.removeTextChangedListener(textWatcher);
-        etMinLow.removeTextChangedListener(textWatcher);
-        etSecondHigh.removeTextChangedListener(textWatcher);
-        etSecondLow.removeTextChangedListener(textWatcher);
+
+        if (state.equals(TimerPresenter.pause_timer)){
+            isPublish = true;
+            canEditable = false;
+            showTimerPause(false);
+            tvPublish.setText("暂停计时");
+        }else if (state.equals(TimerPresenter.continue_timer)){
+            isPublish = false;
+            canEditable = false;
+            showTimerPause(true);
+            tvPublish.setText("开始计时");
+        }else if (state.equals(TimerPresenter.start_timer)){
+            isPublish = false;
+            canEditable = true;
+            showTimerPause(false);
+            tvPublish.setText("开始计时");
+        }
+        showEditable(canEditable);
+    }
+
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
     }
 

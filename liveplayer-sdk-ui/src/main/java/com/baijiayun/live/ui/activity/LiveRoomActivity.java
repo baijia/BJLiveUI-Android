@@ -61,14 +61,10 @@ import com.baijiayun.live.ui.chat.preview.ChatSavePicDialogPresenter;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordFragment;
 import com.baijiayun.live.ui.cloudrecord.CloudRecordPresenter;
 import com.baijiayun.live.ui.error.ErrorFragment;
-import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogFragment;
-import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogPresenter;
-import com.baijiayun.live.ui.toolbox.redpacket.RedPacketFragment;
-import com.baijiayun.live.ui.toolbox.redpacket.RedPacketPresenter;
-import com.baijiayun.live.ui.menu.leftmenu.LeftMenuFragment;
-import com.baijiayun.live.ui.menu.leftmenu.LeftMenuPresenter;
 import com.baijiayun.live.ui.loading.LoadingFragment;
 import com.baijiayun.live.ui.loading.LoadingPresenter;
+import com.baijiayun.live.ui.menu.leftmenu.LeftMenuFragment;
+import com.baijiayun.live.ui.menu.leftmenu.LeftMenuPresenter;
 import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftFragment;
 import com.baijiayun.live.ui.menu.pptleftmenu.PPTLeftPresenter;
 import com.baijiayun.live.ui.menu.rightbotmenu.RightBottomMenuFragment;
@@ -98,12 +94,18 @@ import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowFragment;
 import com.baijiayun.live.ui.toolbox.answersheet.QuestionShowPresenter;
 import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolFragment;
 import com.baijiayun.live.ui.toolbox.answersheet.QuestionToolPresenter;
+import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogFragment;
+import com.baijiayun.live.ui.toolbox.evaluation.EvaDialogPresenter;
 import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerFragment;
 import com.baijiayun.live.ui.toolbox.questionanswer.QuestionAnswerPresenter;
 import com.baijiayun.live.ui.toolbox.quiz.QuizDialogFragment;
 import com.baijiayun.live.ui.toolbox.quiz.QuizDialogPresenter;
+import com.baijiayun.live.ui.toolbox.redpacket.RedPacketFragment;
+import com.baijiayun.live.ui.toolbox.redpacket.RedPacketPresenter;
 import com.baijiayun.live.ui.toolbox.timer.TimerFragment;
+import com.baijiayun.live.ui.toolbox.timer.TimerFragmentOld;
 import com.baijiayun.live.ui.toolbox.timer.TimerPresenter;
+import com.baijiayun.live.ui.toolbox.timer.TimerPresenterOld;
 import com.baijiayun.live.ui.topbar.TopBarFragment;
 import com.baijiayun.live.ui.topbar.TopBarPresenter;
 import com.baijiayun.live.ui.users.OnlineUserDialogFragment;
@@ -184,7 +186,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     private RightMenuFragment rightMenuFragment;
     private QuestionToolFragment questionToolFragment;
     private QuestionShowFragment questionShowFragment;
-    private TimerFragment timerFragment;
+    private TimerFragmentOld timerFragmentOld;
     private WindowManager windowManager;
     private SpeakersFragment speakersFragment;
     private SpeakersPresenter speakersPresenter;
@@ -527,7 +529,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         liveRoom.setOnLiveRoomListener(error -> {
             switch ((int) error.getCode()) {
                 case LPError.CODE_ERROR_ROOMSERVER_LOSE_CONNECTION:
-                    doReEnterRoom(LiveSDK.checkTeacherUnique);
+                    doReEnterRoom(LiveSDK.checkTeacherUnique,false);
                     break;
                 case LPError.CODE_ERROR_NETWORK_FAILURE:
                     showMessage(error.getMessage());
@@ -619,6 +621,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                     break;
                 case LPError.CODE_ERROR_HOST_UNKNOW:
                     errorFragment = ErrorFragment.newInstance(getString(R.string.live_host_unknow), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport, false);
+                    break;
+                case LPError.CODE_ERROR_CLASS_EXPIRED:
+                    errorFragment = ErrorFragment.newInstance(getString(R.string.live_enter_deny), error.getMessage(), ErrorFragment.ERROR_HANDLE_FINISH, shouldShowTechSupport, false);
                     break;
                 default:
                     errorFragment = ErrorFragment.newInstance(getString(R.string.live_override_error), error.getMessage(), ErrorFragment.ERROR_HANDLE_REENTER, shouldShowTechSupport);
@@ -1401,8 +1406,8 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
                             showSystemSettingDialog(REQUEST_CODE_PERMISSION_CAMERA_MIC);
                         }
                     } else {
-                        liveRoom.getRecorder().attachAudio();
                         speakersPresenter.attachVideoForce();
+                        liveRoom.getRecorder().attachAudio();
                     }
                 }
                 break;
@@ -1412,7 +1417,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
 
     @Override
-    public void doReEnterRoom(boolean checkUnique) {
+    public void doReEnterRoom(boolean checkUnique,boolean reEnterRoom) {
         if (errorFragment != null && errorFragment.isAdded()) {
             removeFragment(errorFragment);
         }
@@ -1464,9 +1469,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             removeFragment(questionShowFragment);
             questionShowFragment = null;
         }
-        if( timerFragment!= null && timerFragment.isAdded()) {
-            removeFragment(timerFragment);
-            timerFragment = null;
+        if( timerFragmentOld != null && timerFragmentOld.isAdded()) {
+            removeFragment(timerFragmentOld);
+            timerFragmentOld = null;
         }
 
         removeAllFragment();
@@ -1474,10 +1479,13 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         flBackground.removeAllViews();
         getSupportFragmentManager().executePendingTransactions();
         flPPTLeft.setVisibility(View.GONE);
-        liveRoom.quitRoom();
-
         flLoading.setVisibility(View.VISIBLE);
-        loadingFragment = LoadingFragment.newInstance(checkUnique);
+        if (reEnterRoom) {
+            liveRoom.quitRoom();
+            loadingFragment = LoadingFragment.newInstance(checkUnique);
+        } else {
+            loadingFragment = LoadingFragment.newInstance(checkUnique, liveRoom);
+        }
         LoadingPresenter loadingPresenter;
         if (roomId == -1) {
             loadingPresenter = new LoadingPresenter(loadingFragment, code, name, avatar);
@@ -1647,6 +1655,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
         if (!isTeacherOrAssistant())
             startMarqueeTape();
         LiveSDK.checkTeacherUnique = false;
+        if(liveRoom.isTeacherOrAssistant()){
+            setRemarksEnable(true);
+        }
     }
 
     /**
@@ -1913,7 +1924,7 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
 
     @Override
     public void navigateToSetting() {
-        SettingDialogFragment settingFragment = SettingDialogFragment.newInstance();
+        SettingDialogFragment settingFragment = SettingDialogFragment.newInstance(lppptView.didRoomContainsH5PPT());
         SettingPresenter settingPresenter = new SettingPresenter(settingFragment);
         bindVP(settingFragment, settingPresenter);
         showDialogFragment(settingFragment);
@@ -2334,44 +2345,47 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
     }
     @Override
     public void showTimer(LPBJTimerModel lpbjTimerModel) {
-        TimerPresenter timerPresenter = new TimerPresenter();
-        timerPresenter.setRouter(this);
-        timerPresenter.setTimerModel(lpbjTimerModel);
-        timerFragment = new TimerFragment();
-        timerPresenter.setView(timerFragment);
-        bindVP(timerFragment, timerPresenter);
+        if (!("start".equals(lpbjTimerModel.action))){
+            return;
+        }
+        TimerPresenterOld timerPresenterOld = new TimerPresenterOld();
+        timerPresenterOld.setRouter(this);
+        timerPresenterOld.setTimerModel(lpbjTimerModel);
+        timerFragmentOld = new TimerFragmentOld();
+        timerPresenterOld.setView(timerFragmentOld);
+        bindVP(timerFragmentOld, timerPresenterOld);
         flTimer.configurationChanged();
         flTimer.setVisibility(View.VISIBLE);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         flTimer.setLayoutParams(layoutParams);
-        addFragment(R.id.activity_dialog_timer, timerFragment);
-        showFragment(timerFragment);
+        addFragment(R.id.activity_dialog_timer, timerFragmentOld);
+        showFragment(timerFragmentOld);
     }
     @Override
     public void showTimer() {
-        if (timerFragment != null) {
+        if (timerFragmentOld != null) {
             return;
         }
-        TimerPresenter timerPresenter = new TimerPresenter();
-        timerPresenter.setRouter(this);
-        timerFragment = new TimerFragment();
-        timerPresenter.setView(timerFragment);
-        bindVP(timerFragment, timerPresenter);
+        TimerPresenterOld timerPresenterOld = new TimerPresenterOld();
+        timerPresenterOld.setRouter(this);
+        timerFragmentOld = new TimerFragmentOld();
+        timerPresenterOld.setView(timerFragmentOld);
+        bindVP(timerFragmentOld, timerPresenterOld);
         flTimer.configurationChanged();
         flTimer.setVisibility(View.VISIBLE);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         flTimer.setLayoutParams(layoutParams);
-        addFragment(R.id.activity_dialog_timer, timerFragment);
-        showFragment(timerFragment);
+        addFragment(R.id.activity_dialog_timer, timerFragmentOld);
+        showFragment(timerFragmentOld);
     }
     @Override
     public void closeTimer() {
-        if (timerFragment != null && timerFragment.isAdded()) {
-            removeFragment(timerFragment);
+        if (timerFragmentOld != null && timerFragmentOld.isAdded()) {
+            removeFragment(timerFragmentOld);
             flTimer.setVisibility(View.GONE);
-            timerFragment = null;
+            timerFragmentOld = null;
         }
     }
 
@@ -2534,7 +2548,9 @@ public class LiveRoomActivity extends LiveRoomBaseActivity implements LiveRoomRo
             //隐藏
             removeFragment(mRedPacketFragment);
             mRedPacketFragment = null;
-            mRedPacketPresenter.unSubscribe();
+            if(mRedPacketPresenter != null){
+                mRedPacketPresenter.unSubscribe();
+            }
             mRedPacketPresenter = null;
         }
     }

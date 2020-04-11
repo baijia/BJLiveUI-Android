@@ -1,5 +1,6 @@
 package com.baijiayun.live.ui.speakpanel
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
@@ -62,6 +63,7 @@ class LocalVideoItem(private val rootView: ViewGroup, speakPresenter: SpeakersCo
     override fun initView() {
     }
 
+    @SuppressLint("SetTextI18n")
     override fun refreshNameTable() {
         val currentUser = liveRoom.currentUser
         when {

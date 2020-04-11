@@ -14,9 +14,9 @@ import com.baijiayun.live.ui.base.BasePadFragment
 import com.baijiayun.live.ui.isMainVideoItem
 import com.baijiayun.live.ui.pptpanel.MyPadPPTView
 import com.baijiayun.live.ui.removeSwitchableFromParent
-import com.baijiayun.live.ui.speakerlist.item.LocalItem
+import com.baijiayun.live.ui.router.Router
+import com.baijiayun.live.ui.router.RouterCode
 import com.baijiayun.live.ui.speakerlist.item.SpeakItem
-import com.baijiayun.live.ui.speakerlist.item.Switchable
 import com.baijiayun.live.ui.speakpanel.LocalVideoItem
 import com.baijiayun.live.ui.speakpanel.RemoteVideoItem
 import com.baijiayun.live.ui.speakpanel.SpeakPresenterBridge
@@ -33,6 +33,11 @@ import kotlinx.android.synthetic.main.layout_item_video.view.*
 /**
  * Created by Shubo on 2019-10-10.
  * 老师视频窗口
+ * 三分屏切换逻辑：
+ * 三分屏本地切换ppt在老师区，全屏区（ppt区域）和发言列表
+ * 老师仅在全屏老师区
+ * 学生仅在发言列表和全屏区
+ * 切换可能产生一次切换和两次切换（老师在全屏，学生把自己切全屏时，ppt要切到发言列表）
  */
 class MainVideoFragment : BasePadFragment() {
     private val presenter by lazy {
@@ -86,36 +91,31 @@ class MainVideoFragment : BasePadFragment() {
         if (liveRoom.currentUser.type != LPConstants.LPUserType.Teacher) {
             return
         }
-        if (!liveRoom.getRecorder<LPRecorder>().isPublishing) {
-            liveRoom.getRecorder<LPRecorder>().publish()
-        }
+        removeAllViews()
         if (checkCameraAndMicPermission()) {
             val localVideoItem = createLocalPlayableItem()
             speakItems[routerViewModel.liveRoom.currentUser.userId] = localVideoItem
+            container.addView(localVideoItem.view)
+            routerViewModel.mainVideoItem.value = localVideoItem
             with(localVideoItem) {
                 setShouldStreamAudio(shouldStreamAudio)
                 setShouldStreamVideo(shouldStreamVideo)
                 refreshPlayable()
             }
-            removeAllViews()
-            container.addView(localVideoItem.view)
-            routerViewModel.mainVideoItem.value = localVideoItem
         }
     }
 
     override fun observeActions() {
-        routerViewModel.actionNavigateToMain.observe(this, Observer {
-            if (it != true) {
-                return@Observer
-            }
-            initSuccess()
-        })
+        compositeDisposable.add(Router.instance.getCacheSubjectByKey<Unit>(RouterCode.ENTER_SUCCESS)
+                .subscribe {
+                    initSuccess()
+                })
     }
 
     private fun showRemoteStatus(isLeave: Boolean) {
         if (isLeave) {
             placeholderItem.item_status_placeholder_iv.setImageResource(R.drawable.ic_pad_leave_room)
-            placeholderItem.item_status_placeholder_tv.text = getString(R.string.pad_leave_room)
+            placeholderItem.item_status_placeholder_tv.text = getString(R.string.pad_leave_room_teacher)
         } else {
             placeholderItem.item_status_placeholder_iv.setImageResource(R.drawable.ic_pad_camera_close)
             placeholderItem.item_status_placeholder_tv.text = getString(R.string.pad_camera_closed)
@@ -178,6 +178,10 @@ class MainVideoFragment : BasePadFragment() {
                     return@Observer
                 }
                 if (routerViewModel.isTeacherIn.value != true) {
+                    val speakItem = speakItems[it.user.userId]
+                    if (speakItem is RemoteVideoItem) {
+                        speakItem.stopStreamingOnly(it)
+                    }
                     return@Observer
                 }
                 val isMixStream = it.user.userId == LPSpeakQueueViewModel.FAKE_MIX_STREAM_USER_ID
@@ -189,7 +193,7 @@ class MainVideoFragment : BasePadFragment() {
                     return@Observer
                 }
                 //合流只显示userId = -1的流，之前播放的流关闭
-                if (routerViewModel.liveRoom.isMixModeOn && !isMixStream) {
+                if (routerViewModel.liveRoom.speakQueueVM.isMixModeOn && !isMixStream) {
                     val speakItem = speakItems[it.user.userId]
                     if (speakItem is RemoteVideoItem) {
                         speakItem.stopStreamingOnly(it)
@@ -197,7 +201,7 @@ class MainVideoFragment : BasePadFragment() {
                     return@Observer
                 }
                 //非合流，之前合流关闭
-                if (!routerViewModel.liveRoom.isMixModeOn && isMixStream) {
+                if (!routerViewModel.liveRoom.speakQueueVM.isMixModeOn && isMixStream) {
                     val speakItem = speakItems[it.user.userId]
                     if (speakItem is RemoteVideoItem) {
                         speakItem.stopStreamingOnly(it)
@@ -205,11 +209,9 @@ class MainVideoFragment : BasePadFragment() {
                     return@Observer
                 }
                 var remoteVideoItem = speakItems[it.user.userId]
-                val mixModelChange = lastMixOn xor routerViewModel.liveRoom.isMixModeOn
+                val mixModelChange = lastMixOn xor routerViewModel.liveRoom.speakQueueVM.isMixModeOn
                 if (remoteVideoItem == null || remoteVideoItem is LocalVideoItem || mixModelChange) {
                     remoteVideoItem = RemoteVideoItem(container, it, presenter)
-                    remoteVideoItem.setZOrderMediaOverlay(true)
-                    lifecycle.addObserver(remoteVideoItem)
                     val myPadPPTView = routerViewModel.pptViewData.value as MyPadPPTView
                     if (mixModelChange && myPadPPTView.pptStatus == MyPadPPTView.PPTStatus.MainVideo) {
                         routerViewModel.switch2FullScreen.value?.run {
@@ -220,13 +222,15 @@ class MainVideoFragment : BasePadFragment() {
                         removeAllViews()
                         container.addView(remoteVideoItem.view)
                     }
+                    remoteVideoItem.setZOrderMediaOverlay(true)
+                    lifecycle.addObserver(remoteVideoItem)
                     speakItems[it.user.userId] = remoteVideoItem
                     routerViewModel.mainVideoItem.value = remoteVideoItem
                 }
                 remoteVideoItem as RemoteVideoItem
                 remoteVideoItem.setMediaModel(it)
                 remoteVideoItem.refreshPlayable()
-                lastMixOn = routerViewModel.liveRoom.isMixModeOn
+                lastMixOn = routerViewModel.liveRoom.speakQueueVM.isMixModeOn
             }
         })
 
@@ -248,17 +252,12 @@ class MainVideoFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.actionWithLocalAVideo.observe(this, Observer {
+        routerViewModel.actionAttachLocalVideo.observe(this, Observer {
             it?.let {
                 if (!liveRoom.isTeacher) {
                     return@Observer
                 }
-                if (it.second) {
-                    attachLocalAudio()
-                } else {
-                    routerViewModel.liveRoom.getRecorder<LPRecorder>().detachAudio()
-                }
-                if (it.first) {
+                if (it) {
                     attachLocalVideo()
                 } else {
                     detachLocalVideo()
@@ -266,7 +265,7 @@ class MainVideoFragment : BasePadFragment() {
             }
         })
 
-        routerViewModel.actionWithAttachLocalAudio.observe(this, Observer {
+        routerViewModel.actionAttachLocalAudio.observe(this, Observer {
             it?.run {
                 if (!liveRoom.isTeacher) {
                     return@run

@@ -15,11 +15,11 @@
         android:progressDrawable="@drawable/pb_layer_webview"
         android:visibility="gone" />
 
-    <WebView
+    <com.baijiayun.livecore.ppt.whiteboard.animppt.LollipopFixedWebView
         android:id="@+id/wv_quiz_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </WebView>
+    </com.baijiayun.livecore.ppt.whiteboard.animppt.LollipopFixedWebView>
 
 </LinearLayout>

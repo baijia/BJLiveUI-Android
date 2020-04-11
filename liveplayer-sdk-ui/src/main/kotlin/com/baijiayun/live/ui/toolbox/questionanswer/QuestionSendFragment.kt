@@ -69,7 +69,7 @@ class QuestionSendFragment : BaseDialogFragment() {
 
         activity?.run {
             val routerViewModel = getViewModel { RouterViewModel() }
-            qaViewModel = getViewModel { QAViewModel(routerViewModel.liveRoom) }
+            qaViewModel = getViewModel { QAViewModel(routerViewModel) }
         }
 
         if(quoteContent.isNotBlank()){

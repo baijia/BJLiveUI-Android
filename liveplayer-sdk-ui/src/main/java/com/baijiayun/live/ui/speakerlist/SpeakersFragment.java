@@ -218,7 +218,7 @@ public class SpeakersFragment extends BaseFragment implements SpeakersContract.V
     public void notifyPresenterDesktopShareAndMedia(boolean isDesktopShareAndMedia) {
         if (!isDesktopShareAndMedia) return;
         Switchable fullScreenItem = routerListener.getFullScreenItem();
-        if (!fullScreenItem.getIdentity().equals(routerListener.getLiveRoom().getTeacherUser().getUserId())) {
+        if (routerListener.getLiveRoom().getTeacherUser() != null && !fullScreenItem.getIdentity().equals(routerListener.getLiveRoom().getTeacherUser().getUserId())) {
             SpeakItem speakItem = positionHelper.getSpeakItemByIdentity(routerListener.getLiveRoom().getTeacherUser().getUserId());
             if (speakItem instanceof RemoteItem) {
                 if (((RemoteItem) speakItem).isVideoClosedByUser()) return;

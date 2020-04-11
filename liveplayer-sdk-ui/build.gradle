@@ -64,11 +64,10 @@ dependencies {
         exclude group: 'com.android.support'
     }
     implementation 'com.google.code.gson:gson:2.8.2'
-    api 'com.baijiayun.live:liveplayer-sdk-core:2.2.0'
+    api 'com.baijiayun.live:liveplayer-sdk-core:2.2.1'
 //    api (project(path: ':liveplayer-sdk-core')){
 //        exclude group:"com.android.support"
 //    }
-
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'

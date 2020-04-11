@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_timer_showy_bg"
+    android:layout_width="133dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_timer_showy_bg_nomal">
+
+    <ImageView
+        android:id="@+id/dialog_timer_showy_logo"
+        android:src="@drawable/timer_showy_logo"
+        android:scaleType="fitCenter"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="13dp"/>
+
+    <TextView
+        android:id="@+id/dialog_timer_showy_time"
+        android:text="00:56"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/live_white"
+        android:layout_toEndOf="@id/dialog_timer_showy_logo"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="15dp"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

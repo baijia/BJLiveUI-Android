@@ -24,5 +24,7 @@ public interface TimerContract {
         void showTimerEnd();
 
         void showTimerPause(boolean isPause);
+
+        void setButtonState(String state);
     }
 }

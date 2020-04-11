@@ -1,29 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <import type="android.view.View" />
+
         <variable
             name="pptviewmodel"
             type="com.baijiayun.live.ui.pptpanel.PPTViewModel" />
     </data>
-    <RelativeLayout
+
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <RelativeLayout
             android:id="@+id/rlSpeakWrapper"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            tools:visibility="invisible">
+            android:layout_width="@dimen/ppt_menu_item_size_width"
+            android:layout_height="@dimen/ppt_menu_item_size_height"
+            android:layout_marginEnd="@dimen/ppt_menu_item_margin_start"
+            android:layout_marginBottom="@dimen/ppt_menu_item_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:visibility="visible">
 
             <com.baijiayun.live.ui.viewsupport.CountdownCircleView
                 android:id="@+id/tvCountDown"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="@dimen/ppt_menu_speak_circle_size_width"
+                android:layout_height="@dimen/ppt_menu_speak_circle_size_height"
                 android:layout_centerInParent="true"
                 android:visibility="invisible" />
 
@@ -31,108 +37,149 @@
                 android:id="@+id/tvSpeakApply"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_centerInParent="true"
                 android:layout_gravity="center"
                 android:background="@drawable/sel_handsup" />
-
         </RelativeLayout>
+
         <ImageView
             android:id="@+id/ivHandsUpImg"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:visibility="@{pptviewmodel.handsupList.size()==0?View.GONE:View.VISIBLE}"
+            android:layout_width="@dimen/ppt_menu_item_size_width"
+            android:layout_height="@dimen/ppt_menu_item_size_height"
+            android:layout_marginEnd="@dimen/ppt_menu_item_margin_start"
+            android:layout_marginBottom="@dimen/ppt_menu_item_margin_bottom"
             android:src="@drawable/ic_handsup"
-            tools:visibility="visible"/>
+            android:visibility="@{pptviewmodel.handsupList.size()==0?View.GONE:View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:visibility="gone" />
+
         <TextView
             android:id="@+id/tvHandsUpCount"
             android:layout_width="12dp"
             android:layout_height="12dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="34dp"
+            android:background="@drawable/shape_circle_red"
+            android:gravity="center"
+            android:text='@{pptviewmodel.handsupList.size()>99?"···":""+pptviewmodel.handsupList.size()}'
             android:textColor="@color/live_white"
             android:textSize="10sp"
-            android:gravity="center"
             android:visibility="@{(pptviewmodel.handsupList.size()==0 || pptviewmodel.hasRead)?View.GONE:View.VISIBLE}"
-            android:text='@{pptviewmodel.handsupList.size()>99?"···":""+pptviewmodel.handsupList.size()}'
-            tools:visibility="visible"
-            android:background="@drawable/shape_circle_red" />
-        <LinearLayout
-            android:id="@+id/llPenMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_rect_ppttoobar_pad"
-            android:gravity="center_vertical"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            app:layout_constraintCircle="@id/ivHandsUpImg"
+            app:layout_constraintCircleAngle="45"
+            app:layout_constraintCircleRadius="16dp"
+            tools:ignore="MissingConstraints"
+            tools:visibility="visible" />
 
-            <CheckedTextView
-                android:id="@+id/tvPen"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/sel_pen_pad" />
-            <TextView
-                android:id="@+id/tvPenClear"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/ic_clear_pad"/>
-
-            <View
-                android:id="@+id/viewDiv"
-                android:layout_width="1dp"
-                android:layout_height="32dp"
-                android:background="@color/live_pad_stroke_grey"/>
-            <TextView
-                android:id="@+id/tvPPTFiles"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/ic_files_pad"/>
-        </LinearLayout>
         <LinearLayout
             android:id="@+id/llAVideo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/ivHandsUpImg"
+            app:layout_goneMarginEnd="@dimen/ppt_menu_item_margin_start"
+            android:layout_marginBottom="@dimen/ppt_menu_item_margin_bottom"
+            tools:visibility="visible">
+
+            <CheckedTextView
+                android:id="@+id/tvAudio"
+                android:layout_width="@dimen/ppt_menu_item_size_width"
+                android:layout_height="@dimen/ppt_menu_item_size_height"
+                android:background="@drawable/sel_audio_pad"
+                android:checked="false" />
 
             <CheckedTextView
                 android:id="@+id/tvVideo"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:checked="false"
-                android:background="@drawable/sel_video_pad"/>
+                android:layout_width="@dimen/ppt_menu_item_size_width"
+                android:layout_height="@dimen/ppt_menu_item_size_height"
+                android:background="@drawable/sel_video_pad"
+                android:checked="false" />
+
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/ivNotice"
+            android:layout_width="@dimen/ppt_menu_item_size_width"
+            android:layout_height="@dimen/ppt_menu_item_size_height"
+            android:src="@drawable/ic_pad_chat_notice"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginStart="@dimen/ppt_menu_item_margin_start"
+            android:layout_marginBottom="@dimen/ppt_menu_item_margin_bottom"
+            />
+
+        <ImageView
+            android:id="@+id/ivQa"
+            android:layout_width="@dimen/ppt_menu_item_size_width"
+            android:layout_height="@dimen/ppt_menu_item_size_height"
+            android:src="@drawable/ic_pad_qa_send_question"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/ivNotice"
+            android:layout_marginBottom="@dimen/ppt_menu_item_margin_bottom"
+            />
+
+        <TextView
+            android:id="@+id/tvQaTip"
+            android:layout_width="@dimen/tab_item_red_point_width"
+            android:layout_height="@dimen/tab_item_red_point_width"
+            android:background="@drawable/shape_circle_red"
+            app:layout_constraintCircle="@id/ivQa"
+            app:layout_constraintCircleAngle="45"
+            app:layout_constraintCircleRadius="16dp"
+            android:visibility="gone"
+            tools:ignore="MissingConstraints"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/llPenMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ppt_menu_item_margin_start"
+            android:layout_marginEnd="@dimen/ppt_menu_item_margin_start"
+            android:paddingStart="@dimen/ppt_menu_item_padding"
+            android:paddingEnd="@dimen/ppt_menu_item_padding"
+            android:background="@drawable/bg_rect_ppttoobar"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
             <CheckedTextView
-                android:id="@+id/tvAudio"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginStart="4dp"
-                android:checked="false"
-                android:background="@drawable/sel_audio_pad"/>
+                android:id="@+id/tvPen"
+                android:layout_width="@dimen/ppt_menu_item_size_width"
+                android:layout_height="@dimen/ppt_menu_item_size_height"
+                android:background="@drawable/sel_pen_pad" />
+
+            <TextView
+                android:id="@+id/tvPenClear"
+                android:layout_width="@dimen/ppt_menu_item_size_width"
+                android:layout_height="@dimen/ppt_menu_item_size_height"
+                android:background="@drawable/ic_clear_pad" />
+            <TextView
+                android:id="@+id/tvPPTFiles"
+                android:layout_width="@dimen/ppt_menu_item_size_width"
+                android:layout_height="@dimen/ppt_menu_item_size_height"
+                android:background="@drawable/ic_files_pad" />
+            <TextView
+                android:id="@+id/tvTimerEntrance"
+                android:layout_width="@dimen/ppt_menu_item_size_width"
+                android:layout_height="@dimen/ppt_menu_item_size_height"
+                android:background="@drawable/ic_timer_pad"/>
         </LinearLayout>
 
         <Button
-            android:layout_width="220dp"
-            android:layout_height="56dp"
-            android:layout_centerInParent="true"
-            android:text="@string/lp_override_class_start"
+            android:layout_width="@dimen/ppt_menu_start_class_width"
+            android:layout_height="@dimen/ppt_menu_start_class_height"
+            android:background="@drawable/ic_start_pad"
             android:gravity="center"
-            android:textColor="@color/live_white"
-            android:textSize="24sp"
-            android:visibility="@{(pptviewmodel.routerViewModel.isClassStarted()||!pptviewmodel.liveRoom.teacher)?View.GONE:View.VISIBLE}"
             android:onClick="@{()->pptviewmodel.startClass()}"
-            android:background="@drawable/ic_start_pad"/>
-    </RelativeLayout>
+            android:text="@string/lp_override_class_start"
+            android:textColor="@color/live_white"
+            android:textSize="@dimen/ppt_menu_start_class_text_size"
+            android:visibility="@{(pptviewmodel.routerViewModel.isClassStarted()||!pptviewmodel.teacherOrAssistant)?View.GONE:View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
 </layout>

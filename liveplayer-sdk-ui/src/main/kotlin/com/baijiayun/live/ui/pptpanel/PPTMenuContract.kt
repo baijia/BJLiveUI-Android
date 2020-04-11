@@ -29,5 +29,7 @@ interface PPTMenuContract {
         fun showSpeakInviteDlg(invite:Int)
 
         fun showForceSpeakDlg(tipRes: Int)
+
+        fun checkCameraAndMicPermission(): Boolean
     }
 }

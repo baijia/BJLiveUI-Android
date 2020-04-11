@@ -25,7 +25,6 @@ class RouterViewModel : ViewModel() {
 
     val action2PPTError = MutableLiveData<Pair<Int, String?>>()
 
-
     var mainVideoItem = MutableLiveData<Switchable>()
 
     val showEvaDlg = MutableLiveData<Boolean>()
@@ -34,23 +33,27 @@ class RouterViewModel : ViewModel() {
 
     val showTimer = MutableLiveData<Pair<Boolean, LPBJTimerModel>>()
 
+    val showTimerShowy = MutableLiveData<Pair<Boolean, LPBJTimerModel>>()
+
     val answerStart = MutableLiveData<LPAnswerModel>()
 
     val answerEnd = MutableLiveData<Boolean>()
 
     val removeAnswer = MutableLiveData<Unit>()
 
-    val actionWithAttachLocalAudio = MutableLiveData<Boolean>()
-
     val notifyLocalPlayableChanged = MutableLiveData<Pair<Boolean, Boolean>>()
 
-    val actionWithLocalAVideo = MutableLiveData<Pair<Boolean, Boolean>>()
+    val notifyRemotePlayableChanged = MutableLiveData<IMediaModel>()
+
+    val actionAttachLocalVideo = MutableLiveData<Boolean>()
+
+    val actionAttachLocalAudio = MutableLiveData<Boolean>()
 
     val notifyCloseRemoteVideo = MutableLiveData<RemoteItem>()
 
     val actionExit = MutableLiveData<Unit>()
 
-    val actionNavigateToMain = MutableLiveData<Boolean>()
+    var actionNavigateToMain = false
 
     val actionShowQuickSwitchPPT = MutableLiveData<Bundle>()
 
@@ -72,7 +75,7 @@ class RouterViewModel : ViewModel() {
 
     val actionShowError = MutableLiveData<LPError>()
 
-    val actionReEnterRoom = MutableLiveData<Boolean>()
+    val actionReEnterRoom = MutableLiveData<Pair<Boolean,Boolean>>()
 
     val actionDismissError = MutableLiveData<Unit>()
 
@@ -111,8 +114,6 @@ class RouterViewModel : ViewModel() {
 
     val speakListCount = MutableLiveData<Int>()
 
-    val notifyRemotePlayableChanged = MutableLiveData<IMediaModel>()
-
     val notifyAward = MutableLiveData<LPInteractionAwardModel>()
 
     val action2Award = MutableLiveData<String>()
@@ -128,6 +129,8 @@ class RouterViewModel : ViewModel() {
     val actionShowSendMessageFragment = MutableLiveData<Boolean>()
 
     val actionShowAnnouncementFragment = MutableLiveData<Boolean>()
+
+    val actionShowQAInteractiveFragment = MutableLiveData<Unit>()
 
     val changeDrawing = MutableLiveData<Boolean>()
 
@@ -152,4 +155,10 @@ class RouterViewModel : ViewModel() {
     var forbidChatUserNums = HashSet<String>()
 
     var invitingUserIds = HashSet<String>()
+
+    var remarkEnable = MutableLiveData<Boolean>()
+
+    val hasNewQa = MutableLiveData<Boolean>()
+    //QA页面是否打开着
+    var isQaOpen = false
 }
